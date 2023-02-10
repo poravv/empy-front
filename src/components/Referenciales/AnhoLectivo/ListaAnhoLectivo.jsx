@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModel from '../TableModel/TableModel';
+import TableModel from '../../TableModel/TableModel';
 import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
@@ -11,10 +11,10 @@ import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { getCurso,deleteCurso, updateCurso } from '../../services/Curso';
+import { getAnhoLectivo,deleteAnhoLectivo, updateAnhoLectivo } from '../../../services/AnhoLectivo';
 
 
-const ListaCurso = ({ token }) => {
+const ListaAnhoLectivo = ({ token }) => {
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
     let fechaActual = new Date();
@@ -28,13 +28,13 @@ const ListaCurso = ({ token }) => {
     
     
     useEffect(() => {
-        getLstCurso();
+        getLstAnhoLectivo();
         // eslint-disable-next-line
     }, []);
 
     
-    const getLstCurso = async () => {
-        const res = await getCurso({token:token,param:'get'});
+    const getLstAnhoLectivo = async () => {
+        const res = await getAnhoLectivo({token:token,param:'get'});
         //console.log(res.body)
         /*En caso de que de error en el server direcciona a login*/
         setData(res.body);
@@ -134,47 +134,47 @@ const ListaCurso = ({ token }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'Cursos');
-        XLSX.writeFile(wb, 'Cursos.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'AnhoLectivos');
+        XLSX.writeFile(wb, 'AnhoLectivos.xlsx')
     }
 
     const handleDelete = async (id) => {
-        await deleteCurso({token:token,param:id})
-        getLstCurso();
+        await deleteAnhoLectivo({token:token,param:id})
+        getLstAnhoLectivo();
     }
 // eslint-disable-next-line
     const handleUpdate = async (newData) => {
         //console.log(newData)
-        await updateCurso({token:token,param:newData.idcurso,json:newData}) 
-        getLstCurso();
+        await updateAnhoLectivo({token:token,param:newData.idanho_lectivo,json:newData}) 
+        getLstAnhoLectivo();
     }
 
     const columns = [
         {
             title: 'id',
-            dataIndex: 'idcurso',
+            dataIndex: 'idanho_lectivo',
             width: '5%',
             editable: false,
-            ...getColumnSearchProps('idcurso'),
+            ...getColumnSearchProps('idanho_lectivo'),
         },
         {
-            title: 'Descripcion',
-            dataIndex: 'descripcion',
+            title: 'Año',
+            dataIndex: 'anho',
             //width: '22%',
             editable: true,
-            ...getColumnSearchProps('descripcion'),
+            ...getColumnSearchProps('anho'),
         },
         {
             title: 'Estado',
             dataIndex: 'estado',
             //width: '7%',
             editable: true,
-            render: (_, { estado, idcurso }) => {
+            render: (_, { estado, idanho_lectivo }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={idcurso} >
+                    <Tag color={color} key={idanho_lectivo} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
@@ -190,7 +190,7 @@ const ListaCurso = ({ token }) => {
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idcurso)}
+                            onClick={() => save(record.idanho_lectivo)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -210,7 +210,7 @@ const ListaCurso = ({ token }) => {
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idcurso)}
+                            onConfirm={() => confirmDel(record.idanho_lectivo)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -229,27 +229,27 @@ const ListaCurso = ({ token }) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idcurso);
+        setEditingKey(record.idanho_lectivo);
     };
 
 
-    const isEditing = (record) => record.idcurso === editingKey;
+    const isEditing = (record) => record.idanho_lectivo === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idcurso) => {
+    const confirmDel = (idanho_lectivo) => {
         message.success('Procesando');
-        handleDelete(idcurso);
+        handleDelete(idanho_lectivo);
     };
 
-    const save = async (idcurso) => {
+    const save = async (idanho_lectivo) => {
 
         try {
             const row = await form.validateFields();
             const newData = [...data];
-            const index = newData.findIndex((item) => idcurso === item.idcurso);
+            const index = newData.findIndex((item) => idanho_lectivo === item.idanho_lectivo);
 
             if (index > -1) {
 
@@ -296,15 +296,15 @@ const ListaCurso = ({ token }) => {
 
     return (
         <>
-            <h3>Cursos</h3>
+            <h3>Año Lectivo</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
 
-                <Button type="primary" onClick={() => navigate('/crearcurso')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate('/crearanhoLectivo')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idcurso'} />
+            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idanho_lectivo'} />
         </>
     )
 }
-export default ListaCurso
+export default ListaAnhoLectivo

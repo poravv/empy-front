@@ -1,46 +1,49 @@
+//import axios from 'axios'
 import { useState, useEffect, useRef } from 'react'
-//import { Logout } from '../Utils/Logout';
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModel from '../TableModel/TableModel';
+import TableModel from '../../TableModel/TableModel';
 import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Input, Space, Image } from 'antd';
+import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { getSucursal,deleteSucursal, updateSucursal } from '../../services/Sucursal';
+import { getCiudad,deleteCiudad, updateCiudad } from '../../../services/Ciudad';
 
-import { Buffer } from 'buffer'
 
-let fechaActual = new Date();
-const ListaSucursal = ({ token,idsucursal }) => {
-
+const ListaCiudad = ({ token }) => {
+    //console.log(token)
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
-    const [editingKey, setEditingKey] = useState('');
+    let fechaActual = new Date();
     const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
-    //---------------------------------------------------
+    const [editingKey, setEditingKey] = useState('');
     //Datos de buscador
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
     const navigate = useNavigate();
-    //---------------------------------------------------
-
-
+    
+    
     useEffect(() => {
-        getLstSucursal();
+        getLstCiudad();
         // eslint-disable-next-line
     }, []);
 
-    const getLstSucursal = async () => {
-        const res = await getSucursal({token:token,param:'get'});
-        //console.log(res.body);
-        setData(res.body);
-
+    
+    const getLstCiudad = async () => {
+        try{
+            const res = await getCiudad({token:token,param:'get'});
+            setData(res.body);
+        }catch(e){
+            console.log(e);
+        }
+        //console.log(res.body)
+        /*En caso de que de error en el server direcciona a login*/
+        
     }
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -141,103 +144,47 @@ const ListaSucursal = ({ token,idsucursal }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'Vehiculos');
-        XLSX.writeFile(wb, 'Vehiculos.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'Ciudades');
+        XLSX.writeFile(wb, 'Ciudades.xlsx')
     }
 
     const handleDelete = async (id) => {
-        await deleteSucursal({token:token,param:id})
-        getLstSucursal();
+        await deleteCiudad({token:token,param:id})
+        getLstCiudad();
     }
-
+// eslint-disable-next-line
     const handleUpdate = async (newData) => {
-        //console.log('Entra en update');
         //console.log(newData)
-        await updateSucursal({token:token,param:newData.idsucursal,json:newData}) 
-        getLstSucursal();
+        await updateCiudad({token:token,param:newData.idciudad,json:newData}) 
+        getLstCiudad();
     }
-
 
     const columns = [
         {
             title: 'id',
-            dataIndex: 'idsucursal',
-            //width: '5%',
-            editable: false,
-            ...getColumnSearchProps('idsucursal'),
-        },
-        {
-            title: 'Sucursal',
-            dataIndex: 'sucursal',
-            //width: '12%',
-            editable: true,
-        },
-        {
-            title: 'Ciudad',
             dataIndex: 'idciudad',
-            //width: '15%',
-            editable: true,
-            render: (_, { Ciudad }) => {
-                //console.log(Ciudad)
-                //return true;
-                if(Ciudad){
-                    return (
-                        Ciudad.descripcion
-                    );
-                }else{
-                    return true;
-                }
-                
-            },
-            //...getColumnSearchProps('proveedor'),
+            width: '5%',
+            editable: false,
+            ...getColumnSearchProps('idciudad'),
         },
         {
-            title: 'Ruc',
-            dataIndex: 'ruc',
+            title: 'Descripcion',
+            dataIndex: 'descripcion',
             //width: '22%',
             editable: true,
-            ...getColumnSearchProps('ruc'),
+            ...getColumnSearchProps('descripcion'),
         },
-        {
-            title: 'Imagen',
-            dataIndex: 'img',
-            //width: '8%',
-            editable: true,
-            render: (_, { img }) => {
-                if (img && typeof img !== "string") {
-                    //console.log(typeof img);
-                    const asciiTraducido = Buffer.from(img.data).toString('ascii');
-                    //console.log(asciiTraducido);
-                    if (asciiTraducido) {
-                        return (
-                            <Image
-                                style={{ border: `1px solid gray`, borderRadius: `4px` }}
-                                alt="imagen"
-                                //preview={false}
-                                //style={{ width: '50%',margin:`0px`,textAlign:`center` }}
-                                src={asciiTraducido}
-                            />
-                        );
-                    } else {
-                        return null
-                    }
-                } else {
-                    return null
-                }
-            },
-        },
-        
         {
             title: 'Estado',
             dataIndex: 'estado',
-            //width: '10%',
+            //width: '7%',
             editable: true,
-            render: (_, { estado, idsucursal }) => {
+            render: (_, { estado, idciudad }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={idsucursal} >
+                    <Tag color={color} key={idciudad} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
@@ -247,11 +194,13 @@ const ListaSucursal = ({ token,idsucursal }) => {
             title: 'Accion',
             dataIndex: 'operacion',
             render: (_, record) => {
+
                 const editable = isEditing(record);
+
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idsucursal, record)}
+                            onClick={() => save(record.idciudad)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -264,13 +213,14 @@ const ListaSucursal = ({ token,idsucursal }) => {
                     </span>
                 ) : (
                     <>
+
                         <Typography.Link style={{ margin: `5px` }} disabled={editingKey !== ''} onClick={() => edit(record)}>
                             Editar
                         </Typography.Link>
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idsucursal)}
+                            onConfirm={() => confirmDel(record.idciudad)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -278,6 +228,7 @@ const ListaSucursal = ({ token,idsucursal }) => {
                                 Borrar
                             </Typography.Link>
                         </Popconfirm>
+
                     </>
                 );
             },
@@ -288,49 +239,42 @@ const ListaSucursal = ({ token,idsucursal }) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idsucursal);
+        setEditingKey(record.idciudad);
     };
 
 
-    const isEditing = (record) => record.idsucursal === editingKey;
+    const isEditing = (record) => record.idciudad === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idsucursal) => {
+    const confirmDel = (idciudad) => {
         message.success('Procesando');
-        handleDelete(idsucursal);
+        handleDelete(idciudad);
     };
 
-    const save = async (idsucursal, record) => {
+    const save = async (idciudad) => {
 
         try {
             const row = await form.validateFields();
             const newData = [...data];
-            const index = newData.findIndex((item) => idsucursal === item.idsucursal);
+            const index = newData.findIndex((item) => idciudad === item.idciudad);
 
             if (index > -1) {
-                const item = newData[index];
-                //console.log(newData);
 
+                const item = newData[index];
                 newData.splice(index, 1, {
                     ...item,
                     ...row,
                 });
 
-                if (record.idsucursal === item.idsucursal) {
-                    //console.log('Entra en asignacion',record.img);
-                    newData[index].img = record.img;
-                }
-
                 newData[index].fecha_upd = strFecha;
-
                 //console.log(newData);
-
                 handleUpdate(newData[index]);
                 setData(newData);
                 setEditingKey('');
+
                 message.success('Registro actualizado');
             } else {
                 newData.push(row);
@@ -362,14 +306,15 @@ const ListaSucursal = ({ token,idsucursal }) => {
 
     return (
         <>
-            <h3>Playa disponible</h3>
+            <h3>Ciudades</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
-                <Button type="primary" onClick={() => navigate('/crearsucursal')} >{<PlusOutlined />} Nuevo</Button>
+
+                <Button type="primary" onClick={() => navigate('/crearciudad')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idsucursal'} />
+            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idciudad'} />
         </>
     )
 }
-export default ListaSucursal
+export default ListaCiudad

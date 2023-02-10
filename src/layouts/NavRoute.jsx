@@ -1,20 +1,24 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-//Importamos componentes creados
-import ListaCiudad from '../components/Ciudad/ListaCiudad';
-import NuevoCiudad from '../components/Ciudad/NuevoCiudad';
 
-import ListaMateria from '../components/Materia/ListaMateria';
-import NuevaMateria from '../components/Materia/NuevaMateria';
-import ListaDocumentos from '../components/Documentos/ListaDocumentos';
-import NuevoDocumentos from '../components/Documentos/NuevoDocumentos';
-
-import ListaCurso from '../components/Curso/ListaCurso';
-import NuevoCurso from '../components/Curso/NuevoCurso';
+import ListaCiudad from '../components/Referenciales/Ciudad/ListaCiudad';
+import NuevoCiudad from '../components/Referenciales/Ciudad/NuevoCiudad';
+import ListaMateria from '../components/Referenciales/Materia/ListaMateria';
+import NuevaMateria from '../components/Referenciales/Materia/NuevaMateria';
+import ListaDocumentos from '../components/Referenciales/Documentos/ListaDocumentos';
+import NuevoDocumentos from '../components/Referenciales/Documentos/NuevoDocumentos';
+import ListaCurso from '../components/Referenciales/Curso/ListaCurso';
+import NuevoCurso from '../components/Referenciales/Curso/NuevoCurso';
+import ListaTurno from '../components/Referenciales/Turno/ListaTurno';
+import NuevoTurno from '../components/Referenciales/Turno/NuevoTurno';
+import ListaGradosArma from '../components/Referenciales/GradosArma/ListaGradosArma';
+import NuevoGradosArma from '../components/Referenciales/GradosArma/NuevaGradosArma';
+import ListaAnhoLectivo from '../components/Referenciales/AnhoLectivo/ListaAnhoLectivo';
+import NuevoAnhoLectivo from '../components/Referenciales/AnhoLectivo/NuevoAnhoLectivo';
+import NuevaSucursal from '../components/Referenciales/Sucursal/NuevaSucursal';
+import ListaSucursal from '../components/Referenciales/Sucursal/ListaSucursal';
+import ListaTarjeta from '../components/Referenciales/Sucursal/ListaTarjeta';
 
 import Inicio from '../components/Inicio';
-import NuevaSucursal from '../components/Sucursal/NuevaSucursal';
-import ListaSucursal from '../components/Sucursal/ListaSucursal';
-import ListaTarjeta from '../components/Sucursal/ListaTarjeta';
 import ListaVenta from '../components/Venta/ListaVenta';
 import NuevaVenta from '../components/Venta/NuevaVenta';
 import AppBar from './AppBar';
@@ -25,8 +29,6 @@ import ReportePlaya from '../components/Reportes/ReportePlaya';
 import ListaInstructores from '../components/Instructores/ListaInstructores';
 import NuevoInstructores from '../components/Instructores/NuevoInstructores';
 import Informes from '../components/Reportes/Informes';
-import ListaTurno from '../components/Turno/ListaTurno';
-import NuevoTurno from '../components/Turno/NuevoTurno';
 import ListaPlan from '../components/Planificacion/ListaPlafinicacion';
 import NuevoPlan from '../components/Planificacion/NuevaPlanificacion';
 import ListaConvocatoria from '../components/Convocatoria/ListaConvocatoria';
@@ -35,10 +37,6 @@ import ListaCursosH from '../components/CursosH/ListaCursosH';
 import ListaAsistencia from '../components/Asistencia/ListaAsistencia';
 import ListaFalta from '../components/Faltas/ListaFaltas';
 import NuevoFalta from '../components/Faltas/NuevaFalta';
-import ListaAnhoLectivo from '../components/AnhoLectivo/ListaAnhoLectivo';
-import NuevoAnhoLectivo from '../components/AnhoLectivo/NuevoAnhoLectivo';
-import ListaGradosArma from '../components/GradosArma/ListaGradosArma';
-import NuevoGradosArma from '../components/GradosArma/NuevaGradosArma';
 
 function NavRoute({ usuario,sucursal }) {
   /*if(sucursal){

@@ -7,7 +7,7 @@ import {
 import { useNavigate } from "react-router-dom";
 //import axios from "axios";
 import { Button, Form, Input, DatePicker } from 'antd';
-import Buscador from '../Buscador/Buscador';
+import Buscador from '../Utils/Buscador/Buscador';
 import { Row, Col, message } from 'antd';
 import { IoTrashOutline } from 'react-icons/io5';
 import Table from 'react-bootstrap/Table';

@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModel from '../TableModel/TableModel';
+import TableModel from '../../TableModel/TableModel';
 import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
@@ -11,10 +11,10 @@ import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { getDocumentos,deleteDocumentos, updateDocumentos } from '../../services/Documentos';
+import { getMateria,deleteMateria, updateMateria } from '../../../services/Materia';
 
 
-const ListaDocumentos = ({ token }) => {
+const ListaMateria = ({ token }) => {
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
     let fechaActual = new Date();
@@ -28,13 +28,13 @@ const ListaDocumentos = ({ token }) => {
     
     
     useEffect(() => {
-        getLstDocumentos();
+        getLstMateria();
         // eslint-disable-next-line
     }, []);
 
     
-    const getLstDocumentos = async () => {
-        const res = await getDocumentos({token:token,param:'get'});
+    const getLstMateria = async () => {
+        const res = await getMateria({token:token,param:'get'});
         //console.log(res.body)
         /*En caso de que de error en el server direcciona a login*/
         setData(res.body);
@@ -134,28 +134,28 @@ const ListaDocumentos = ({ token }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'Documentoss');
-        XLSX.writeFile(wb, 'Documentoss.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'Materiaes');
+        XLSX.writeFile(wb, 'Materiaes.xlsx')
     }
 
     const handleDelete = async (id) => {
-        await deleteDocumentos({token:token,param:id})
-        getLstDocumentos();
+        await deleteMateria({token:token,param:id})
+        getLstMateria();
     }
 // eslint-disable-next-line
     const handleUpdate = async (newData) => {
         //console.log(newData)
-        await updateDocumentos({token:token,param:newData.iddocumentos,json:newData}) 
-        getLstDocumentos();
+        await updateMateria({token:token,param:newData.idmateria,json:newData}) 
+        getLstMateria();
     }
 
     const columns = [
         {
             title: 'id',
-            dataIndex: 'iddocumentos',
+            dataIndex: 'idmateria',
             width: '5%',
             editable: false,
-            ...getColumnSearchProps('iddocumentos'),
+            ...getColumnSearchProps('idmateria'),
         },
         {
             title: 'Descripcion',
@@ -165,16 +165,23 @@ const ListaDocumentos = ({ token }) => {
             ...getColumnSearchProps('descripcion'),
         },
         {
+            title: 'Observacion',
+            dataIndex: 'observacion',
+            //width: '22%',
+            editable: true,
+            ...getColumnSearchProps('observacion'),
+        },
+        {
             title: 'Estado',
             dataIndex: 'estado',
             //width: '7%',
             editable: true,
-            render: (_, { estado, iddocumentos }) => {
+            render: (_, { estado, idmateria }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={iddocumentos} >
+                    <Tag color={color} key={idmateria} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
@@ -190,7 +197,7 @@ const ListaDocumentos = ({ token }) => {
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.iddocumentos)}
+                            onClick={() => save(record.idmateria)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -210,7 +217,7 @@ const ListaDocumentos = ({ token }) => {
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.iddocumentos)}
+                            onConfirm={() => confirmDel(record.idmateria)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -229,27 +236,27 @@ const ListaDocumentos = ({ token }) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.iddocumentos);
+        setEditingKey(record.idmateria);
     };
 
 
-    const isEditing = (record) => record.iddocumentos === editingKey;
+    const isEditing = (record) => record.idmateria === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (iddocumentos) => {
+    const confirmDel = (idmateria) => {
         message.success('Procesando');
-        handleDelete(iddocumentos);
+        handleDelete(idmateria);
     };
 
-    const save = async (iddocumentos) => {
+    const save = async (idmateria) => {
 
         try {
             const row = await form.validateFields();
             const newData = [...data];
-            const index = newData.findIndex((item) => iddocumentos === item.iddocumentos);
+            const index = newData.findIndex((item) => idmateria === item.idmateria);
 
             if (index > -1) {
 
@@ -296,15 +303,15 @@ const ListaDocumentos = ({ token }) => {
 
     return (
         <>
-            <h3>Documentos</h3>
+            <h3>Materiaes</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
 
-                <Button type="primary" onClick={() => navigate('/creardocumentos')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate('/crearmateria')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'iddocumentos'} />
+            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idmateria'} />
         </>
     )
 }
-export default ListaDocumentos
+export default ListaMateria

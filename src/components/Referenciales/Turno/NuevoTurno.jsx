@@ -4,30 +4,29 @@ import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import React from 'react';
 import { Button, Form, Input } from 'antd';
-import { createGradosArma } from '../../services/GradosArma';
+import { createTurno } from '../../../services/Turno';
 
-function NuevoGradosArma({ token }) {
+function NuevoTurno({ token }) {
 
     //Parte de nuevo registro por modal
     const [descripcion, setDescripcion] = useState('');
-    const [observacion, setObservacion] = useState('');
     const navigate = useNavigate();
     //procedimiento para actualizar
     const create = async (e) => {
         //e.preventDefault();
-        await createGradosArma({ token: token, json: { descripcion: descripcion,observacion:observacion, estado: "AC" } });
-        navigate('/gradosArma');
+        await createTurno({ token: token, json: { descripcion: descripcion, estado: "AC" } });
+        navigate('/turno');
     }
 
     const btnCancelar = (e) => {
         e.preventDefault();
-        navigate('/gradosArma');
+        navigate('/turno');
     }
 
     return (
         <div >
             <div style={{ marginBottom: `20px` }}>
-                <h2>Nuevo Rango</h2>
+                <h2>Nueva turno</h2>
             </div>
             <Form
                 name="basic"
@@ -39,11 +38,8 @@ function NuevoGradosArma({ token }) {
                 onFinishFailed={create}
                 autoComplete="off" >
 
-                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue gradosArma', },]}>
+                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue turno', },]}>
                     <Input placeholder='Descripcion' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
-                </Form.Item>
-                <Form.Item name="obaservacion" rules={[{ required: false},]}>
-                    <Input placeholder='Observacion' value={observacion} onChange={(e) => setObservacion(e.target.value)} />
                 </Form.Item>
                 <Form.Item
                     style={{ margin: `20px` }}>
@@ -59,7 +55,7 @@ function NuevoGradosArma({ token }) {
     );
 }
 
-export default NuevoGradosArma;
+export default NuevoTurno;
 
 /*
 

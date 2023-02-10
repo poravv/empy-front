@@ -2,7 +2,7 @@
 import { useState,useEffect } from 'react'
 import { Form, Input, InputNumber, Table, Select } from 'antd';
 import { Spin } from 'antd';
-import Buscador from '../Buscador/Buscador';
+import Buscador from '../Utils/Buscador/Buscador';
 import UploadFile from '../Utils/Upload';
 import { Buffer } from 'buffer';
 import { getCiudad } from '../../services/Ciudad';

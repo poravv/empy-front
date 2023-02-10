@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 //import axios from "axios";
 import React from 'react';
 import { Button, Form, Input,DatePicker } from 'antd';
-import Buscador from '../Buscador/Buscador';
+import Buscador from '../Utils/Buscador/Buscador';
 
 const data = [
     { idpersona: 1, documento: '3123456', nombre:`Andres`,apellido:`Vera`},

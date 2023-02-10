@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModel from '../TableModel/TableModel';
+import TableModel from '../../TableModel/TableModel';
 import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
@@ -11,10 +11,10 @@ import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { getTurno,deleteTurno, updateTurno } from '../../services/Turno';
+import { getCurso,deleteCurso, updateCurso } from '../../../services/Curso';
 
 
-const ListaTurno = ({ token }) => {
+const ListaCurso = ({ token }) => {
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
     let fechaActual = new Date();
@@ -28,13 +28,13 @@ const ListaTurno = ({ token }) => {
     
     
     useEffect(() => {
-        getLstTurno();
+        getLstCurso();
         // eslint-disable-next-line
     }, []);
 
     
-    const getLstTurno = async () => {
-        const res = await getTurno({token:token,param:'get'});
+    const getLstCurso = async () => {
+        const res = await getCurso({token:token,param:'get'});
         //console.log(res.body)
         /*En caso de que de error en el server direcciona a login*/
         setData(res.body);
@@ -134,28 +134,28 @@ const ListaTurno = ({ token }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'Turnos');
-        XLSX.writeFile(wb, 'Turnos.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'Cursos');
+        XLSX.writeFile(wb, 'Cursos.xlsx')
     }
 
     const handleDelete = async (id) => {
-        await deleteTurno({token:token,param:id})
-        getLstTurno();
+        await deleteCurso({token:token,param:id})
+        getLstCurso();
     }
 // eslint-disable-next-line
     const handleUpdate = async (newData) => {
         //console.log(newData)
-        await updateTurno({token:token,param:newData.idturno,json:newData}) 
-        getLstTurno();
+        await updateCurso({token:token,param:newData.idcurso,json:newData}) 
+        getLstCurso();
     }
 
     const columns = [
         {
             title: 'id',
-            dataIndex: 'idturno',
+            dataIndex: 'idcurso',
             width: '5%',
             editable: false,
-            ...getColumnSearchProps('idturno'),
+            ...getColumnSearchProps('idcurso'),
         },
         {
             title: 'Descripcion',
@@ -169,12 +169,12 @@ const ListaTurno = ({ token }) => {
             dataIndex: 'estado',
             //width: '7%',
             editable: true,
-            render: (_, { estado, idturno }) => {
+            render: (_, { estado, idcurso }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={idturno} >
+                    <Tag color={color} key={idcurso} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
@@ -190,7 +190,7 @@ const ListaTurno = ({ token }) => {
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idturno)}
+                            onClick={() => save(record.idcurso)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -210,7 +210,7 @@ const ListaTurno = ({ token }) => {
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idturno)}
+                            onConfirm={() => confirmDel(record.idcurso)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -229,27 +229,27 @@ const ListaTurno = ({ token }) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idturno);
+        setEditingKey(record.idcurso);
     };
 
 
-    const isEditing = (record) => record.idturno === editingKey;
+    const isEditing = (record) => record.idcurso === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idturno) => {
+    const confirmDel = (idcurso) => {
         message.success('Procesando');
-        handleDelete(idturno);
+        handleDelete(idcurso);
     };
 
-    const save = async (idturno) => {
+    const save = async (idcurso) => {
 
         try {
             const row = await form.validateFields();
             const newData = [...data];
-            const index = newData.findIndex((item) => idturno === item.idturno);
+            const index = newData.findIndex((item) => idcurso === item.idcurso);
 
             if (index > -1) {
 
@@ -296,15 +296,15 @@ const ListaTurno = ({ token }) => {
 
     return (
         <>
-            <h3>Turnos</h3>
+            <h3>Cursos</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
 
-                <Button type="primary" onClick={() => navigate('/crearturno')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate('/crearcurso')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idturno'} />
+            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idcurso'} />
         </>
     )
 }
-export default ListaTurno
+export default ListaCurso

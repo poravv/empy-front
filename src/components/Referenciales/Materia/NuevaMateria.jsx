@@ -4,29 +4,30 @@ import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import React from 'react';
 import { Button, Form, Input } from 'antd';
-import { createAnhoLectivo } from '../../services/AnhoLectivo';
+import { createMateria } from '../../../services/Materia';
 
-function NuevoAnhoLectivo({ token }) {
+function NuevoMateria({ token }) {
 
     //Parte de nuevo registro por modal
-    const [anho, setDescripcion] = useState('');
+    const [descripcion, setDescripcion] = useState('');
+    const [observacion, setObservacion] = useState('');
     const navigate = useNavigate();
     //procedimiento para actualizar
     const create = async (e) => {
         //e.preventDefault();
-        await createAnhoLectivo({ token: token, json: { anho: anho, estado: "AC" } });
-        navigate('/anhoLectivo');
+        await createMateria({ token: token, json: { descripcion: descripcion,observacion:observacion, estado: "AC" } });
+        navigate('/materia');
     }
 
     const btnCancelar = (e) => {
         e.preventDefault();
-        navigate('/anhoLectivo');
+        navigate('/materia');
     }
 
     return (
         <div >
             <div style={{ marginBottom: `20px` }}>
-                <h2>Nuevo</h2>
+                <h2>Nueva materia</h2>
             </div>
             <Form
                 name="basic"
@@ -36,10 +37,14 @@ function NuevoAnhoLectivo({ token }) {
                 initialValues={{ remember: true, }}
                 onFinish={create}
                 onFinishFailed={create}
-                autoComplete="off" >
+                autoComplete="off"
+            >
 
-                <Form.Item name="anho" rules={[{ required: true, message: 'Cargue anhoLectivo', },]}>
-                    <Input placeholder='Año' value={anho} onChange={(e) => setDescripcion(e.target.value)} />
+                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue materia', },]}>
+                    <Input placeholder='Descripcion' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+                </Form.Item>
+                <Form.Item name="obaservacion" rules={[{ required: false},]}>
+                    <Input placeholder='Observacion' value={observacion} onChange={(e) => setObservacion(e.target.value)} />
                 </Form.Item>
                 <Form.Item
                     style={{ margin: `20px` }}>
@@ -55,7 +60,7 @@ function NuevoAnhoLectivo({ token }) {
     );
 }
 
-export default NuevoAnhoLectivo;
+export default NuevoMateria;
 
 /*
 

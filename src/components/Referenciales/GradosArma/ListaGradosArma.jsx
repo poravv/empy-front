@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModel from '../TableModel/TableModel';
+import TableModel from '../../TableModel/TableModel';
 import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
@@ -11,10 +11,10 @@ import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { getMateria,deleteMateria, updateMateria } from '../../services/Materia';
+import { getGradosArma,deleteGradosArma, updateGradosArma } from '../../../services/GradosArma';
 
 
-const ListaMateria = ({ token }) => {
+const ListaGradosArma = ({ token }) => {
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
     let fechaActual = new Date();
@@ -28,13 +28,13 @@ const ListaMateria = ({ token }) => {
     
     
     useEffect(() => {
-        getLstMateria();
+        getLstGradosArma();
         // eslint-disable-next-line
     }, []);
 
     
-    const getLstMateria = async () => {
-        const res = await getMateria({token:token,param:'get'});
+    const getLstGradosArma = async () => {
+        const res = await getGradosArma({token:token,param:'get'});
         //console.log(res.body)
         /*En caso de que de error en el server direcciona a login*/
         setData(res.body);
@@ -134,28 +134,28 @@ const ListaMateria = ({ token }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'Materiaes');
-        XLSX.writeFile(wb, 'Materiaes.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'GradosArmaes');
+        XLSX.writeFile(wb, 'GradosArmaes.xlsx')
     }
 
     const handleDelete = async (id) => {
-        await deleteMateria({token:token,param:id})
-        getLstMateria();
+        await deleteGradosArma({token:token,param:id})
+        getLstGradosArma();
     }
 // eslint-disable-next-line
     const handleUpdate = async (newData) => {
         //console.log(newData)
-        await updateMateria({token:token,param:newData.idmateria,json:newData}) 
-        getLstMateria();
+        await updateGradosArma({token:token,param:newData.idgrados_arma,json:newData}) 
+        getLstGradosArma();
     }
 
     const columns = [
         {
             title: 'id',
-            dataIndex: 'idmateria',
+            dataIndex: 'idgrados_arma',
             width: '5%',
             editable: false,
-            ...getColumnSearchProps('idmateria'),
+            ...getColumnSearchProps('idgrados_arma'),
         },
         {
             title: 'Descripcion',
@@ -176,12 +176,12 @@ const ListaMateria = ({ token }) => {
             dataIndex: 'estado',
             //width: '7%',
             editable: true,
-            render: (_, { estado, idmateria }) => {
+            render: (_, { estado, idgrados_arma }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={idmateria} >
+                    <Tag color={color} key={idgrados_arma} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
@@ -197,7 +197,7 @@ const ListaMateria = ({ token }) => {
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idmateria)}
+                            onClick={() => save(record.idgrados_arma)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -217,7 +217,7 @@ const ListaMateria = ({ token }) => {
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idmateria)}
+                            onConfirm={() => confirmDel(record.idgrados_arma)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -236,27 +236,27 @@ const ListaMateria = ({ token }) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idmateria);
+        setEditingKey(record.idgrados_arma);
     };
 
 
-    const isEditing = (record) => record.idmateria === editingKey;
+    const isEditing = (record) => record.idgrados_arma === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idmateria) => {
+    const confirmDel = (idgrados_arma) => {
         message.success('Procesando');
-        handleDelete(idmateria);
+        handleDelete(idgrados_arma);
     };
 
-    const save = async (idmateria) => {
+    const save = async (idgrados_arma) => {
 
         try {
             const row = await form.validateFields();
             const newData = [...data];
-            const index = newData.findIndex((item) => idmateria === item.idmateria);
+            const index = newData.findIndex((item) => idgrados_arma === item.idgrados_arma);
 
             if (index > -1) {
 
@@ -303,15 +303,15 @@ const ListaMateria = ({ token }) => {
 
     return (
         <>
-            <h3>Materiaes</h3>
+            <h3>Rangos</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
 
-                <Button type="primary" onClick={() => navigate('/crearmateria')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate('/creargradosArma')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idmateria'} />
+            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idgrados_arma'} />
         </>
     )
 }
-export default ListaMateria
+export default ListaGradosArma

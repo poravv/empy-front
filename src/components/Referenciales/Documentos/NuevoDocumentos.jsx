@@ -4,9 +4,9 @@ import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import React from 'react';
 import { Button, Form, Input } from 'antd';
-import { createCurso } from '../../services/Curso';
+import { createDocumentos } from '../../../services/Documentos';
 
-function NuevoCurso({ token }) {
+function NuevoDocumentos({ token }) {
 
     //Parte de nuevo registro por modal
     const [descripcion, setDescripcion] = useState('');
@@ -14,19 +14,19 @@ function NuevoCurso({ token }) {
     //procedimiento para actualizar
     const create = async (e) => {
         //e.preventDefault();
-        await createCurso({ token: token, json: { descripcion: descripcion, estado: "AC" } });
-        navigate('/curso');
+        await createDocumentos({ token: token, json: { descripcion: descripcion, estado: "AC" } });
+        navigate('/documentos');
     }
 
     const btnCancelar = (e) => {
         e.preventDefault();
-        navigate('/curso');
+        navigate('/documentos');
     }
 
     return (
         <div >
             <div style={{ marginBottom: `20px` }}>
-                <h2>Nuevo curso</h2>
+                <h2>Nuevo documento</h2>
             </div>
             <Form
                 name="basic"
@@ -38,7 +38,7 @@ function NuevoCurso({ token }) {
                 onFinishFailed={create}
                 autoComplete="off" >
 
-                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue curso', },]}>
+                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue documentos', },]}>
                     <Input placeholder='Descripcion' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
                 </Form.Item>
                 <Form.Item
@@ -55,7 +55,7 @@ function NuevoCurso({ token }) {
     );
 }
 
-export default NuevoCurso;
+export default NuevoDocumentos;
 
 /*
 

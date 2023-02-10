@@ -4,29 +4,30 @@ import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import React from 'react';
 import { Button, Form, Input } from 'antd';
-import { createDocumentos } from '../../services/Documentos';
+import { createGradosArma } from '../../../services/GradosArma';
 
-function NuevoDocumentos({ token }) {
+function NuevoGradosArma({ token }) {
 
     //Parte de nuevo registro por modal
     const [descripcion, setDescripcion] = useState('');
+    const [observacion, setObservacion] = useState('');
     const navigate = useNavigate();
     //procedimiento para actualizar
     const create = async (e) => {
         //e.preventDefault();
-        await createDocumentos({ token: token, json: { descripcion: descripcion, estado: "AC" } });
-        navigate('/documentos');
+        await createGradosArma({ token: token, json: { descripcion: descripcion,observacion:observacion, estado: "AC" } });
+        navigate('/gradosArma');
     }
 
     const btnCancelar = (e) => {
         e.preventDefault();
-        navigate('/documentos');
+        navigate('/gradosArma');
     }
 
     return (
         <div >
             <div style={{ marginBottom: `20px` }}>
-                <h2>Nuevo documento</h2>
+                <h2>Nuevo Rango</h2>
             </div>
             <Form
                 name="basic"
@@ -38,8 +39,11 @@ function NuevoDocumentos({ token }) {
                 onFinishFailed={create}
                 autoComplete="off" >
 
-                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue documentos', },]}>
+                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue gradosArma', },]}>
                     <Input placeholder='Descripcion' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+                </Form.Item>
+                <Form.Item name="obaservacion" rules={[{ required: false},]}>
+                    <Input placeholder='Observacion' value={observacion} onChange={(e) => setObservacion(e.target.value)} />
                 </Form.Item>
                 <Form.Item
                     style={{ margin: `20px` }}>
@@ -55,7 +59,7 @@ function NuevoDocumentos({ token }) {
     );
 }
 
-export default NuevoDocumentos;
+export default NuevoGradosArma;
 
 /*
 

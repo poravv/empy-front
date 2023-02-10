@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import React from 'react';
 import { Button, Form, Input, message, Row } from 'antd';
-import Buscador from '../Buscador/Buscador';
-import UploadFile from '../Utils/Upload';
-import { getCiudad } from '../../services/Ciudad';
-import { createSucursal } from '../../services/Sucursal';
+import Buscador from '../../Utils/Buscador/Buscador';
+import UploadFile from '../../Utils/Upload';
+import { getCiudad } from '../../../services/Ciudad';
+import { createSucursal } from '../../../services/Sucursal';
 const { TextArea } = Input;
 
 function NuevoSucursal({ token }) {

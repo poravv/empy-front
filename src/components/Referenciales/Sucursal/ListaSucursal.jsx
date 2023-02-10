@@ -1,43 +1,46 @@
-//import axios from 'axios'
 import { useState, useEffect, useRef } from 'react'
+//import { Logout } from '../Utils/Logout';
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModel from '../TableModel/TableModel';
+import TableModel from '../../TableModel/TableModel';
 import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Input, Space } from 'antd';
+import { Button, Input, Space, Image } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { getGradosArma,deleteGradosArma, updateGradosArma } from '../../services/GradosArma';
+import { getSucursal,deleteSucursal, updateSucursal } from '../../../services/Sucursal';
 
+import { Buffer } from 'buffer'
 
-const ListaGradosArma = ({ token }) => {
+let fechaActual = new Date();
+const ListaSucursal = ({ token,idsucursal }) => {
+
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
-    let fechaActual = new Date();
-    const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
     const [editingKey, setEditingKey] = useState('');
+    const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
+    //---------------------------------------------------
     //Datos de buscador
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
     const navigate = useNavigate();
-    
-    
+    //---------------------------------------------------
+
+
     useEffect(() => {
-        getLstGradosArma();
+        getLstSucursal();
         // eslint-disable-next-line
     }, []);
 
-    
-    const getLstGradosArma = async () => {
-        const res = await getGradosArma({token:token,param:'get'});
-        //console.log(res.body)
-        /*En caso de que de error en el server direcciona a login*/
+    const getLstSucursal = async () => {
+        const res = await getSucursal({token:token,param:'get'});
+        //console.log(res.body);
         setData(res.body);
+
     }
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -129,59 +132,112 @@ const ListaGradosArma = ({ token }) => {
                     autoEscape
                     textToHighlight={text ? text.toString() : ''}
                 />
-            ) : (text),
+            ) : (
+                text
+            ),
     });
+
+
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'GradosArmaes');
-        XLSX.writeFile(wb, 'GradosArmaes.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'Vehiculos');
+        XLSX.writeFile(wb, 'Vehiculos.xlsx')
     }
 
     const handleDelete = async (id) => {
-        await deleteGradosArma({token:token,param:id})
-        getLstGradosArma();
+        await deleteSucursal({token:token,param:id})
+        getLstSucursal();
     }
-// eslint-disable-next-line
+
     const handleUpdate = async (newData) => {
+        //console.log('Entra en update');
         //console.log(newData)
-        await updateGradosArma({token:token,param:newData.idgrados_arma,json:newData}) 
-        getLstGradosArma();
+        await updateSucursal({token:token,param:newData.idsucursal,json:newData}) 
+        getLstSucursal();
     }
+
 
     const columns = [
         {
             title: 'id',
-            dataIndex: 'idgrados_arma',
-            width: '5%',
+            dataIndex: 'idsucursal',
+            //width: '5%',
             editable: false,
-            ...getColumnSearchProps('idgrados_arma'),
+            ...getColumnSearchProps('idsucursal'),
         },
         {
-            title: 'Descripcion',
-            dataIndex: 'descripcion',
-            //width: '22%',
+            title: 'Sucursal',
+            dataIndex: 'sucursal',
+            //width: '12%',
             editable: true,
-            ...getColumnSearchProps('descripcion'),
         },
         {
-            title: 'Observacion',
-            dataIndex: 'observacion',
+            title: 'Ciudad',
+            dataIndex: 'idciudad',
+            //width: '15%',
+            editable: true,
+            render: (_, { Ciudad }) => {
+                //console.log(Ciudad)
+                //return true;
+                if(Ciudad){
+                    return (
+                        Ciudad.descripcion
+                    );
+                }else{
+                    return true;
+                }
+                
+            },
+            //...getColumnSearchProps('proveedor'),
+        },
+        {
+            title: 'Ruc',
+            dataIndex: 'ruc',
             //width: '22%',
             editable: true,
-            ...getColumnSearchProps('observacion'),
+            ...getColumnSearchProps('ruc'),
         },
+        {
+            title: 'Imagen',
+            dataIndex: 'img',
+            //width: '8%',
+            editable: true,
+            render: (_, { img }) => {
+                if (img && typeof img !== "string") {
+                    //console.log(typeof img);
+                    const asciiTraducido = Buffer.from(img.data).toString('ascii');
+                    //console.log(asciiTraducido);
+                    if (asciiTraducido) {
+                        return (
+                            <Image
+                                style={{ border: `1px solid gray`, borderRadius: `4px` }}
+                                alt="imagen"
+                                //preview={false}
+                                //style={{ width: '50%',margin:`0px`,textAlign:`center` }}
+                                src={asciiTraducido}
+                            />
+                        );
+                    } else {
+                        return null
+                    }
+                } else {
+                    return null
+                }
+            },
+        },
+        
         {
             title: 'Estado',
             dataIndex: 'estado',
-            //width: '7%',
+            //width: '10%',
             editable: true,
-            render: (_, { estado, idgrados_arma }) => {
+            render: (_, { estado, idsucursal }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={idgrados_arma} >
+                    <Tag color={color} key={idsucursal} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
@@ -191,13 +247,11 @@ const ListaGradosArma = ({ token }) => {
             title: 'Accion',
             dataIndex: 'operacion',
             render: (_, record) => {
-
                 const editable = isEditing(record);
-
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idgrados_arma)}
+                            onClick={() => save(record.idsucursal, record)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -210,14 +264,13 @@ const ListaGradosArma = ({ token }) => {
                     </span>
                 ) : (
                     <>
-
                         <Typography.Link style={{ margin: `5px` }} disabled={editingKey !== ''} onClick={() => edit(record)}>
                             Editar
                         </Typography.Link>
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idgrados_arma)}
+                            onConfirm={() => confirmDel(record.idsucursal)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -225,7 +278,6 @@ const ListaGradosArma = ({ token }) => {
                                 Borrar
                             </Typography.Link>
                         </Popconfirm>
-
                     </>
                 );
             },
@@ -236,42 +288,49 @@ const ListaGradosArma = ({ token }) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idgrados_arma);
+        setEditingKey(record.idsucursal);
     };
 
 
-    const isEditing = (record) => record.idgrados_arma === editingKey;
+    const isEditing = (record) => record.idsucursal === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idgrados_arma) => {
+    const confirmDel = (idsucursal) => {
         message.success('Procesando');
-        handleDelete(idgrados_arma);
+        handleDelete(idsucursal);
     };
 
-    const save = async (idgrados_arma) => {
+    const save = async (idsucursal, record) => {
 
         try {
             const row = await form.validateFields();
             const newData = [...data];
-            const index = newData.findIndex((item) => idgrados_arma === item.idgrados_arma);
+            const index = newData.findIndex((item) => idsucursal === item.idsucursal);
 
             if (index > -1) {
-
                 const item = newData[index];
+                //console.log(newData);
+
                 newData.splice(index, 1, {
                     ...item,
                     ...row,
                 });
 
+                if (record.idsucursal === item.idsucursal) {
+                    //console.log('Entra en asignacion',record.img);
+                    newData[index].img = record.img;
+                }
+
                 newData[index].fecha_upd = strFecha;
+
                 //console.log(newData);
+
                 handleUpdate(newData[index]);
                 setData(newData);
                 setEditingKey('');
-
                 message.success('Registro actualizado');
             } else {
                 newData.push(row);
@@ -303,15 +362,14 @@ const ListaGradosArma = ({ token }) => {
 
     return (
         <>
-            <h3>Rangos</h3>
+            <h3>Playa disponible</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
-
-                <Button type="primary" onClick={() => navigate('/creargradosArma')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate('/crearsucursal')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idgrados_arma'} />
+            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idsucursal'} />
         </>
     )
 }
-export default ListaGradosArma
+export default ListaSucursal

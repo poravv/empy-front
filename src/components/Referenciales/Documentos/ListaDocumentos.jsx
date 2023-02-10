@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModel from '../TableModel/TableModel';
+import TableModel from '../../TableModel/TableModel';
 import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
@@ -11,10 +11,10 @@ import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { getAnhoLectivo,deleteAnhoLectivo, updateAnhoLectivo } from '../../services/AnhoLectivo';
+import { getDocumentos,deleteDocumentos, updateDocumentos } from '../../../services/Documentos';
 
 
-const ListaAnhoLectivo = ({ token }) => {
+const ListaDocumentos = ({ token }) => {
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
     let fechaActual = new Date();
@@ -28,13 +28,13 @@ const ListaAnhoLectivo = ({ token }) => {
     
     
     useEffect(() => {
-        getLstAnhoLectivo();
+        getLstDocumentos();
         // eslint-disable-next-line
     }, []);
 
     
-    const getLstAnhoLectivo = async () => {
-        const res = await getAnhoLectivo({token:token,param:'get'});
+    const getLstDocumentos = async () => {
+        const res = await getDocumentos({token:token,param:'get'});
         //console.log(res.body)
         /*En caso de que de error en el server direcciona a login*/
         setData(res.body);
@@ -134,47 +134,47 @@ const ListaAnhoLectivo = ({ token }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'AnhoLectivos');
-        XLSX.writeFile(wb, 'AnhoLectivos.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'Documentoss');
+        XLSX.writeFile(wb, 'Documentoss.xlsx')
     }
 
     const handleDelete = async (id) => {
-        await deleteAnhoLectivo({token:token,param:id})
-        getLstAnhoLectivo();
+        await deleteDocumentos({token:token,param:id})
+        getLstDocumentos();
     }
 // eslint-disable-next-line
     const handleUpdate = async (newData) => {
         //console.log(newData)
-        await updateAnhoLectivo({token:token,param:newData.idanho_lectivo,json:newData}) 
-        getLstAnhoLectivo();
+        await updateDocumentos({token:token,param:newData.iddocumentos,json:newData}) 
+        getLstDocumentos();
     }
 
     const columns = [
         {
             title: 'id',
-            dataIndex: 'idanho_lectivo',
+            dataIndex: 'iddocumentos',
             width: '5%',
             editable: false,
-            ...getColumnSearchProps('idanho_lectivo'),
+            ...getColumnSearchProps('iddocumentos'),
         },
         {
-            title: 'Año',
-            dataIndex: 'anho',
+            title: 'Descripcion',
+            dataIndex: 'descripcion',
             //width: '22%',
             editable: true,
-            ...getColumnSearchProps('anho'),
+            ...getColumnSearchProps('descripcion'),
         },
         {
             title: 'Estado',
             dataIndex: 'estado',
             //width: '7%',
             editable: true,
-            render: (_, { estado, idanho_lectivo }) => {
+            render: (_, { estado, iddocumentos }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={idanho_lectivo} >
+                    <Tag color={color} key={iddocumentos} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
@@ -190,7 +190,7 @@ const ListaAnhoLectivo = ({ token }) => {
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idanho_lectivo)}
+                            onClick={() => save(record.iddocumentos)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -210,7 +210,7 @@ const ListaAnhoLectivo = ({ token }) => {
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idanho_lectivo)}
+                            onConfirm={() => confirmDel(record.iddocumentos)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -229,27 +229,27 @@ const ListaAnhoLectivo = ({ token }) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idanho_lectivo);
+        setEditingKey(record.iddocumentos);
     };
 
 
-    const isEditing = (record) => record.idanho_lectivo === editingKey;
+    const isEditing = (record) => record.iddocumentos === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idanho_lectivo) => {
+    const confirmDel = (iddocumentos) => {
         message.success('Procesando');
-        handleDelete(idanho_lectivo);
+        handleDelete(iddocumentos);
     };
 
-    const save = async (idanho_lectivo) => {
+    const save = async (iddocumentos) => {
 
         try {
             const row = await form.validateFields();
             const newData = [...data];
-            const index = newData.findIndex((item) => idanho_lectivo === item.idanho_lectivo);
+            const index = newData.findIndex((item) => iddocumentos === item.iddocumentos);
 
             if (index > -1) {
 
@@ -296,15 +296,15 @@ const ListaAnhoLectivo = ({ token }) => {
 
     return (
         <>
-            <h3>Año Lectivo</h3>
+            <h3>Documentos</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
 
-                <Button type="primary" onClick={() => navigate('/crearanhoLectivo')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate('/creardocumentos')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idanho_lectivo'} />
+            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'iddocumentos'} />
         </>
     )
 }
-export default ListaAnhoLectivo
+export default ListaDocumentos
