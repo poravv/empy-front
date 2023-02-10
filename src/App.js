@@ -27,7 +27,6 @@ function App() {
       setUserApp(userJson);
       //console.log(userJson.body.idsucursal)
       getUniqueSucursal(userJson.body.idsucursal,userJson.token)
-      
     }
   }, []);
 

@@ -37,6 +37,8 @@ import ListaFalta from '../components/Faltas/ListaFaltas';
 import NuevoFalta from '../components/Faltas/NuevaFalta';
 import ListaAnhoLectivo from '../components/AnhoLectivo/ListaAnhoLectivo';
 import NuevoAnhoLectivo from '../components/AnhoLectivo/NuevoAnhoLectivo';
+import ListaGradosArma from '../components/GradosArma/ListaGradosArma';
+import NuevoGradosArma from '../components/GradosArma/NuevaGradosArma';
 
 function NavRoute({ usuario,sucursal }) {
   /*if(sucursal){
@@ -67,11 +69,13 @@ function NavRoute({ usuario,sucursal }) {
                   #Documentos
                   <Route path='/documentos' element={<ListaDocumentos token={usuario.token} />} />
                   <Route path='/creardocumentos' element={<NuevoDocumentos token={usuario.token} />} />
-
-                  #Producto
+                  #Sucursal
                   <Route path='/sucursal' element={<ListaSucursal idsucursal={usuario.body.idsucursal} token={usuario.token} />} />
                   <Route path='/tarjeta' element={<ListaTarjeta idsucursal={usuario.body.idsucursal} token={usuario.token} />} />
                   <Route path='/crearsucursal' element={<NuevaSucursal idsucursal={usuario.body.idsucursal} idusuario={usuario.body.idusuario} token={usuario.token} />} />
+                  #GradosArma
+                  <Route path='/gradosArma' element={<ListaGradosArma token={usuario.token} />} />
+                  <Route path='/creargradosArma' element={<NuevoGradosArma token={usuario.token} />} />
                   
                   #Modelo
                   <Route path='/instructor' element={<ListaInstructores token={usuario.token} />} />

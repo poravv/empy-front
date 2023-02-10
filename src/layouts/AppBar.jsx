@@ -36,13 +36,9 @@ const AppBar = ({ usuario, sucursal }) => {
         navigate(direccion);
     }
     const traduccionImg = () => {
-        
         if (sucursal) {
-            //console.log(sucursal.body)
             if (sucursal.body.img && typeof sucursal.body.img !== "string") {
-                //console.log(typeof img);
                 const asciiTraducido = Buffer.from(sucursal.body.img.data).toString('ascii');
-                //console.log(asciiTraducido);
                 if (asciiTraducido) {
                     return (
                         <Image
@@ -52,12 +48,8 @@ const AppBar = ({ usuario, sucursal }) => {
                             src={asciiTraducido}
                         />
                     );
-                } else {
-                    return null
-                }
-            } else {
-                return null
-            }
+                } else {return null}
+            } else {return null}
         }
 
     }
@@ -73,23 +65,24 @@ const AppBar = ({ usuario, sucursal }) => {
             getItem(() => navegacion('/anhoLectivo'), 'Año Lectivo', '6'),
             getItem(() => navegacion('/documentos'), 'Documentos', '7'),
             getItem(() => navegacion('/sucursal'), 'Sucursal', '8'),
+            getItem(() => navegacion('/gradosArma'), 'Rangos', '9'),
         ]),
         getItem(null, 'Academico', 'sub2', <FolderOpenOutlined />, [
-            getItem(() => navegacion('/plan'), 'Planificacion', '9'),
-            getItem(() => navegacion('/convocatoria'), 'Convocatoria', '10'),//Agregar aqui la asistencia, faltas y evaluaciones
+            getItem(() => navegacion('/plan'), 'Planificacion', '10'),
+            getItem(() => navegacion('/convocatoria'), 'Convocatoria', '11'),//Agregar aqui la asistencia, faltas y evaluaciones
             //getItem(() => navegacion('/inscripcion'), 'Inscripcion', '8'),
         ]),
         getItem(null, 'Administrativo', 'sub3', <TeamOutlined />, [
-            getItem(() => navegacion('/instructor'), 'Instructores', '11'),
+            getItem(() => navegacion('/instructor'), 'Instructores', '12'),
         ]),
         getItem(null, 'Gestion', 'sub4', <CheckSquareOutlined />, [
-            getItem(() => navegacion('/cursosH'), 'Curso/Materia', '12'),
+            getItem(() => navegacion('/cursosH'), 'Curso/Materia', '13'),
         ]),
         getItem(null, 'Reportes', 'sub5', <PieChartOutlined />, [
-            getItem(() => navegacion('/'), 'Estadisticas', '13'),
-            getItem(() => navegacion('/'), 'Informes', '14'),
+            getItem(() => navegacion('/'), 'Estadisticas', '14'),
+            getItem(() => navegacion('/'), 'Informes', '15'),
         ]),
-        getItem(() => Logout(), 'Close session', '15', <LogoutOutlined />)
+        getItem(() => Logout(), 'Close session', '16', <LogoutOutlined />)
     ];
     return (
         <Layout hasSider
