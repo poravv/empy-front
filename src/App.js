@@ -18,11 +18,10 @@ function App() {
   const normal = { token: { defaultAlgorithm }};
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedSiswebUser');
+    const loggedUserJSON = window.localStorage.getItem('loggedEmpyUser');
     if (loggedUserJSON) {
       const userJson = JSON.parse(loggedUserJSON);
       setUserApp(userJson);
-      //console.log("Suc: ",userJson.body.idsucursal);
     }
   }, []);
 

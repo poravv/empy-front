@@ -2,32 +2,19 @@
 
 import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import React from 'react';
 import { Button, Form, Input } from 'antd';
+import { createTurno } from '../../services/Turno';
 
-
-const URI = 'http://186.158.152.141:3002/automot/api/turno/';
 function NuevoTurno({ token }) {
 
     //Parte de nuevo registro por modal
-    const [descripcion, setDescripcion] = useState('')
+    const [descripcion, setDescripcion] = useState('');
     const navigate = useNavigate();
-
-    const config = {
-        headers: {
-            "Authorization": `Bearer ${token}`,
-        }
-    };
-
     //procedimiento para actualizar
     const create = async (e) => {
         //e.preventDefault();
-        await axios.post(URI + "post/", {
-            descripcion: descripcion,
-            estado: "AC"
-        }, config
-        );
+        await createTurno({ token: token, json: { descripcion: descripcion, estado: "AC" } });
         navigate('/turno');
     }
 
@@ -36,11 +23,10 @@ function NuevoTurno({ token }) {
         navigate('/turno');
     }
 
-
     return (
         <div >
-            <div style={{ marginBottom:`20px` }}>
-                <h2>Nuevo turno</h2>
+            <div style={{ marginBottom: `20px` }}>
+                <h2>Nueva turno</h2>
             </div>
             <Form
                 name="basic"
@@ -49,9 +35,8 @@ function NuevoTurno({ token }) {
                 wrapperCol={{ span: 16, }}
                 initialValues={{ remember: true, }}
                 onFinish={create}
-                //onFinishFailed={create}
-                autoComplete="off"
-            >
+                onFinishFailed={create}
+                autoComplete="off" >
 
                 <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue turno', },]}>
                     <Input placeholder='Descripcion' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
@@ -71,3 +56,9 @@ function NuevoTurno({ token }) {
 }
 
 export default NuevoTurno;
+
+/*
+
+                
+
+*/

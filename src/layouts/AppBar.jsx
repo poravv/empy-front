@@ -29,43 +29,39 @@ function getItem(onClick, label, key, icon, children) {
 }
 
 
-
-
 const AppBar = ({ usuario }) => {
-
     const navigate = useNavigate();
-
     const [collapsed, setCollapsed] = useState(false);
-
     function navegacion(direccion) {
         navigate(direccion);
     }
-
     const items = [
         getItem(() => navegacion('/'), 'Home', '1', <HomeOutlined />),
         //getItem(() => navegacion('/tablemodel'), 'Option 2', '2', <DesktopOutlined />),
         getItem(null, 'Mantenimiento', 'sub1', <ToolOutlined />, [
             getItem(() => navegacion('/ciudad'), 'Ciudad', '2'),
-            getItem(() => navegacion('/'), 'Materia', '3'),
-            getItem(() => navegacion('/'), 'Curso', '4'),
+            getItem(() => navegacion('/materia'), 'Materia', '3'),
+            getItem(() => navegacion('/curso'), 'Curso', '4'),
             getItem(() => navegacion('/turno'), 'Turno', '5'),
+            getItem(() => navegacion('/anhoLectivo'), 'Año Lectivo', '6'),
+            getItem(() => navegacion('/documentos'), 'Documentos', '7'),
         ]),
         getItem(null, 'Academico', 'sub2', <FolderOpenOutlined />, [
-            getItem(() => navegacion('/plan'), 'Planificacion', '6'),
-            getItem(() => navegacion('/convocatoria'), 'Convocatoria', '7'),//Agregar aqui la asistencia, faltas y evaluaciones
+            getItem(() => navegacion('/plan'), 'Planificacion', '8'),
+            getItem(() => navegacion('/convocatoria'), 'Convocatoria', '9'),//Agregar aqui la asistencia, faltas y evaluaciones
             //getItem(() => navegacion('/inscripcion'), 'Inscripcion', '8'),
         ]),
         getItem(null, 'Administrativo', 'sub3', <TeamOutlined />, [
-            getItem(() => navegacion('/instructor'), 'Instructores', '9'),
+            getItem(() => navegacion('/instructor'), 'Instructores', '10'),
         ]),
         getItem(null, 'Gestion', 'sub4', <CheckSquareOutlined />, [
-            getItem(() => navegacion('/cursosH'), 'Curso/Materia', '10'),
+            getItem(() => navegacion('/cursosH'), 'Curso/Materia', '11'),
         ]),
         getItem(null, 'Reportes', 'sub5', <PieChartOutlined />, [
-            getItem(() => navegacion('/'), 'Estadisticas', '11'),
-            getItem(() => navegacion('/'), 'Informes', '12'),
+            getItem(() => navegacion('/'), 'Estadisticas', '12'),
+            getItem(() => navegacion('/'), 'Informes', '13'),
         ]),
-        getItem(() => Logout(), 'Close session', '13', <LogoutOutlined />)
+        getItem(() => Logout(), 'Close session', '14', <LogoutOutlined />)
     ];
     return (
         <Layout hasSider
@@ -93,7 +89,7 @@ const AppBar = ({ usuario }) => {
                     style={{padding: 0,color: `white`}} 
                     >
                     <div style={{ marginLeft: `5px` }}>
-                        Bienvenido de nuevo {usuario.nick}
+                        Bienvenido de nuevo {usuario.usuario}
                     </div>
                 </Header>
 

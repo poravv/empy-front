@@ -4,29 +4,29 @@ import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import React from 'react';
 import { Button, Form, Input } from 'antd';
-import { createCiudad } from '../../services/Ciudad';
+import { createAnhoLectivo } from '../../services/AnhoLectivo';
 
-function NuevoCiudad({ token }) {
+function NuevoAnhoLectivo({ token }) {
 
     //Parte de nuevo registro por modal
-    const [descripcion, setDescripcion] = useState('')
+    const [anho, setDescripcion] = useState('');
     const navigate = useNavigate();
     //procedimiento para actualizar
     const create = async (e) => {
         //e.preventDefault();
-        await createCiudad({ token: token, json: { descripcion: descripcion, estado: "AC" } });
-        navigate('/ciudad');
+        await createAnhoLectivo({ token: token, json: { anho: anho, estado: "AC" } });
+        navigate('/anhoLectivo');
     }
 
     const btnCancelar = (e) => {
         e.preventDefault();
-        navigate('/ciudad');
+        navigate('/anhoLectivo');
     }
 
     return (
         <div >
             <div style={{ marginBottom: `20px` }}>
-                <h2>Nueva ciudad</h2>
+                <h2>Nuevo</h2>
             </div>
             <Form
                 name="basic"
@@ -36,11 +36,10 @@ function NuevoCiudad({ token }) {
                 initialValues={{ remember: true, }}
                 onFinish={create}
                 onFinishFailed={create}
-                autoComplete="off"
-            >
+                autoComplete="off" >
 
-                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue ciudad', },]}>
-                    <Input placeholder='Descripcion' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+                <Form.Item name="anho" rules={[{ required: true, message: 'Cargue anhoLectivo', },]}>
+                    <Input placeholder='Año' value={anho} onChange={(e) => setDescripcion(e.target.value)} />
                 </Form.Item>
                 <Form.Item
                     style={{ margin: `20px` }}>
@@ -56,7 +55,7 @@ function NuevoCiudad({ token }) {
     );
 }
 
-export default NuevoCiudad;
+export default NuevoAnhoLectivo;
 
 /*
 

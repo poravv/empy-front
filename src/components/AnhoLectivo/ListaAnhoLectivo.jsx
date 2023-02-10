@@ -11,10 +11,10 @@ import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { getTurno,deleteTurno, updateTurno } from '../../services/Turno';
+import { getAnhoLectivo,deleteAnhoLectivo, updateAnhoLectivo } from '../../services/AnhoLectivo';
 
 
-const ListaTurno = ({ token }) => {
+const ListaAnhoLectivo = ({ token }) => {
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
     let fechaActual = new Date();
@@ -28,13 +28,13 @@ const ListaTurno = ({ token }) => {
     
     
     useEffect(() => {
-        getLstTurno();
+        getLstAnhoLectivo();
         // eslint-disable-next-line
     }, []);
 
     
-    const getLstTurno = async () => {
-        const res = await getTurno({token:token,param:'get'});
+    const getLstAnhoLectivo = async () => {
+        const res = await getAnhoLectivo({token:token,param:'get'});
         //console.log(res.body)
         /*En caso de que de error en el server direcciona a login*/
         setData(res.body);
@@ -134,47 +134,47 @@ const ListaTurno = ({ token }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'Turnos');
-        XLSX.writeFile(wb, 'Turnos.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'AnhoLectivos');
+        XLSX.writeFile(wb, 'AnhoLectivos.xlsx')
     }
 
     const handleDelete = async (id) => {
-        await deleteTurno({token:token,param:id})
-        getLstTurno();
+        await deleteAnhoLectivo({token:token,param:id})
+        getLstAnhoLectivo();
     }
 // eslint-disable-next-line
     const handleUpdate = async (newData) => {
         //console.log(newData)
-        await updateTurno({token:token,param:newData.idturno,json:newData}) 
-        getLstTurno();
+        await updateAnhoLectivo({token:token,param:newData.idanho_lectivo,json:newData}) 
+        getLstAnhoLectivo();
     }
 
     const columns = [
         {
             title: 'id',
-            dataIndex: 'idturno',
+            dataIndex: 'idanho_lectivo',
             width: '5%',
             editable: false,
-            ...getColumnSearchProps('idturno'),
+            ...getColumnSearchProps('idanho_lectivo'),
         },
         {
-            title: 'Descripcion',
-            dataIndex: 'descripcion',
+            title: 'Año',
+            dataIndex: 'anho',
             //width: '22%',
             editable: true,
-            ...getColumnSearchProps('descripcion'),
+            ...getColumnSearchProps('anho'),
         },
         {
             title: 'Estado',
             dataIndex: 'estado',
             //width: '7%',
             editable: true,
-            render: (_, { estado, idturno }) => {
+            render: (_, { estado, idanho_lectivo }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={idturno} >
+                    <Tag color={color} key={idanho_lectivo} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
@@ -190,7 +190,7 @@ const ListaTurno = ({ token }) => {
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idturno)}
+                            onClick={() => save(record.idanho_lectivo)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -210,7 +210,7 @@ const ListaTurno = ({ token }) => {
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idturno)}
+                            onConfirm={() => confirmDel(record.idanho_lectivo)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -229,27 +229,27 @@ const ListaTurno = ({ token }) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idturno);
+        setEditingKey(record.idanho_lectivo);
     };
 
 
-    const isEditing = (record) => record.idturno === editingKey;
+    const isEditing = (record) => record.idanho_lectivo === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idturno) => {
+    const confirmDel = (idanho_lectivo) => {
         message.success('Procesando');
-        handleDelete(idturno);
+        handleDelete(idanho_lectivo);
     };
 
-    const save = async (idturno) => {
+    const save = async (idanho_lectivo) => {
 
         try {
             const row = await form.validateFields();
             const newData = [...data];
-            const index = newData.findIndex((item) => idturno === item.idturno);
+            const index = newData.findIndex((item) => idanho_lectivo === item.idanho_lectivo);
 
             if (index > -1) {
 
@@ -296,15 +296,15 @@ const ListaTurno = ({ token }) => {
 
     return (
         <>
-            <h3>Turnos</h3>
+            <h3>Año Lectivo</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
 
-                <Button type="primary" onClick={() => navigate('/crearturno')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate('/crearanhoLectivo')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idturno'} />
+            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idanho_lectivo'} />
         </>
     )
 }
-export default ListaTurno
+export default ListaAnhoLectivo

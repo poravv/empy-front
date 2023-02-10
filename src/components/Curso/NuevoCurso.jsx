@@ -4,29 +4,29 @@ import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import React from 'react';
 import { Button, Form, Input } from 'antd';
-import { createCiudad } from '../../services/Ciudad';
+import { createCurso } from '../../services/Curso';
 
-function NuevoCiudad({ token }) {
+function NuevoCurso({ token }) {
 
     //Parte de nuevo registro por modal
-    const [descripcion, setDescripcion] = useState('')
+    const [descripcion, setDescripcion] = useState('');
     const navigate = useNavigate();
     //procedimiento para actualizar
     const create = async (e) => {
         //e.preventDefault();
-        await createCiudad({ token: token, json: { descripcion: descripcion, estado: "AC" } });
-        navigate('/ciudad');
+        await createCurso({ token: token, json: { descripcion: descripcion, estado: "AC" } });
+        navigate('/curso');
     }
 
     const btnCancelar = (e) => {
         e.preventDefault();
-        navigate('/ciudad');
+        navigate('/curso');
     }
 
     return (
         <div >
             <div style={{ marginBottom: `20px` }}>
-                <h2>Nueva ciudad</h2>
+                <h2>Nuevo curso</h2>
             </div>
             <Form
                 name="basic"
@@ -36,10 +36,9 @@ function NuevoCiudad({ token }) {
                 initialValues={{ remember: true, }}
                 onFinish={create}
                 onFinishFailed={create}
-                autoComplete="off"
-            >
+                autoComplete="off" >
 
-                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue ciudad', },]}>
+                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue curso', },]}>
                     <Input placeholder='Descripcion' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
                 </Form.Item>
                 <Form.Item
@@ -56,7 +55,7 @@ function NuevoCiudad({ token }) {
     );
 }
 
-export default NuevoCiudad;
+export default NuevoCurso;
 
 /*
 

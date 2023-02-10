@@ -4,29 +4,30 @@ import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import React from 'react';
 import { Button, Form, Input } from 'antd';
-import { createCiudad } from '../../services/Ciudad';
+import { createMateria } from '../../services/Materia';
 
-function NuevoCiudad({ token }) {
+function NuevoMateria({ token }) {
 
     //Parte de nuevo registro por modal
-    const [descripcion, setDescripcion] = useState('')
+    const [descripcion, setDescripcion] = useState('');
+    const [observacion, setObservacion] = useState('');
     const navigate = useNavigate();
     //procedimiento para actualizar
     const create = async (e) => {
         //e.preventDefault();
-        await createCiudad({ token: token, json: { descripcion: descripcion, estado: "AC" } });
-        navigate('/ciudad');
+        await createMateria({ token: token, json: { descripcion: descripcion,observacion:observacion, estado: "AC" } });
+        navigate('/materia');
     }
 
     const btnCancelar = (e) => {
         e.preventDefault();
-        navigate('/ciudad');
+        navigate('/materia');
     }
 
     return (
         <div >
             <div style={{ marginBottom: `20px` }}>
-                <h2>Nueva ciudad</h2>
+                <h2>Nueva materia</h2>
             </div>
             <Form
                 name="basic"
@@ -39,8 +40,11 @@ function NuevoCiudad({ token }) {
                 autoComplete="off"
             >
 
-                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue ciudad', },]}>
+                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue materia', },]}>
                     <Input placeholder='Descripcion' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+                </Form.Item>
+                <Form.Item name="obaservacion" rules={[{ required: false},]}>
+                    <Input placeholder='Observacion' value={observacion} onChange={(e) => setObservacion(e.target.value)} />
                 </Form.Item>
                 <Form.Item
                     style={{ margin: `20px` }}>
@@ -56,7 +60,7 @@ function NuevoCiudad({ token }) {
     );
 }
 
-export default NuevoCiudad;
+export default NuevoMateria;
 
 /*
 

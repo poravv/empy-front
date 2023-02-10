@@ -1,8 +1,5 @@
 //import axios from 'axios'
-import { useState, 
-    //useEffect,
-    useRef } from 'react'
-//import { Logout } from '../Utils/Logout';
+import { useState, useEffect, useRef } from 'react'
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
@@ -14,71 +11,34 @@ import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
+import { getCiudad,deleteCiudad, updateCiudad } from '../../services/Ciudad';
 
-const data = [
-    {idciudad:1,descripcion:'Capiata',estado:'AC'},
-    {idciudad:2,descripcion:'Lambare',estado:'AC'},
-    {idciudad:3,descripcion:'Luque',estado:'IN'},
-    {idciudad:4,descripcion:'Itaugua',estado:'AC'},
-    {idciudad:5,descripcion:'Asuncion',estado:'AC'},
-    {idciudad:6,descripcion:'San Lorenzo',estado:'IN'},
-    {idciudad:7,descripcion:'Prueba',estado:'AC'},
-    {idciudad:8,descripcion:'Prueba',estado:'AC'},
-    {idciudad:9,descripcion:'Prueba',estado:'AC'},
-    {idciudad:10,descripcion:'Prueba',estado:'AC'},
-    {idciudad:11,descripcion:'Prueba',estado:'AC'},
-    {idciudad:12,descripcion:'Prueba',estado:'AC'},
-]
 
-//const URI = 'http://186.158.152.141:3002/automot/api/ciudad/';
-//let fechaActual = new Date();
 const ListaCiudad = ({ token }) => {
-    console.log('entra en ciudad')
     const [form] = Form.useForm();
-    //const [data, setData] = useState([]);
-
+    const [data, setData] = useState([]);
+    let fechaActual = new Date();
+    const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
     const [editingKey, setEditingKey] = useState('');
-    //const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
-    //---------------------------------------------------
     //Datos de buscador
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
     const navigate = useNavigate();
-    //---------------------------------------------------
-
-    /*
+    
+    
     useEffect(() => {
-        getCiudad();
+        getLstCiudad();
         // eslint-disable-next-line
     }, []);
 
-    //CONFIGURACION DE TOKEN
-    const config = {
-        headers: {
-            "Authorization": `Bearer ${token}`,
-        }
-    };
-
-    const getCiudad = async () => {
-        const res = await axios.get(`${URI}/get`, config)
-        /*En caso de que de error en el server direcciona a login* /
-        if (res.data.error) {
-            Logout();
-        }
-        /*
-        const resDataId = [];
-
-        res.data.body.map((rs) => {
-            rs.key = rs.idciudad;
-            resDataId.push(rs);
-            return true;
-        })
-        setData(resDataId);
-        * /
-        setData(res.data.body);
+    
+    const getLstCiudad = async () => {
+        const res = await getCiudad({token:token,param:'get'});
+        //console.log(res.body)
+        /*En caso de que de error en el server direcciona a login*/
+        setData(res.body);
     }
-    */
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -182,19 +142,15 @@ const ListaCiudad = ({ token }) => {
         XLSX.writeFile(wb, 'Ciudades.xlsx')
     }
 
-    const deleteCiudad = async (id) => {
-        //await axios.delete(`${URI}/del/${id}`, config)
-        //getCiudad();
+    const handleDelete = async (id) => {
+        await deleteCiudad({token:token,param:id})
+        getLstCiudad();
     }
 // eslint-disable-next-line
-    const updateCiudad = async (newData) => {
-        //console.log('Entra en update');
+    const handleUpdate = async (newData) => {
         //console.log(newData)
-        
-        /*
-        await axios.put(URI + "put/" + newData.idciudad, newData, config
-        );
-        getCiudad();*/
+        await updateCiudad({token:token,param:newData.idciudad,json:newData}) 
+        getLstCiudad();
     }
 
     const columns = [
@@ -289,11 +245,10 @@ const ListaCiudad = ({ token }) => {
 
     const confirmDel = (idciudad) => {
         message.success('Procesando');
-        deleteCiudad(idciudad);
+        handleDelete(idciudad);
     };
 
     const save = async (idciudad) => {
-/*
 
         try {
             const row = await form.validateFields();
@@ -310,7 +265,7 @@ const ListaCiudad = ({ token }) => {
 
                 newData[index].fecha_upd = strFecha;
                 //console.log(newData);
-                updateCiudad(newData[index]);
+                handleUpdate(newData[index]);
                 setData(newData);
                 setEditingKey('');
 
@@ -322,7 +277,7 @@ const ListaCiudad = ({ token }) => {
             }
         } catch (errInfo) {
             console.log('Validate Failed:', errInfo);
-        }*/
+        }
     };
 
 

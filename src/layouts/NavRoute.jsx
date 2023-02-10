@@ -1,5 +1,16 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 //Importamos componentes creados
+import ListaCiudad from '../components/Ciudad/ListaCiudad';
+import NuevoCiudad from '../components/Ciudad/NuevoCiudad';
+
+import ListaMateria from '../components/Materia/ListaMateria';
+import NuevaMateria from '../components/Materia/NuevaMateria';
+import ListaDocumentos from '../components/Documentos/ListaDocumentos';
+import NuevoDocumentos from '../components/Documentos/NuevoDocumentos';
+
+import ListaCurso from '../components/Curso/ListaCurso';
+import NuevoCurso from '../components/Curso/NuevoCurso';
+
 import Inicio from '../components/Inicio';
 import NuevoDetModelo from '../components/DetModelo/NuevoDetModelo';
 import ListaDetModelo from '../components/DetModelo/ListaDetModelo';
@@ -10,8 +21,6 @@ import AppBar from './AppBar';
 import TableFormat from '../components/TableModel/Table';
 import ListaInscripcion from '../components/Inscripcion/ListaInscripcion';
 import NuevoInscripcion from '../components/Inscripcion/NuevoInscripcion';
-import ListaCiudad from '../components/Ciudad/ListaCiudad';
-import NuevoCiudad from '../components/Ciudad/NuevoCiudad';
 import ReportePlaya from '../components/Reportes/ReportePlaya';
 import ListaInstructores from '../components/Instructores/ListaInstructores';
 import NuevoInstructores from '../components/Instructores/NuevoInstructores';
@@ -26,6 +35,8 @@ import ListaCursosH from '../components/CursosH/ListaCursosH';
 import ListaAsistencia from '../components/Asistencia/ListaAsistencia';
 import ListaFalta from '../components/Faltas/ListaFaltas';
 import NuevoFalta from '../components/Faltas/NuevaFalta';
+import ListaAnhoLectivo from '../components/AnhoLectivo/ListaAnhoLectivo';
+import NuevoAnhoLectivo from '../components/AnhoLectivo/NuevoAnhoLectivo';
 
 function NavRoute({ usuario }) {
   return (
@@ -33,18 +44,32 @@ function NavRoute({ usuario }) {
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<AppBar usuario={usuario.body} />} >
-            <Route index element={<Inicio idsucursal={usuario.body.idsucursal} token={usuario.token} usuario={usuario.body.nick}/> }/>
-            <Route path='/inicio' element={<Inicio idsucursal={usuario.body.idsucursal} token={usuario.token} usuario={usuario.body.nick}/>} />
+            <Route index element={<Inicio idsucursal={usuario.body.idsucursal} token={usuario.token} usuario={usuario.body.usuario}/> }/>
+            <Route path='/inicio' element={<Inicio idsucursal={usuario.body.idsucursal} token={usuario.token} usuario={usuario.body.usuario}/>} />
             {
               usuario.body.nivel === 1 ?
                 <>
+                  #Ciudad
+                  <Route path='/ciudad' element={<ListaCiudad token={usuario.token} />} />
+                  <Route path='/crearciudad' element={<NuevoCiudad token={usuario.token} />} />
+                  #Materia
+                  <Route path='/materia' element={<ListaMateria token={usuario.token} />} />
+                  <Route path='/crearmateria' element={<NuevaMateria token={usuario.token} />} />
+                  #Curso
+                  <Route path='/curso' element={<ListaCurso token={usuario.token} />} />
+                  <Route path='/crearcurso' element={<NuevoCurso token={usuario.token} />} />
+                  #Anho Lectivo
+                  <Route path='/anhoLectivo' element={<ListaAnhoLectivo token={usuario.token} />} />
+                  <Route path='/crearanhoLectivo' element={<NuevoAnhoLectivo token={usuario.token} />} />
+                  #Documentos
+                  <Route path='/documentos' element={<ListaDocumentos token={usuario.token} />} />
+                  <Route path='/creardocumentos' element={<NuevoDocumentos token={usuario.token} />} />
+
                   #Producto
                   <Route path='/detmodelo' element={<ListaDetModelo idsucursal={usuario.body.idsucursal} token={usuario.token} />} />
                   <Route path='/detmodelototal' element={<ListaDetModeloTotal idsucursal={usuario.body.idsucursal} token={usuario.token} />} />
                   <Route path='/creardetmodelo' element={<NuevoDetModelo idsucursal={usuario.body.idsucursal} idusuario={usuario.body.idusuario} token={usuario.token} />} />
-                  #Ciudad
-                  <Route path='/ciudad' element={<ListaCiudad token={usuario.token} />} />
-                  <Route path='/crearciudad' element={<NuevoCiudad token={usuario.token} />} />
+                  
                   #Modelo
                   <Route path='/instructor' element={<ListaInstructores token={usuario.token} />} />
                   <Route path='/crearcontrato' element={<NuevoInstructores token={usuario.token} />} />
@@ -76,7 +101,6 @@ function NavRoute({ usuario }) {
             <Route path='/faltas/:idinscripcion' element={<ListaFalta token={usuario.token} />} />
             <Route path='/crearfalta' element={<NuevoFalta token={usuario.token} />} />
             
-
             <Route path='*' element={<Navigate replace to='/' />} />
             #Venta
             <Route path='/venta' element={<ListaVenta token={usuario.token} idusuario={usuario.body.idusuario} />} />

@@ -1,5 +1,7 @@
-import axios from 'axios'
-import { useState, useEffect } from 'react'
+//import axios from 'axios'
+import { useState, 
+//  useEffect 
+} from 'react'
 import { Form, Input, InputNumber, Table, Select } from 'antd';
 import { Spin } from 'antd';
 import Buscador from '../Buscador/Buscador';
@@ -7,9 +9,9 @@ import UploadFile from '../Utils/Upload';
 import { Buffer } from 'buffer';
 
 const { Option } = Select;
-const URIPROV = 'http://186.158.152.141:3002/automot/api/proveedor/';
-const URIMARCA = 'http://186.158.152.141:3002/automot/api/marca/';
-const URICIUDAD = 'http://186.158.152.141:3002/automot/api/ciudad/';
+//const URIPROV = 'http://186.158.152.141:3002/automot/api/proveedor/';
+//const URIMARCA = 'http://186.158.152.141:3002/automot/api/marca/';
+//const URICIUDAD = 'http://186.158.152.141:3002/automot/api/ciudad/';
 
 function TableModel({ token, form, data, mergedColumns, keyExtraido }) {
 
@@ -17,10 +19,15 @@ function TableModel({ token, form, data, mergedColumns, keyExtraido }) {
   const EditableCell = ({ editing, dataIndex, title, inputType, record, index, children, ...restProps }) => {
     //console.log('edit',record);
 
+    // eslint-disable-next-line
     const [previewImage, setPreviewImage] = useState('');
+    // eslint-disable-next-line
     const [proveedores, setProveedores] = useState([]);
+    // eslint-disable-next-line
     const [marca, setMarca] = useState([]);
+    // eslint-disable-next-line
     const [ciudades, setCiudades] = useState([]);
+/*
 
     useEffect(() => {
       getProveedor();
@@ -50,6 +57,7 @@ function TableModel({ token, form, data, mergedColumns, keyExtraido }) {
       const res = await axios.get(`${URICIUDAD}/get`, config);
       setCiudades(res.data.body);
     }
+*/
 
     const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
 

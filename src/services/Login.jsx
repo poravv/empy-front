@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://186.158.152.141:3002/automot/api/usuario/login/';
+const baseURL = 'http://186.158.152.141:3002/empy/api/usuario/login/';
 
 const Login = async (credentials) => {
     const { data } = await axios.post(baseURL, credentials);
