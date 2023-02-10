@@ -19,6 +19,9 @@ function LoginForm() {
         try {
             const usuarioRes = await LoginServices({usuario: usuario,password: password});
             setUser(usuarioRes);
+            
+            console.log(usuarioRes.body);
+
             setUsuario('');
             setPassword('');
             console.log(user);

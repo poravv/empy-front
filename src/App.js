@@ -6,11 +6,13 @@ import LoginForm from './components/LoginForm';
 import { theme } from 'antd';
 import { ConfigProvider } from 'antd';
 import { FloatButton } from 'antd';
+import { getSucursalById } from './services/Sucursal'
 import { IoMoonOutline,IoColorWandSharp,IoSunnyOutline } from "react-icons/io5";
 
 function App() {
 
   const [userApp, setUserApp] = useState(null);
+  const [sucursal, setSuc] = useState(null);
   const [temaSeleccionado, setTemaSeleccionado] = useState(null);
   const { darkAlgorithm,defaultAlgorithm } = theme;
   
@@ -20,10 +22,19 @@ function App() {
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedEmpyUser');
     if (loggedUserJSON) {
+      //console.log(loggedUserJSON)
       const userJson = JSON.parse(loggedUserJSON);
       setUserApp(userJson);
+      //console.log(userJson.body.idsucursal)
+      getUniqueSucursal(userJson.body.idsucursal,userJson.token)
+      
     }
   }, []);
+
+  const getUniqueSucursal = async (id,token) =>{
+    const res = await getSucursalById({token:token,param:id});
+    setSuc(res);
+  }
 
   return (
     <>
@@ -32,7 +43,7 @@ function App() {
         >
           
         {
-          userApp ? <ConfigBrows usuario={userApp} /> : <LoginForm />
+          userApp ? <ConfigBrows usuario={userApp} sucursal={sucursal} /> : <LoginForm />
         }
       </ConfigProvider>
       <FloatButton.Group icon={< IoColorWandSharp />} 

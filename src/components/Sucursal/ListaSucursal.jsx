@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { useState, useEffect, useRef } from 'react'
 //import { Logout } from '../Utils/Logout';
 import * as XLSX from 'xlsx/xlsx.mjs';
@@ -12,12 +11,12 @@ import { Button, Input, Space, Image } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
+import { getSucursal,deleteSucursal, updateSucursal } from '../../services/Sucursal';
 
 import { Buffer } from 'buffer'
 
-const URI = 'http://186.158.152.141:3002/automot/api/detmodelo';
 let fechaActual = new Date();
-const ListaDetModelo = ({ token,idsucursal }) => {
+const ListaSucursal = ({ token,idsucursal }) => {
 
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
@@ -33,21 +32,14 @@ const ListaDetModelo = ({ token,idsucursal }) => {
 
 
     useEffect(() => {
-        getModelo();
+        getLstSucursal();
         // eslint-disable-next-line
     }, []);
 
-    //CONFIGURACION DE TOKEN
-    const config = {
-        headers: {
-            "Authorization": `Bearer ${token}`,
-        }
-    };
-
-    const getModelo = async () => {
-        const res = await axios.get(`${URI}/getsucursal/${idsucursal}`, config)
-        console.log(res.data.body);
-        setData(res.data.body);
+    const getLstSucursal = async () => {
+        const res = await getSucursal({token:token,param:'get'});
+        //console.log(res.body);
+        setData(res.body);
 
     }
 
@@ -153,87 +145,58 @@ const ListaDetModelo = ({ token,idsucursal }) => {
         XLSX.writeFile(wb, 'Vehiculos.xlsx')
     }
 
-    const deleteModelo = async (id) => {
-        await axios.delete(`${URI}/del/${id}`, config)
-        getModelo();
+    const handleDelete = async (id) => {
+        await deleteSucursal({token:token,param:id})
+        getLstSucursal();
     }
 
-    const updateModelo = async (newData) => {
+    const handleUpdate = async (newData) => {
         //console.log('Entra en update');
         //console.log(newData)
-        await axios.put(URI + "/put/" + newData.idmodelo, newData, config
-        );
-        getModelo();
+        await updateSucursal({token:token,param:newData.idsucursal,json:newData}) 
+        getLstSucursal();
     }
 
 
     const columns = [
         {
             title: 'id',
-            dataIndex: 'iddet_modelo',
+            dataIndex: 'idsucursal',
             //width: '5%',
             editable: false,
-            ...getColumnSearchProps('iddetmodelo'),
+            ...getColumnSearchProps('idsucursal'),
         },
         {
-            title: 'Modelo',
-            dataIndex: 'idmodelo',
+            title: 'Sucursal',
+            dataIndex: 'sucursal',
             //width: '12%',
             editable: true,
-            render: (_, { modelo }) => {
-                return (
-                    modelo.descripcion
-                );
-            },
         },
         {
-            title: 'Marca',
-            dataIndex: 'idmarca',
+            title: 'Ciudad',
+            dataIndex: 'idciudad',
             //width: '15%',
             editable: true,
-            render: (_, { marca }) => {
-                return (
-                    marca.descripcion
-                );
+            render: (_, { Ciudad }) => {
+                //console.log(Ciudad)
+                //return true;
+                if(Ciudad){
+                    return (
+                        Ciudad.descripcion
+                    );
+                }else{
+                    return true;
+                }
+                
             },
             //...getColumnSearchProps('proveedor'),
         },
         {
-            title: 'Detalle',
-            dataIndex: 'detalle',
+            title: 'Ruc',
+            dataIndex: 'ruc',
             //width: '22%',
             editable: true,
-            ...getColumnSearchProps('descripcion'),
-        },
-        {
-            title: 'Costo',
-            dataIndex: 'costo',
-            //width: '12%',
-            editable: true,
-        },
-        {
-            title: 'Chasis',
-            dataIndex: 'chasis',
-            //width: '12%',
-            editable: true,
-        },
-        {
-            title: 'Año',
-            dataIndex: 'anho',
-            //width: '12%',
-            editable: true,
-        },
-        {
-            title: 'Matricula',
-            dataIndex: 'matricula',
-            //width: '12%',
-            editable: true,
-        },
-        {
-            title: 'Color',
-            dataIndex: 'color',
-            //width: '12%',
-            editable: true,
+            ...getColumnSearchProps('ruc'),
         },
         {
             title: 'Imagen',
@@ -263,97 +226,18 @@ const ListaDetModelo = ({ token,idsucursal }) => {
                 }
             },
         },
-        {
-            title: 'Imagen',
-            dataIndex: 'img1',
-            //width: '8%',
-            editable: true,
-            render: (_, { img1 }) => {
-                if (img1 && typeof img1 !== "string") {
-                    //console.log(typeof img);
-                    const asciiTraducido = Buffer.from(img1.data).toString('ascii');
-                    //console.log(asciiTraducido);
-                    if (asciiTraducido) {
-                        return (
-                            <Image
-                                style={{ border: `1px solid gray`, borderRadius: `4px` }}
-                                alt="imagen"
-                                //preview={false}
-                                //style={{ width: '50%',margin:`0px`,textAlign:`center` }}
-                                src={asciiTraducido}
-                            />
-                        );
-                    } else {
-                        return null
-                    }
-                } else {
-                    return null
-                }
-            },
-        },
-        {
-            title: 'Imagen',
-            dataIndex: 'img2',
-            //width: '8%',
-            editable: true,
-            render: (_, { img2 }) => {
-                if (img2 && typeof img2 !== "string") {
-                    //console.log(typeof img);
-                    const asciiTraducido = Buffer.from(img2.data).toString('ascii');
-                    //console.log(asciiTraducido);
-                    if (asciiTraducido) {
-                        return (
-                            <Image
-                                style={{ border: `1px solid gray`, borderRadius: `4px` }}
-                                alt="imagen"
-                                //preview={false}
-                                //style={{ width: '50%',margin:`0px`,textAlign:`center` }}
-                                src={asciiTraducido}
-                            />
-                        );
-                    } else {
-                        return null
-                    }
-                } else {
-                    return null
-                }
-            },
-        },
-        {
-            title: 'Proveedor',
-            dataIndex: 'idproveedor',
-            //width: '15%',
-            editable: true,
-            render: (_, { proveedor }) => {
-                return (
-                    proveedor.razon_social
-                );
-            },
-            //...getColumnSearchProps('proveedor'),
-        },
-        {
-            title: 'Ruc proveedor',
-            dataIndex: 'ruc',
-            //width: '12%',
-            editable: false,
-            render: (_, { proveedor }) => {
-                return (
-                    proveedor.ruc
-                );
-            },
-            //...getColumnSearchProps('proveedor'),
-        },
+        
         {
             title: 'Estado',
             dataIndex: 'estado',
             //width: '10%',
             editable: true,
-            render: (_, { estado, idmodelo }) => {
+            render: (_, { estado, idsucursal }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={idmodelo} >
+                    <Tag color={color} key={idsucursal} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
@@ -367,7 +251,7 @@ const ListaDetModelo = ({ token,idsucursal }) => {
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idmodelo, record)}
+                            onClick={() => save(record.idsucursal, record)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -386,7 +270,7 @@ const ListaDetModelo = ({ token,idsucursal }) => {
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idmodelo)}
+                            onConfirm={() => confirmDel(record.idsucursal)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -404,27 +288,27 @@ const ListaDetModelo = ({ token,idsucursal }) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idmodelo);
+        setEditingKey(record.idsucursal);
     };
 
 
-    const isEditing = (record) => record.idmodelo === editingKey;
+    const isEditing = (record) => record.idsucursal === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idmodelo) => {
+    const confirmDel = (idsucursal) => {
         message.success('Procesando');
-        deleteModelo(idmodelo);
+        handleDelete(idsucursal);
     };
 
-    const save = async (idmodelo, record) => {
+    const save = async (idsucursal, record) => {
 
         try {
             const row = await form.validateFields();
             const newData = [...data];
-            const index = newData.findIndex((item) => idmodelo === item.idmodelo);
+            const index = newData.findIndex((item) => idsucursal === item.idsucursal);
 
             if (index > -1) {
                 const item = newData[index];
@@ -435,18 +319,16 @@ const ListaDetModelo = ({ token,idsucursal }) => {
                     ...row,
                 });
 
-                if (record.idmodelo === item.idmodelo) {
+                if (record.idsucursal === item.idsucursal) {
                     //console.log('Entra en asignacion',record.img);
                     newData[index].img = record.img;
-                    newData[index].img1 = record.img1;
-                    newData[index].img2 = record.img2;
                 }
 
                 newData[index].fecha_upd = strFecha;
 
                 //console.log(newData);
 
-                updateModelo(newData[index]);
+                handleUpdate(newData[index]);
                 setData(newData);
                 setEditingKey('');
                 message.success('Registro actualizado');
@@ -484,13 +366,10 @@ const ListaDetModelo = ({ token,idsucursal }) => {
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
-                <Button className='success' onClick={() => navigate('/detmodelototal')} >Total</Button>
+                <Button type="primary" onClick={() => navigate('/crearsucursal')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <div style={{ marginBottom: `5px`, textAlign: `end` }}>
-                <Button type="primary" onClick={() => navigate('/creardetmodelo')} >{<PlusOutlined />} Nuevo</Button>
-            </div>
-            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idmodelo'} />
+            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idsucursal'} />
         </>
     )
 }
-export default ListaDetModelo
+export default ListaSucursal

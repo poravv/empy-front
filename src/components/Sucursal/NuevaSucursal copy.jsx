@@ -9,16 +9,16 @@ import Buscador from '../Buscador/Buscador';
 import UploadFile from '../Utils/Upload';
 const { TextArea } = Input;
 
-const URI = 'http://186.158.152.141:3002/automot/api/detmodelo';
+const URI = 'http://186.158.152.141:3002/automot/api/sucursal';
 const URIPROV = 'http://186.158.152.141:3002/automot/api/proveedor';
 const URIMARCA = 'http://186.158.152.141:3002/automot/api/marca';
 const URIMODELO = 'http://186.158.152.141:3002/automot/api/modelo';
 let fechaActual = new Date();
 
-function NuevoDetModelo({ token, idusuario, idsucursal }) {
+function NuevoSucursalCopia({ token, idusuario, idsucursal }) {
 
     const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
-    const [modelo, setModelo] = useState([])
+    const [modelo, setSucursalCopia] = useState([])
     const [marca, setMarca] = useState([])
     const [costo, setCosto] = useState(0);
     const [chasis, setChasis] = useState('');
@@ -40,7 +40,7 @@ function NuevoDetModelo({ token, idusuario, idsucursal }) {
     useEffect(() => {
         getProveedor();
         getMarca();
-        getModelo();
+        getSucursalCopia();
         // eslint-disable-next-line
     }, []);
 
@@ -60,9 +60,9 @@ function NuevoDetModelo({ token, idusuario, idsucursal }) {
         const res = await axios.get(`${URIMARCA}/get`, config);
         setMarca(res.data.body);
     }
-    const getModelo = async () => {
+    const getSucursalCopia = async () => {
         const res = await axios.get(`${URIMODELO}/get`, config);
-        setModelo(res.data.body);
+        setSucursalCopia(res.data.body);
     }
 
     //procedimiento para actualizar
@@ -90,7 +90,7 @@ function NuevoDetModelo({ token, idusuario, idsucursal }) {
                 costo
             }, config
             );
-            navigate('/detmodelo');
+            navigate('/sucursal');
             message.success('Registro almacenado');
         } catch (error) {
             message.error('Error en la creacion de registro');
@@ -100,7 +100,7 @@ function NuevoDetModelo({ token, idusuario, idsucursal }) {
 
     const btnCancelar = (e) => {
         e.preventDefault();
-        navigate('/detmodelo');
+        navigate('/sucursal');
     }
 
     const onChange = (value) => {
@@ -112,7 +112,7 @@ function NuevoDetModelo({ token, idusuario, idsucursal }) {
         //console.log(`selected ${value}`);
     };
 
-    const onChangeModelo = (value) => {
+    const onChangeSucursalCopia = (value) => {
         setIdmodelo(value)
         //console.log(`selected ${value}`);
     };
@@ -142,7 +142,7 @@ function NuevoDetModelo({ token, idusuario, idsucursal }) {
                     <Buscador title={'Marca'} label={'descripcion'} value={'idmarca'} data={marca} onChange={onChangeMarca} onSearch={onSearch} />
                 </div>
                 <div style={{ marginTop: `15px`,marginBottom:`15px` }}>
-                    <Buscador title={'Modelo'} label={'descripcion'} value={'idmodelo'} data={modelo} onChange={onChangeModelo} onSearch={onSearch} />
+                    <Buscador title={'SucursalCopia'} label={'descripcion'} value={'idmodelo'} data={modelo} onChange={onChangeSucursalCopia} onSearch={onSearch} />
                 </div>
 
 
@@ -206,7 +206,7 @@ function NuevoDetModelo({ token, idusuario, idsucursal }) {
     );
 }
 
-export default NuevoDetModelo;
+export default NuevoSucursalCopia;
 
 /*
 

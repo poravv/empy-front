@@ -15,6 +15,7 @@ import { getCiudad,deleteCiudad, updateCiudad } from '../../services/Ciudad';
 
 
 const ListaCiudad = ({ token }) => {
+    //console.log(token)
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
     let fechaActual = new Date();
@@ -34,10 +35,15 @@ const ListaCiudad = ({ token }) => {
 
     
     const getLstCiudad = async () => {
-        const res = await getCiudad({token:token,param:'get'});
+        try{
+            const res = await getCiudad({token:token,param:'get'});
+            setData(res.body);
+        }catch(e){
+            console.log(e);
+        }
         //console.log(res.body)
         /*En caso de que de error en el server direcciona a login*/
-        setData(res.body);
+        
     }
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {

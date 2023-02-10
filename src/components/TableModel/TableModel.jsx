@@ -1,12 +1,11 @@
 //import axios from 'axios'
-import { useState, 
-//  useEffect 
-} from 'react'
+import { useState,useEffect } from 'react'
 import { Form, Input, InputNumber, Table, Select } from 'antd';
 import { Spin } from 'antd';
 import Buscador from '../Buscador/Buscador';
 import UploadFile from '../Utils/Upload';
 import { Buffer } from 'buffer';
+import { getCiudad } from '../../services/Ciudad';
 
 const { Option } = Select;
 //const URIPROV = 'http://186.158.152.141:3002/automot/api/proveedor/';
@@ -27,15 +26,21 @@ function TableModel({ token, form, data, mergedColumns, keyExtraido }) {
     const [marca, setMarca] = useState([]);
     // eslint-disable-next-line
     const [ciudades, setCiudades] = useState([]);
-/*
+
 
     useEffect(() => {
-      getProveedor();
-      getCiudad();
-      getMarca();
+      //getProveedor();
+      getLstCiudad();
+      //getMarca();
       // eslint-disable-next-line
     }, []);
 
+    const getLstCiudad = async () => {
+      const res = await getCiudad({token:token,param:'get'});
+      setCiudades(res.body);
+    }
+
+/*
     //CONFIGURACION DE TOKEN
     const config = {
       headers: {
@@ -53,10 +58,7 @@ function TableModel({ token, form, data, mergedColumns, keyExtraido }) {
       setMarca(res.data.body);
     }
 
-    const getCiudad = async () => {
-      const res = await axios.get(`${URICIUDAD}/get`, config);
-      setCiudades(res.data.body);
-    }
+    
 */
 
     const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;

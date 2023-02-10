@@ -12,9 +12,9 @@ import ListaCurso from '../components/Curso/ListaCurso';
 import NuevoCurso from '../components/Curso/NuevoCurso';
 
 import Inicio from '../components/Inicio';
-import NuevoDetModelo from '../components/DetModelo/NuevoDetModelo';
-import ListaDetModelo from '../components/DetModelo/ListaDetModelo';
-import ListaDetModeloTotal from '../components/DetModelo/ListaDetModeloTotal';
+import NuevaSucursal from '../components/Sucursal/NuevaSucursal';
+import ListaSucursal from '../components/Sucursal/ListaSucursal';
+import ListaTarjeta from '../components/Sucursal/ListaTarjeta';
 import ListaVenta from '../components/Venta/ListaVenta';
 import NuevaVenta from '../components/Venta/NuevaVenta';
 import AppBar from './AppBar';
@@ -38,12 +38,15 @@ import NuevoFalta from '../components/Faltas/NuevaFalta';
 import ListaAnhoLectivo from '../components/AnhoLectivo/ListaAnhoLectivo';
 import NuevoAnhoLectivo from '../components/AnhoLectivo/NuevoAnhoLectivo';
 
-function NavRoute({ usuario }) {
+function NavRoute({ usuario,sucursal }) {
+  /*if(sucursal){
+    console.log(sucursal.body);
+  }*/
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<AppBar usuario={usuario.body} />} >
+          <Route path='/' element={<AppBar usuario={usuario.body} sucursal={sucursal} />} >
             <Route index element={<Inicio idsucursal={usuario.body.idsucursal} token={usuario.token} usuario={usuario.body.usuario}/> }/>
             <Route path='/inicio' element={<Inicio idsucursal={usuario.body.idsucursal} token={usuario.token} usuario={usuario.body.usuario}/>} />
             {
@@ -66,9 +69,9 @@ function NavRoute({ usuario }) {
                   <Route path='/creardocumentos' element={<NuevoDocumentos token={usuario.token} />} />
 
                   #Producto
-                  <Route path='/detmodelo' element={<ListaDetModelo idsucursal={usuario.body.idsucursal} token={usuario.token} />} />
-                  <Route path='/detmodelototal' element={<ListaDetModeloTotal idsucursal={usuario.body.idsucursal} token={usuario.token} />} />
-                  <Route path='/creardetmodelo' element={<NuevoDetModelo idsucursal={usuario.body.idsucursal} idusuario={usuario.body.idusuario} token={usuario.token} />} />
+                  <Route path='/sucursal' element={<ListaSucursal idsucursal={usuario.body.idsucursal} token={usuario.token} />} />
+                  <Route path='/tarjeta' element={<ListaTarjeta idsucursal={usuario.body.idsucursal} token={usuario.token} />} />
+                  <Route path='/crearsucursal' element={<NuevaSucursal idsucursal={usuario.body.idsucursal} idusuario={usuario.body.idusuario} token={usuario.token} />} />
                   
                   #Modelo
                   <Route path='/instructor' element={<ListaInstructores token={usuario.token} />} />
