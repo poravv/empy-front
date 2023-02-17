@@ -67,7 +67,7 @@ function NuevoSucursal({ token }) {
     return (
         <div >
             <div style={{ marginBottom: `20px` }}>
-                <h2>Nuevo modelo</h2>
+                <h2>Nueva escuela</h2>
             </div>
             <Form
                 name="basic"
@@ -83,7 +83,7 @@ function NuevoSucursal({ token }) {
                 </div>
 
                 <Form.Item name="sucursal" rules={[{ required: true, message: 'Cargue sucursal', },]}>
-                    <Input placeholder='Sucursal' value={sucursal} onChange={(e) => setSucursal(e.target.value)} />
+                    <Input placeholder='Escuela' value={sucursal} onChange={(e) => setSucursal(e.target.value)} />
                 </Form.Item>
 
                 <Form.Item name="ruc" rules={[{ required: true, message: 'Cargue ruc', },]}>

@@ -36,22 +36,26 @@ const AppBar = ({ usuario, sucursal }) => {
         navigate(direccion);
     }
     const traduccionImg = () => {
+        //console.log(sucursal)
         if (sucursal) {
-            if (sucursal.body.img && typeof sucursal.body.img !== "string") {
-                const asciiTraducido = Buffer.from(sucursal.body.img.data).toString('ascii');
-                if (asciiTraducido) {
-                    return (
-                        <Image
-                            style={{ border: `1px solid gray`, borderRadius: `4px`,maxHeight: `120px` }}
-                            preview={false}
-                            alt="imagen"
-                            src={asciiTraducido}
-                        />
-                    );
-                } else {return null}
-            } else {return null}
-        }
+            if(sucursal.body){
 
+                if (sucursal.body.img && typeof sucursal.body.img !== "string") {
+                    //console.log(sucursal.body.img);
+                    const asciiTraducido = Buffer.from(sucursal.body.img.data).toString('ascii');
+                    if (asciiTraducido) {
+                        return (
+                            <Image
+                                style={{ border: `1px solid gray`, borderRadius: `4px`, maxHeight: `120px` }}
+                                preview={false}
+                                alt="imagen"
+                                src={asciiTraducido}
+                            />
+                        );
+                    } else { return null }
+                } else { return null }
+            }else { return null }
+        }
     }
 
     const items = [
@@ -95,13 +99,9 @@ const AppBar = ({ usuario, sucursal }) => {
                 collapsible
                 collapsed={collapsed}
                 onCollapse={(value) => setCollapsed(value)} >
-
-                
-
                 <div className="logo" style={{ margin: `10px`, display: `flex`, alignItems: `center`, justifyContent: `center`, textAlign: `center` }} >
                     {traduccionImg()}
                 </div>
-
                 {
                     <Menu theme='dark' defaultSelectedKeys={['1']} mode="inline" items={items} />
                 }

@@ -1,50 +1,28 @@
 //import axios from 'axios'
-import { useState, 
-    //useEffect, 
-    useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 //import { Logout } from '../Utils/Logout';
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModel from '../TableModel/TableModel';
-//import { Tag } from 'antd';
+import TableModel from '../../TableModel/TableModel';
+import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
+import { deleteInstructor, getInstructor, updateInstructor } from '../../../services/Instructor';
 
-const data = [
-{idinstructor:1,grado:'Cap',nombre:'Andres',apellido: 'Vera',edad:'32',sexo:'MA',materia:'FUNDAMENTOS DEL EMPLEO DEL PODER NAVAL'},
-{idinstructor:2,grado:'Tte',nombre:'Alcides',apellido: 'Lopez',edad:'35',sexo:'MA',materia:'MATEMATICA'},
-{idinstructor:3,grado:'Cap',nombre:'Raul',apellido: 'Ortega',edad:'29',sexo:'MA',materia:'EDUCACION FISICA'},
-{idinstructor:4,grado:'Tte',nombre:'Arturo',apellido: 'Viera',edad:'32',sexo:'MA',materia:'FISICA AVANZADA'},
-{idinstructor:5,grado:'Cap',nombre:'Enrique',apellido: 'Torres',edad:'27',sexo:'MA',materia:'FUNDAMENTOS DEL EMPLEO DEL PODER NAVAL'},
-{idinstructor:6,grado:'Tte',nombre:'Salomon',apellido: 'Fernandez',edad:'28',sexo:'MA',materia:'MATEMATICA'},
-{idinstructor:7,grado:'Cap',nombre:'Hugo',apellido: 'Perez',edad:'28',sexo:'MA',materia:'EDUCACION FISICA'},
-{idinstructor:8,grado:'Tte',nombre:'Hector',apellido: 'Aguilar',edad:'27',sexo:'MA',materia:'FISICA AVANZADA'},
-{idinstructor:9,grado:'Cap',nombre:'Cesar',apellido: 'Gavilan',edad:'33',sexo:'MA',materia:'FUNDAMENTOS DEL EMPLEO DEL PODER NAVAL'},
-{idinstructor:10,grado:'Tte',nombre:'David',apellido: 'Vera',edad:'34',sexo:'MA',materia:'MATEMATICA'},
-{idinstructor:11,grado:'Cap',nombre:'Francisco',apellido: 'Chavez',edad:'22',sexo:'MA',materia:'EDUCACION FISICA'},
-{idinstructor:12,grado:'Tte',nombre:'Alejandro',apellido: 'Villasboa',edad:'34',sexo:'MA',materia:'FISICA AVANZADA'},
-{idinstructor:13,grado:'Cap',nombre:'Isaias',apellido: 'Torres',edad:'28',sexo:'MA',materia:'FUNDAMENTOS DEL EMPLEO DEL PODER NAVAL'},
-{idinstructor:14,grado:'Tte',nombre:'Raquel',apellido: 'Lovera',edad:'40',sexo:'FE',materia:'MATEMATICA'},
-{idinstructor:15,grado:'Cap',nombre:'Angelica',apellido: 'Franco',edad:'42',sexo:'FE',materia:'EDUCACION FISICA'},
-{idinstructor:16,grado:'Tte',nombre:'Luz',apellido: 'Almeida',edad:'29',sexo:'FE',materia:'FISICA AVANZADA'},
-{idinstructor:17,grado:'Cap',nombre:'Aleli',apellido: 'Vera',edad:'32',sexo:'FE',materia:'FUNDAMENTOS DEL EMPLEO DEL PODER NAVAL'},
-{idinstructor:18,grado:'Tte',nombre:'Claudia',apellido: 'Rotela',edad:'41',sexo:'FE',materia:'MATEMATICA'},
-]
 
-//const URI = 'http://186.158.152.141:3002/automot/api/contrato/';
-//let fechaActual = new Date();
-const ListaContrato = ({ token }) => {
-    console.log('entra en contrato')
+let fechaActual = new Date();
+const ListaInstructor = ({ token }) => {
+    
     const [form] = Form.useForm();
-    //const [data, setData] = useState([]);
+    const [data, setData] = useState([]);
 
     const [editingKey, setEditingKey] = useState('');
-    //const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
+    const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
     //---------------------------------------------------
     //Datos de buscador
     const [searchText, setSearchText] = useState('');
@@ -53,38 +31,16 @@ const ListaContrato = ({ token }) => {
     const navigate = useNavigate();
     //---------------------------------------------------
 
-    /*
     useEffect(() => {
-        getContrato();
+        getLstInstructor();
         // eslint-disable-next-line
     }, []);
 
-    //CONFIGURACION DE TOKEN
-    const config = {
-        headers: {
-            "Authorization": `Bearer ${token}`,
-        }
-    };
-
-    const getContrato = async () => {
-        const res = await axios.get(`${URI}/get`, config)
-        /*En caso de que de error en el server direcciona a login* /
-        if (res.data.error) {
-            Logout();
-        }
-        /*
-        const resDataId = [];
-
-        res.data.body.map((rs) => {
-            rs.key = rs.idinstructor;
-            resDataId.push(rs);
-            return true;
-        })
-        setData(resDataId);
-        * /
-        setData(res.data.body);
+    const getLstInstructor = async () => {
+        const res = await getInstructor({token:token});
+        //console.log(res.body)
+        setData(res.body);
     }
-    */
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -184,24 +140,35 @@ const ListaContrato = ({ token }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'Contratos');
-        XLSX.writeFile(wb, 'Contratos.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'Instructors');
+        XLSX.writeFile(wb, 'Instructors.xlsx')
     }
 
-    const deleteContrato = async (id) => {
-        //await axios.delete(`${URI}/del/${id}`, config)
-        //getContrato();
+    const handleDelete = async (id) => {
+        await deleteInstructor({token:token,param:id})
+        getLstInstructor();
     }
-// eslint-disable-next-line
-    const updateContrato = async (newData) => {
+
+    const handleUpdate = async (newData) => {
         //console.log('Entra en update');
         //console.log(newData)
         
-        /*
-        await axios.put(URI + "put/" + newData.idinstructor, newData, config
-        );
-        getContrato();*/
+        await updateInstructor({token:token,param:newData.idinstructor,json:newData}) 
+        getLstInstructor();
     }
+    const getEdad = (dateString) => {
+        let hoy = new Date()
+        let fechaNacimiento = new Date(dateString)
+        let edad = hoy.getFullYear() - fechaNacimiento.getFullYear()
+        let diferenciaMeses = hoy.getMonth() - fechaNacimiento.getMonth()
+        if (
+          diferenciaMeses < 0 ||
+          (diferenciaMeses === 0 && hoy.getDate() < fechaNacimiento.getDate())
+        ) {
+          edad--
+        }
+        return edad
+      }
 
     const columns = [
         {
@@ -215,24 +182,46 @@ const ListaContrato = ({ token }) => {
             title: 'Grado',
             dataIndex: 'grado',
             //width: '22%',
-            editable: true,
-            ...getColumnSearchProps('grado'),
+            editable: false,
+            render: (_, { persona }) => {
+                if(persona){
+                    if(persona.grados_arma){
+                        return persona.grados_arma.descripcion;
+                    }else{
+                        return null;
+                    }
+                }else{
+                    return null;
+                }
+            }
         },
         {
             title: 'Nombre',
             dataIndex: 'nombre',
             //width: '22%',
-            editable: true,
-            ...getColumnSearchProps('nombre'),
+            editable: false,
+            render: (_, { persona }) => {
+                if(persona){
+                    return persona.nombre;
+                }else{
+                    return null;
+                }
+            }
         },
         {
             title: 'Apellido',
             dataIndex: 'apellido',
             //width: '22%',
-            editable: true,
-            ...getColumnSearchProps('apellido'),
+            editable: false,
+            render: (_, { persona }) => {
+                if(persona){
+                    return persona.apellido;
+                }else{
+                    return null;
+                }
+            }
         },
-       /* {
+       {
             title: 'Estado',
             dataIndex: 'estado',
             //width: '7%',
@@ -247,27 +236,41 @@ const ListaContrato = ({ token }) => {
                     </Tag>
                 );
             },
-        },*/
+        },
         {
             title: 'Edad',
             dataIndex: 'edad',
             //width: '22%',
-            editable: true,
-            ...getColumnSearchProps('edad'),
+            editable: false,
+            render: (_, { persona }) => {
+                if(persona){
+                    return getEdad(persona.fnacimiento)
+                    
+                }else{
+                    return null;
+                }
+            }
+            
         },
         {
             title: 'Sexo',
             dataIndex: 'sexo',
             //width: '22%',
-            editable: true,
-            ...getColumnSearchProps('nombre'),
-        },
-        {
-            title: 'Materia',
-            dataIndex: 'materia',
-            //width: '22%',
-            editable: true,
-            ...getColumnSearchProps('materia'),
+            editable: false,
+            render: (_, { persona, idinstructor }) => {
+                if(persona){
+                    let color = 'black';
+                    if (persona.sexo.toUpperCase() === 'MA') { color = 'blue' }
+                    else { color = 'volcano'; }
+                    return (
+                        <Tag color={color} key={idinstructor} >
+                            {persona.sexo.toUpperCase() === 'MA' ? 'Masculino' : 'Femenino'}
+                        </Tag>
+                    );
+                }else{
+                    return null;
+                }
+            },
         },
         {
             title: 'Accion',
@@ -330,11 +333,11 @@ const ListaContrato = ({ token }) => {
 
     const confirmDel = (idinstructor) => {
         message.success('Procesando');
-        deleteContrato(idinstructor);
+        handleDelete(idinstructor);
     };
 
     const save = async (idinstructor) => {
-/*
+
 
         try {
             const row = await form.validateFields();
@@ -351,7 +354,7 @@ const ListaContrato = ({ token }) => {
 
                 newData[index].fecha_upd = strFecha;
                 //console.log(newData);
-                updateContrato(newData[index]);
+                handleUpdate(newData[index]);
                 setData(newData);
                 setEditingKey('');
 
@@ -363,7 +366,7 @@ const ListaContrato = ({ token }) => {
             }
         } catch (errInfo) {
             console.log('Validate Failed:', errInfo);
-        }*/
+        }
     };
 
 
@@ -390,12 +393,11 @@ const ListaContrato = ({ token }) => {
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
-
-                <Button type="primary" onClick={() => navigate('/crearcontrato')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate('/crearinstructor')} >{<PlusOutlined />} Nuevo</Button>
             </div>
             <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idinstructor'} />
         </>
     )
 }
 
-export default ListaContrato;
+export default ListaInstructor;

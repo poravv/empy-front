@@ -10,7 +10,9 @@ function Buscador({ data, label, value,dataIndex,title, onChange, onSearch }) {
             <Select
                 showSearch
                 allowClear
-                placeholder={`Select ${title}`}
+                placeholder={
+                    title ==='Documento' ? `Escriba ${title}` :`Seleccione ${title}`
+                }
                 optionFilterProp="children"
                 onChange={onChange}
                 onSearch={onSearch}
@@ -18,6 +20,7 @@ function Buscador({ data, label, value,dataIndex,title, onChange, onSearch }) {
                     (option?.razon_social ??
                         option?.descripcion??
                         option.documento??
+                        option.label??
                         option?.nombre ?? '').toLowerCase().includes(input.toLowerCase())
                 }
                 fieldNames={{

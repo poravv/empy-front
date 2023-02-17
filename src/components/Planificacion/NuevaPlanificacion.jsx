@@ -1,9 +1,6 @@
 
 
-import {
-    //useEffect, 
-    useState
-} from 'react'
+import {useEffect, useState} from 'react'
 import { useNavigate } from "react-router-dom";
 //import axios from "axios";
 import { Button, Form, Input, DatePicker } from 'antd';
@@ -11,26 +8,8 @@ import Buscador from '../Utils/Buscador/Buscador';
 import { Row, Col, message } from 'antd';
 import { IoTrashOutline } from 'react-icons/io5';
 import Table from 'react-bootstrap/Table';
-
-/*
-const URI = 'http://186.158.152.141:3002/automot/api/plan';
-const URIINVDET = 'http://186.158.152.141:3002/automot/api/detplan';
-const URIMODELO = 'http://186.158.152.141:3002/automot/api/detmodelo';
-const URICLI = 'http://186.158.152.141:3002/automot/api/cliente';
-*/
-
-const lstmateria = [
-    { idmateria: 1, descripcion: 'Matematica', estado: 'AC' },
-    { idmateria: 2, descripcion: 'Ciencias', estado: 'AC' },
-    { idmateria: 3, descripcion: 'Economia', estado: 'AC' },
-]
-
-const lstcurso = [
-    { idcurso: 1, descripcion: 'Primero', estado: 'AC' },
-    { idcurso: 2, descripcion: 'Segundo', estado: 'AC' },
-    { idcurso: 3, descripcion: 'Tercero', estado: 'AC' },
-]
-
+import { getMateria } from '../../services/Materia';
+import { getCurso } from '../../services/Curso';
 
 let fechaActual = new Date();
 
@@ -46,43 +25,33 @@ function NuevoPlan({ token, idusuario, idsucursal }) {
     const [descuento, setDescuento] = useState(0);
     const [detmodeloSelect, setDetmodeloSelect] = useState(0);
     const [cliente, setCliente] = useState(0);
+    const [lstmateria, setLstMateria] = useState([]);
+    const [lstcurso, setLstCurso] = useState([]);
+    
+    
     const navigate = useNavigate();
-    // eslint-disable-next-line
-    //const [lstdetmodelo, setLstdetmodelo] = useState([]);
     // eslint-disable-next-line
     const [lstClientes, setLstClientes] = useState([]);
 
+    useEffect(() => {
+        getLstMateria();
+        getLstCurso();
+        // eslint-disable-next-line
+    }, []);
+
+    const getLstMateria = async () => {
+        const res = await getMateria({token:token,param:'get'});
+        setLstMateria(res.body);
+    }
+
+    const getLstCurso = async () => {
+        const res = await getCurso({token:token,param:'get'});
+        setLstCurso(res.body);
+    }
+
     /*
-        useEffect(() => {
-            getdetmodelos();
-            getClientes();
-            verificaproceso();
-            // eslint-disable-next-line
-        }, []);
-    
-        //CONFIGURACION DE TOKEN
-        const config = {
-            headers: {
-                "Authorization": `Bearer ${token}`,
-            }
-        };
-    
-        const getdetmodelos = async () => {
-            const res = await axios.get(`${URIMODELO}/getsucursal/${idsucursal}`, config);
-            
-            //console.log(res.data);
-            let detModel = [];
-    
-            res.data.body.map((dm) => {
-                dm.descmodelo = dm.modelo.descripcion;
-                detModel.push(dm)
-                return true;
-            })
-    
-            console.log(detModel);
-    
-            setLstdetmodelo(detModel);
-        }
+       
+
     
         const getClientes = async () => {
             const res = await axios.get(`${URICLI}/get`, config);
@@ -256,26 +225,25 @@ function NuevoPlan({ token, idusuario, idsucursal }) {
                     onFinish={gestionGuardado}
                     autoComplete="off">
                     <Row style={{ justifyContent: `center`, margin: `10px` }}>
-                        <Col style={{ marginLeft: `15px` }}>
+                        <Col style={{ marginLeft: `15px`,marginTop:`10px` }}>
                             <Buscador label={'descripcion'} title={'Curso'} value={'idcurso'} data={lstcurso} onChange={onChangedetmodelo} onSearch={onSearch} />
+                        </Col>
+                        <Col style={{ marginLeft: `15px`,marginTop:`10px` }}>
+                            <Buscador label={'descripcion'} title={'Materia'} value={'idmateria'} data={lstmateria} onChange={onChangedetmodelo} onSearch={onSearch} />
                         </Col>
                         
                     </Row>
                     <Row style={{ justifyContent: `center`, margin: `10px` }}>
+                        
                         <Col style={{ marginLeft: `15px` }}>
-                            <Buscador label={'descripcion'} title={'Materia'} value={'idmateria'} data={lstmateria} onChange={onChangedetmodelo} onSearch={onSearch} />
-                        </Col>
-                        <Col>
                             <Form.Item name="hora" >
                                 <Input type='number' placeholder='Carga horaria' value={descuento} onChange={(e) => setDescuento(e.target.value)} />
                             </Form.Item>
                         </Col>
-                        <Col>
+                        <Col style={{ marginLeft: `15px` }}>
                             <Form.Item name="fecha" >
-                                <DatePicker.RangePicker style={{ width: '70%' }} />
+                                <DatePicker.RangePicker />
                             </Form.Item>
-                        </Col>
-                        <Col>
                         </Col>
                         <Col style={{ marginLeft: `15px` }}>
                             <Button type="primary" htmlType="submit" onClick={(e) => agregarLista(e)} >
@@ -284,10 +252,10 @@ function NuevoPlan({ token, idusuario, idsucursal }) {
                         </Col>
                     </Row>
                     <div style={{ alignItems: `center`, justifyContent: `center`, margin: `0px`, display: `flex` }}>
-                        <Table striped bordered hover style={{ backgroundColor: `white` }}>
-                            <thead className='table-primary'>
-                                <tr>
-                                    <th>Materia</th>
+                        <Table style={{ backgroundColor: `white` }}>
+                            <thead style={{ backgroundColor:`#03457F`,color:`white` }}>
+                                <tr >
+                                    <th >Materia</th>
                                     <th>Carga horaria</th>
                                     <th>Fecha inicio</th>
                                     <th>Fecha fin</th>
@@ -325,11 +293,11 @@ function NuevoPlan({ token, idusuario, idsucursal }) {
                     </div>
 
                     <Row style={{ alignItems: `center`, justifyContent: `center` }}>
-                        <Form.Item style={{ margin: `20px` }}>
-                            <Button type="primary" htmlType="submit" style={{ margin: `20px` }} >
+                        <Form.Item >
+                            <Button type="primary" htmlType="submit" style={{ margin: `10px` }} >
                                 Guardar
                             </Button>
-                            <Button type="primary" htmlType="submit" onClick={btnCancelar} style={{ margin: `20px` }} >
+                            <Button type="primary" htmlType="submit" onClick={btnCancelar}  >
                                 Cancelar
                             </Button>
                         </Form.Item>

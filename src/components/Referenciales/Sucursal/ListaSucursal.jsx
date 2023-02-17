@@ -167,7 +167,7 @@ const ListaSucursal = ({ token,idsucursal }) => {
             ...getColumnSearchProps('idsucursal'),
         },
         {
-            title: 'Sucursal',
+            title: 'Escuelas',
             dataIndex: 'sucursal',
             //width: '12%',
             editable: true,
@@ -362,7 +362,7 @@ const ListaSucursal = ({ token,idsucursal }) => {
 
     return (
         <>
-            <h3>Playa disponible</h3>
+            <h3>Escuelas</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>

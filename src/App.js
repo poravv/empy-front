@@ -32,6 +32,7 @@ function App() {
 
   const getUniqueSucursal = async (id,token) =>{
     const res = await getSucursalById({token:token,param:id});
+    //console.log(res)
     setSuc(res);
   }
 
