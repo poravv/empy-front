@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const baseURL = 'http://186.158.152.141:3002/empy/api/anho_lectivo';
+const baseURL = 'http://186.158.152.141:3002/empy/api/planificacion';
 
-export const getAnhoLectivo = async ({token,param}) => {
+export const getPlanificacion = async ({token,param}) => {
     //CONFIGURACION DE TOKEN
     const config = {
         headers: {
@@ -14,18 +14,8 @@ export const getAnhoLectivo = async ({token,param}) => {
     return data;
 };
 
-export const getUniqiueAnhoLectivo = async ({token,param}) => {
-    //CONFIGURACION DE TOKEN
-    const config = {
-        headers: {"Authorization": `Bearer ${token}`}
-    };
-    const { data } = await axios.get(`${baseURL}/getunique`, config)
-    //console.log(data.body);
-    return data;
-};
 
-
-export const deleteAnhoLectivo  = async ({token,param}) => {
+export const deletePlanificacion  = async ({token,param}) => {
     //CONFIGURACION DE TOKEN
     const config = {
         headers: {
@@ -36,7 +26,7 @@ export const deleteAnhoLectivo  = async ({token,param}) => {
     return data;
 };
 
-export const updateAnhoLectivo  = async ({token,param,json}) => {
+export const updatePlanificacion  = async ({token,param,json}) => {
     const config = {
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -46,7 +36,7 @@ export const updateAnhoLectivo  = async ({token,param,json}) => {
     return data;
 };
 
-export const createAnhoLectivo  = async ({token,json}) => {
+export const createPlanificacion  = async ({token,json}) => {
     //console.log(json)
     const config = {
         headers: {
@@ -54,6 +44,6 @@ export const createAnhoLectivo  = async ({token,json}) => {
         }
     };
 
-    await axios.post(baseURL + "/post/", json, config)
-    return true;
+    const resultado = await axios.post(baseURL + "/post/", json, config)
+    return resultado.data;
 };

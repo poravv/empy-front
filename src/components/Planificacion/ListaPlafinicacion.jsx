@@ -1,83 +1,40 @@
-//import axios from 'axios'
-import {
-    useState,
-    //useEffect, 
-    useRef
-} from 'react'
-//import { Logout } from '../Utils/Logout';
+import { useState,useEffect, useRef } from 'react'
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-//import TableModel from '../TableModel/TableModel';
 import TableModelExpand from '../TableModel/TableModelExpand';
-//import { Tag } from 'antd';
+import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
+import { getPlanificacion } from '../../services/Planificacion';
 
-const data = [
-    { idplan: 1, curso: 'Ing Informatica', detalle: [
-        { idplan:1,iddetalle: 1, materia: 'Matematica', carga_horaria: '100', finicio: '01-01-2023', ffin: `25-06-2023`, instructor: `Cap. Claudio Ibarra` },
-        { idplan:1,iddetalle: 2, materia: 'Ciencias', carga_horaria: '120', finicio: '26-06-2023', ffin: `10-10-2023`, instructor: `Cap. Alexis Aguirre` },
-    ] },
-    { idplan: 2, curso: 'Analisis de Sistemas', detalle: [
-        { idplan:2,iddetalle: 1, materia: 'Matematica', carga_horaria: '100', finicio: '01-01-2023', ffin: `25-06-2023`, instructor: `Cap. Claudio Ibarra` },
-        { idplan:2,iddetalle: 2, materia: 'Ciencias', carga_horaria: '120', finicio: '26-06-2023', ffin: `10-10-2023`, instructor: `Cap. Alexis Aguirre` },
-    ] },
-]
-
-
-//const URI = 'http://186.158.152.141:3002/automot/api/plan/';
-//let fechaActual = new Date();
+let fechaActual = new Date();
 const ListaPlan = ({ token }) => {
-    console.log(data)
     const [form] = Form.useForm();
-    //const [data, setData] = useState([]);
-
+    const [data, setData] = useState([]);
     const [editingKey, setEditingKey] = useState('');
-    //const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
-    //---------------------------------------------------
-    //Datos de buscador
+    const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
     const navigate = useNavigate();
     //---------------------------------------------------
-    /*
+    
     useEffect(() => {
         getPlan();
         // eslint-disable-next-line
     }, []);
 
-    //CONFIGURACION DE TOKEN
-    const config = {
-        headers: {
-            "Authorization": `Bearer ${token}`,
-        }
-    };
-
-    const getPlan = async () => {
-        const res = await axios.get(`${URI}/get`, config)
-        /*En caso de que de error en el server direcciona a login* /
-        if (res.data.error) {
-            Logout();
-        }
-        /*
-        const resDataId = [];
-
-        res.data.body.map((rs) => {
-            rs.key = rs.idplan;
-            resDataId.push(rs);
-            return true;
-        })
-        setData(resDataId);
-        * /
-        setData(res.data.body);
+    const getPlan = async () => {        
+        const res = await getPlanificacion({token:token,param:'get'});
+        console.log(res.body);
+        setData(res.body);
     }
-    */
+    
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -191,53 +148,57 @@ const ListaPlan = ({ token }) => {
         //console.log(newData)
 
         /*
-        await axios.put(URI + "put/" + newData.idplan, newData, config
+        await axios.put(URI + "put/" + newData.idplanificacion, newData, config
         );
         getPlan();*/
     }
 
     const columns = [
         {
-            title: 'idplan',
-            dataIndex: 'idplan',
-            width: '6%',
+            title: 'ID',
+            dataIndex: 'idplanificacion',
+            //width: '6%',
             editable: false,
             ...getColumnSearchProps('id'),
         },
         {
             title: 'Curso',
             dataIndex: 'curso',
-            width: '22%',
-            editable: true,
-            ...getColumnSearchProps('curso'),
+            //width: '22%',
+            editable: false,
+            //...getColumnSearchProps('curso'),
+            render: (_, planificacion) => {
+                //console.log(planificacion.curso);
+                return (
+                    planificacion.curso.descripcion
+                );
+            },
         },
-        /* {
+        {
              title: 'Estado',
              dataIndex: 'estado',
              //width: '7%',
              editable: true,
-             render: (_, { estado, idplan }) => {
+             render: (_, { estado, idplanificacion }) => {
                  let color = 'black';
                  if (estado.toUpperCase() === 'AC') { color = 'green' }
                  else { color = 'volcano'; }
                  return (
-                     <Tag color={color} key={idplan} >
+                     <Tag color={color} key={idplanificacion} >
                          {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                      </Tag>
                  );
              },
-         },*/
+         },
         {
             title: 'Accion',
             dataIndex: 'operacion',
             render: (_, record) => {
-
                 const editable = isEditing(record);
-
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idplan)}
+                            onClick={() => save(record.idplanificacion)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -257,7 +218,7 @@ const ListaPlan = ({ token }) => {
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idplan)}
+                            onConfirm={() => confirmDel(record.idplanificacion)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -275,16 +236,29 @@ const ListaPlan = ({ token }) => {
     //{iddetalle:11,materia:'Matematica',carga_horaria:'100',finicio:'01-01-2023',ffin:`25-06-2023`,instructor:`Cap. Claudio Ibarra`},
 
     const columnDet = [
+        /*
         {
-            title: 'iddetalle',
-            dataIndex: 'iddetalle',
-            key: 'iddetalle',
+            title: 'ID',
+            dataIndex: 'iddet_planificacion',
+            key: 'iddet_planificacion',
             width: '2%',
         },
+        */
         {
             title: 'Materia',
             dataIndex: 'materia',
             width: '2%',
+            render: (_, record) => {
+                //console.log(planificacion.curso);
+                if(record.materium){
+                    return (
+                        record.materium.descripcion??""
+                    );
+                }else{
+                    return null;
+                }
+                
+            },
         },
         {
             title: 'Carga horaria',
@@ -297,35 +271,7 @@ const ListaPlan = ({ token }) => {
             }
             */
         },
-        {
-            title: 'Fecha inicio',
-            dataIndex: 'finicio',
-            width: '2%',
-        },
-        {
-            title: 'Fecha fin',
-            dataIndex: 'ffin',
-            width: '2%',
-        },
-        {
-            title: 'Instructor',
-            dataIndex: 'instructor',
-            key: 'instructor',
-            width: '2%',
-            /*
-            render: (_, { estado, idinventario }) => {
-                let color = 'black';
-                if (estado.toUpperCase() === 'AC') { color = 'blue' }
-                else { color = 'volcano'; }
-                return (
-                    <Tag color={color} key={idinventario} >
-                        {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
-                    </Tag>
-                );
-            },
-            */
-        },
-        {
+        /*{
             title: 'Action',
             dataIndex: 'operation',
             key: 'operation',
@@ -333,35 +279,33 @@ const ListaPlan = ({ token }) => {
             render: () => (
                 null
             ),
-        },
+        },*/
     ];
 
     const edit = (record) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idplan);
+        setEditingKey(record.idplanificacion);
     };
 
 
-    const isEditing = (record) => record.idplan === editingKey;
+    const isEditing = (record) => record.idplanificacion === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idplan) => {
+    const confirmDel = (idplanificacion) => {
         message.success('Procesando');
-        deletePlan(idplan);
+        deletePlan(idplanificacion);
     };
 
-    const save = async (idplan) => {
-        /*
-        
-                try {
+    const save = async (idplanificacion) => {
+         try {
                     const row = await form.validateFields();
                     const newData = [...data];
-                    const index = newData.findIndex((item) => idplan === item.idplan);
+                    const index = newData.findIndex((item) => idplanificacion === item.idplanificacion);
         
                     if (index > -1) {
         
@@ -385,7 +329,7 @@ const ListaPlan = ({ token }) => {
                     }
                 } catch (errInfo) {
                     console.log('Validate Failed:', errInfo);
-                }*/
+                }
     };
 
 
@@ -415,10 +359,10 @@ const ListaPlan = ({ token }) => {
 
                 <Button type="primary" onClick={() => navigate('/crearplan')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModelExpand columnDet={columnDet} keyDet={'iddetalle'} token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idplan'} />
+            <TableModelExpand columnDet={columnDet} keyDet={'iddet_planificacion'} token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idplanificacion'} />
         </>
     )
 }
 export default ListaPlan;
 
-//<TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idplan'} />
+//<TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idplanificacion'} />

@@ -68,7 +68,7 @@ const AppBar = ({ usuario, sucursal }) => {
             getItem(() => navegacion('/turno'), 'Turno', '5'),
             getItem(() => navegacion('/anhoLectivo'), 'Año Lectivo', '6'),
             getItem(() => navegacion('/documentos'), 'Documentos', '7'),
-            getItem(() => navegacion('/sucursal'), 'Sucursal', '8'),
+            getItem(() => navegacion('/sucursal'), 'Escuela', '8'),
             getItem(() => navegacion('/gradosArma'), 'Rangos', '9'),
         ]),
         getItem(null, 'Academico', 'sub2', <FolderOpenOutlined />, [

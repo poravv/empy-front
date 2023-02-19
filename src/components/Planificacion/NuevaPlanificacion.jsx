@@ -1,126 +1,115 @@
 
-
-import {useEffect, useState} from 'react'
+//Librerias
+import { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom";
-//import axios from "axios";
-import { Button, Form, Input, DatePicker } from 'antd';
+import { Button, Form, Input, Divider } from 'antd';
 import Buscador from '../Utils/Buscador/Buscador';
 import { Row, Col, message } from 'antd';
 import { IoTrashOutline } from 'react-icons/io5';
 import Table from 'react-bootstrap/Table';
+//Clases
 import { getMateria } from '../../services/Materia';
 import { getCurso } from '../../services/Curso';
+import { createPlanificacion, getPlanificacion } from '../../services/Planificacion';
+import { createDetPlanificacion } from '../../services/DetPlanificacion';
+import { getUniqiueAnhoLectivo } from '../../services/AnhoLectivo';
+
 
 let fechaActual = new Date();
 
-function NuevoPlan({ token, idusuario, idsucursal }) {
-
-    console.log(idsucursal)
-
-    //Parte de nuevo registro por modal
+function NuevoPlan({ token }) {
+    //Variables 
     const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
     const [tblplantmp, setTblPlanTmp] = useState([]);
-    const [total, setTotal] = useState(0);
-    const [totalIva, setTotalIva] = useState(0);
-    const [descuento, setDescuento] = useState(0);
-    const [detmodeloSelect, setDetmodeloSelect] = useState(0);
-    const [cliente, setCliente] = useState(0);
+    const [carga_horaria, setCargaHoraria] = useState(0);
     const [lstmateria, setLstMateria] = useState([]);
     const [lstcurso, setLstCurso] = useState([]);
-    
-    
+    const [lstPlan, setLstPlan] = useState([]);
+    const [materiaSelect, setMateriaSelect] = useState([]);
+    const [descripcion, setDescripcion] = useState('');
+    const [idcurso, setIdCurso] = useState();
+    const [idanho_lectivo, setIdAnhoLectivo] = useState();
+
     const navigate = useNavigate();
-    // eslint-disable-next-line
-    const [lstClientes, setLstClientes] = useState([]);
 
     useEffect(() => {
         getLstMateria();
         getLstCurso();
+        getLstPlan();
+        getAnhoLectivo();
         // eslint-disable-next-line
     }, []);
 
     const getLstMateria = async () => {
-        const res = await getMateria({token:token,param:'get'});
+        const res = await getMateria({ token: token, param: 'get' });
         setLstMateria(res.body);
+    }
+    const getLstPlan = async () => {
+        const res = await getPlanificacion({ token: token, param: 'get' });
+        setLstPlan(res.body);
+    }
+
+    const getAnhoLectivo = async () => {
+        const res = await getUniqiueAnhoLectivo({ token: token});
+        //console.log(res.body[0].idanho_lectivo)
+        setIdAnhoLectivo(res.body[0].idanho_lectivo);
     }
 
     const getLstCurso = async () => {
-        const res = await getCurso({token:token,param:'get'});
+        const res = await getCurso({ token: token, param: 'get' });
         setLstCurso(res.body);
     }
 
-    /*
-       
-
-    
-        const getClientes = async () => {
-            const res = await axios.get(`${URICLI}/get`, config);
-            setLstClientes(res.data.body);
-        }
-        const verificaproceso = async () => {
-            return await axios.post(URI + `/verificaproceso/${idusuario}-inplanrio`, {}, config);
-        }
-    */
-
-
 
     const guardaCab = async (valores) => {
-        //return await axios.post(URI + "/post/", valores, config);
+        console.log(valores)
+        return await createPlanificacion({ token: token, json: valores });
+        //navigate('/plan');
     }
 
     const guardaDetalle = async (valores) => {
-        //await axios.post(URIINVDET + "/post/", valores, config);
+        return await createDetPlanificacion({ token: token, json: valores });
     }
 
-    const actualizaDetmodelo = async (iddet_modelo) => {
-        //console.log('Entra en ups detmodelo: ',iddet_modelo)
-        //await axios.put(URIMODELO + `/put/${iddet_modelo}`, {estado:'VE'}, config);
-    }
-
-
-    //procedimiento para actualizar
+    //procedimiento para guardar
     const gestionGuardado = async () => {
         //e.preventDefault();
+        let validExist = false;
+
+        /*Validacion de existencia de curso con anho lectivo*/
+        lstPlan.map((plan)=> {
+            if(plan.idcurso===idcurso&&plan.idanho_lectivo===idanho_lectivo){
+                message.error('El curso ya existe para el año lectivo');
+                validExist=true;
+            }
+            return true;
+        });
+
+        if(validExist) return;
+
         try {
-            guardaCab(
-                {
-                    idusuario: idusuario,
-                    idcliente: cliente.idcliente,
-                    estado: 'AC',
-                    fecha: strFecha,
-                    iva_total: totalIva,
-                    total: total,
-                    costo_envio: 0,
-                    nro_comprobante: 0
+            guardaCab({
+                fecha: strFecha,
+                estado: 'AC',
+                idanho_lectivo:idanho_lectivo,
+                idcurso:idcurso,
                 }
             ).then((cabecera) => {
                 try {
-                    //console.log('cab: ',cabecera.data.body);
-                    //console.log('Entra en guarda detalle')
                     //Guardado del detalle
-                    tblplantmp.map((plan) => {
-                        console.log(plan);
-                        console.log('iddet_modelo: ', plan.detmodelo.iddet_modelo)
-                        console.log('descuento: ', plan.descuento)
-                        console.log('subtotal: ', (plan.detmodelo.costo))
-                        console.log('idplan: ', (cabecera.data.body.idplan))
-
+                    tblplantmp.map((detplan) => {
+                        console.log(detplan);
+                        //console.log('iddet_modelo: ', plan.detmodelo.iddet_modelo)
                         guardaDetalle({
-                            iddet_modelo: plan.detmodelo.iddet_modelo,
-                            //estado: plan.detmodelo.estado,
+                            carga_horaria:carga_horaria,
+                            descripcion:descripcion,
                             estado: 'AC',
-                            descuento: plan.descuento,
-                            idplan: cabecera.data.body.idplan,
-                            subtotal: plan.detmodelo.costo,
+                            idmateria: detplan.materia.idmateria,
+                            idplanificacion: cabecera.body.idplanificacion,
                         });
-                        actualizaDetmodelo(plan.detmodelo.iddet_modelo);
-
                         return true;
-
                     });
-
                     message.success('Registro almacenado');
-
                 } catch (error) {
                     console.log(error);
                     message.error('Error en la creacion');
@@ -128,69 +117,52 @@ function NuevoPlan({ token, idusuario, idsucursal }) {
                 }
                 navigate('/plan');
             });
-
         } catch (e) {
             console.log(e);
             message.error('Error en la creacion');
             return null;
         }
-
     }
 
     const agregarLista = async (e) => {
         e.preventDefault();
+        //console.log(materiaSelect);
+        let validExist=false;
 
-        //console.log(detmodeloSelect);
-
-        //Validacion de existencia del detmodelo dentro de la lista 
-        //const detmodeloSelect = lstdetmodelo.filter((inv) => inv.iddet_modelo === iddet_modeloSelect);
-        const validExist = tblplantmp.filter((inv) => inv.iddet_modelo === detmodeloSelect.iddet_modelo);
-
-        if (detmodeloSelect !== null) {
-            if (validExist.length === 0) {
-                tblplantmp.push({
-                    iddet_modelo: detmodeloSelect.iddet_modelo,
-                    detmodelo: detmodeloSelect,
-                    descuento: descuento
-                });
-
-                setTotal(parseInt(total + (detmodeloSelect.costo) - descuento));
-                setTotalIva(parseInt(totalIva + ((detmodeloSelect.costo * detmodeloSelect.tipo_iva / 100))));
-
-            } else {
-                message.warning('Producto ya existe');
+         tblplantmp.filter((inv) => {
+            if(inv.idmateria === materiaSelect.idmateria){
+                validExist=true;
+                return true
             }
-        } else {
-            message.warning('Seleccione un detmodelo');
+            return true;
         }
+            );
+        if (validExist===false){
+            /*Tabla temporal*/
+            const updtblPlan = { idmateria:materiaSelect.idmateria, materia: materiaSelect, carga_horaria: carga_horaria, descripcion: descripcion, };
+            /*Se va sumando los valores que se van cargando*/
+            setTblPlanTmp([...tblplantmp,updtblPlan])
+            message.success('Agregado');
+        } else {
+            message.warning('Materia ya existe');
+        }
+        validExist=false;
     }
+
 
     const btnCancelar = (e) => {
         e.preventDefault();
         navigate('/plan');
     }
 
-    const onChangedetmodelo = (value) => {
-        console.log(value);
-        //console.log(lstdetmodelo);
-        lstmateria.find((element) => {
-
-            if (element.iddet_modelo === value) {
-                //console.log(element);
-                setDetmodeloSelect(element)
-                return true;
-            } else {
-                return false;
-            }
-        });
+    const onChangeCurso = (value) => {
+        setIdCurso(value)
     };
-    // eslint-disable-next-line
-    const onChangeCliente = (value) => {
-
-        lstClientes.find((element) => {
-            if (element.idcliente === value) {
-                //console.log(element);
-                setCliente(element)
+    
+    const onChangeMateria = (value) => {
+        lstmateria.find((element) => {
+            if (element.idmateria === value) {
+                setMateriaSelect(element)
                 return true;
             } else {
                 return false;
@@ -202,15 +174,11 @@ function NuevoPlan({ token, idusuario, idsucursal }) {
         console.log('search:', value);
     };
 
-    const extraerRegistro = async (e, id, costo, monto_iva) => {
+    const extraerRegistro = async (e, id) => {
         e.preventDefault();
         //console.log('Datos: ',costo,monto_iva)
-        const updtblPlan = tblplantmp.filter(inv => inv.iddet_modelo !== id);
+        const updtblPlan = tblplantmp.filter(inv => inv.idmateria !== id);
         setTblPlanTmp(updtblPlan);
-
-        setTotal(total - costo);
-        setTotalIva(totalIva - monto_iva);
-
     };
 
     return (
@@ -224,25 +192,25 @@ function NuevoPlan({ token, idusuario, idsucursal }) {
                     initialValues={{ remember: true, }}
                     onFinish={gestionGuardado}
                     autoComplete="off">
-                    <Row style={{ justifyContent: `center`, margin: `10px` }}>
-                        <Col style={{ marginLeft: `15px`,marginTop:`10px` }}>
-                            <Buscador label={'descripcion'} title={'Curso'} value={'idcurso'} data={lstcurso} onChange={onChangedetmodelo} onSearch={onSearch} />
+                    <Divider orientation="center" type="horizontal" style={{ color: `#747E87` }}>Cabecera</Divider>
+                    <Row style={{ justifyContent: `center` }}>
+                        <Col style={{ marginLeft: `15px`, marginTop: `5px` }}>
+                            <Buscador label={'descripcion'} title={'Curso'} value={'idcurso'} data={lstcurso} onChange={onChangeCurso} onSearch={onSearch} />
                         </Col>
-                        <Col style={{ marginLeft: `15px`,marginTop:`10px` }}>
-                            <Buscador label={'descripcion'} title={'Materia'} value={'idmateria'} data={lstmateria} onChange={onChangedetmodelo} onSearch={onSearch} />
-                        </Col>
-                        
                     </Row>
-                    <Row style={{ justifyContent: `center`, margin: `10px` }}>
-                        
+                    <Divider orientation="center" type="horizontal" style={{ color: `#747E87` }}>Carga de detalle</Divider>
+                    <Row style={{ justifyContent: `center` }}>
+                        <Col style={{ marginLeft: `15px` }}>
+                            <Buscador label={'descripcion'} title={'Materia'} value={'idmateria'} data={lstmateria} onChange={onChangeMateria} onSearch={onSearch} />
+                        </Col>
                         <Col style={{ marginLeft: `15px` }}>
                             <Form.Item name="hora" >
-                                <Input type='number' placeholder='Carga horaria' value={descuento} onChange={(e) => setDescuento(e.target.value)} />
+                                <Input type='number' placeholder='Carga horaria' value={carga_horaria} onChange={(e) => setCargaHoraria(e.target.value)} />
                             </Form.Item>
                         </Col>
                         <Col style={{ marginLeft: `15px` }}>
-                            <Form.Item name="fecha" >
-                                <DatePicker.RangePicker />
+                            <Form.Item name="descripcion" >
+                                <Input placeholder='Descripcion' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
                             </Form.Item>
                         </Col>
                         <Col style={{ marginLeft: `15px` }}>
@@ -253,42 +221,26 @@ function NuevoPlan({ token, idusuario, idsucursal }) {
                     </Row>
                     <div style={{ alignItems: `center`, justifyContent: `center`, margin: `0px`, display: `flex` }}>
                         <Table style={{ backgroundColor: `white` }}>
-                            <thead style={{ backgroundColor:`#03457F`,color:`white` }}>
+                            <thead style={{ backgroundColor: `#03457F`, color: `white` }}>
                                 <tr >
-                                    <th >Materia</th>
+                                    <th>Materia</th>
                                     <th>Carga horaria</th>
-                                    <th>Fecha inicio</th>
-                                    <th>Fecha fin</th>
                                     <th>Accion</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {tblplantmp.length !== 0 ? tblplantmp.map((inv) => (
-                                    <tr key={inv.iddet_modelo}>
-                                        <td> {inv.detmodelo.descmodelo} </td>
-                                        <td> {inv.detmodelo.costo} </td>
-                                        <td> {inv.descuento} </td>
-                                        <td> {inv.detmodelo.tipo_iva + '%'} </td>
-                                        <td> {inv.detmodelo.costo * inv.detmodelo.tipo_iva / 100} </td>
-                                        <td> {(inv.detmodelo.costo * inv.detmodelo.tipo_iva / 100)} </td>
-                                        <td> {inv.detmodelo.costo} </td>
+                                {tblplantmp.length !== 0 ? tblplantmp.map(inv => (
+                                    <tr key={inv.idmateria}>
+                                        <td> {inv.materia.descripcion} </td>
+                                        <td> {inv.carga_horaria} </td>
                                         <td>
-                                            <button onClick={(e) => extraerRegistro(e, inv.iddet_modelo, (inv.detmodelo.costo - descuento), parseInt((inv.detmodelo.costo * inv.detmodelo.tipo_iva) / 100))} className='btn btn-danger'><IoTrashOutline /></button>
+                                            <button onClick={(e) => extraerRegistro(e, inv.idmateria)} className='btn btn-danger'><IoTrashOutline /></button>
                                         </td>
                                     </tr>
                                 )) : null
                                 }
-                                <tr key={1}>
-                                    <td> {'Ciencias'} </td>
-                                    <td> {'100'} </td>
-                                    <td> {'10-01-2023'} </td>
-                                    <td> {'25-06-2023'} </td>
-                                    <td>
-                                        <button className='btn btn-danger'><IoTrashOutline /></button>
-                                    </td>
-                                </tr>
                             </tbody>
-
+ 
                         </Table>
                     </div>
 

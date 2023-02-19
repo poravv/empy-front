@@ -6,9 +6,7 @@ import {
 } from 'react'
 import { useNavigate } from "react-router-dom";
 //import axios from "axios";
-import { Button, Form, Input, 
-//    DatePicker 
-} from 'antd';
+import {Button, Form, Input,DatePicker } from 'antd';
 import Buscador from '../Utils/Buscador/Buscador';
 import { Row, Col, message } from 'antd';
 //import { IoTrashOutline } from 'react-icons/io5';
@@ -218,11 +216,17 @@ function NuevoConvocatoria({ token, idusuario, idsucursal }) {
                             <Buscador label={'descripcion'} title={'-- Plan --'} value={'idplan'} data={lstplan} onChange={onChangedetmodelo} onSearch={onSearch} />
                         </Col>
                     </Row>
+
                     <Row style={{ justifyContent: `center`, margin: `5px` }}>
-                    <Col >
+                        <Col style={{ marginLeft: `15px` }}>
+                            <Form.Item name="fecha" >
+                                <DatePicker.RangePicker />
+                            </Form.Item>
+                        </Col>
+                        <Col >
                             <Buscador label={'descripcion'} title={'Turno'} value={'idturno'} data={lstturno} onChange={onChangedetmodelo} onSearch={onSearch} />
-                        </Col>    
-                    </Row>   
+                        </Col>
+                    </Row>
                     <Row style={{ justifyContent: `center`, margin: `10px` }}>
                         <Col >
                             <Form.Item name="hora" >
@@ -230,7 +234,7 @@ function NuevoConvocatoria({ token, idusuario, idsucursal }) {
                             </Form.Item>
                         </Col>
                     </Row>
-                                 
+
                     <Row style={{ alignItems: `center`, justifyContent: `center` }}>
                         <Form.Item >
                             <Button type="primary" htmlType="submit" style={{ margin: `20px` }} >
