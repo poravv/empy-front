@@ -21,6 +21,7 @@ function Buscador({ data, label, value,dataIndex,title, onChange, onSearch }) {
                         option?.descripcion??
                         option.documento??
                         option.label??
+                        option?.nombres ??
                         option?.nombre ?? '').toLowerCase().includes(input.toLowerCase())
                 }
                 fieldNames={{

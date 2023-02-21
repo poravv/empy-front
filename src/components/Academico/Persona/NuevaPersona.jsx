@@ -7,16 +7,14 @@ import UploadFile from '../../Utils/Upload';
 import { Button, Form, Input, DatePicker, Radio, Row, Divider } from 'antd';
 import Buscador from '../../Utils/Buscador/Buscador';
 import { getPersona, createPersona, updatePersona } from '../../../services/Persona';
-import { createInstructor, getInstructor, updateInstructor } from '../../../services/Instructor';
 import { getCiudad } from '../../../services/Ciudad';
 import { getGradosArma } from '../../../services/GradosArma';
 import moment from 'moment';
 import { NACIONALIDAD } from '../../Utils/Nacionalidades'
 
 
-function NuevoInstructor({ token }) {
+function NuevoPersona({ token }) {
     const [form] = Form.useForm();
-    const [data, setData] = useState([]);
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
     const [fnacimiento, setFnacimiento] = useState('');
@@ -37,20 +35,13 @@ function NuevoInstructor({ token }) {
     const [idpersona, setIdpersona] = useState(0);
     const [observacion, setObservacion] = useState(0);
 
-
     useEffect(() => {
         getLstCiudad();
         getLstGradosArmas();
         getLstPersonas();
-        getLstInstructor();
         // eslint-disable-next-line
     }, []);
 
-    const getLstInstructor = async () => {
-        const res = await getInstructor({ token: token });
-        //console.log(res.body)
-        setData(res.body);
-    }
 
 
     const onChangeRadio = (e) => {
@@ -103,7 +94,6 @@ function NuevoInstructor({ token }) {
 
     //procedimiento para crear registro
     const create = async (e) => {
-        //console.log(idpersona)
         //console.log(fnacimiento._i);
         //console.log(moment(fnacimiento).format('YYYY-MM-DD'));
 
@@ -111,17 +101,16 @@ function NuevoInstructor({ token }) {
         let bandera = true;
         /*Verificar si existe para actualizar o crear posteriormente */
         let savePersona;
-        let saveinstructor;
         /*Para validad undefine*/
         //if(!idpersona||idpersona===0){console.log('Idpersona es null');return false}
 
         personas.find((persona) => {
             if (persona.idpersona === idpersona) {
                 bandera = false;
-            } 
+            }
             if (persona.documento === documento) {
-                setIdpersona(persona.idpersona)
                 bandera = false;
+                setIdpersona(persona.idpersona)
             } 
             return true;
         });
@@ -144,23 +133,13 @@ function NuevoInstructor({ token }) {
                 idgrados_arma: idgrados_arma,
                 idciudad: idciudad,
             };
-            console.log('Entra en create persona')
-            const resultado = await createPersona({ token: token, json: savePersona });
-            //console.log('Rs: ',resultado)
-            saveinstructor = {
-                idpersona: resultado.body.idpersona,
-                observacion: observacion,
-                estado: 'AC'
-            }
-            await createInstructor({ token: token, json: saveinstructor });
+            await createPersona({ token: token, json: savePersona });
         } else {
-            //console.log('Entra en actualizar')
-            /*Update*/
             savePersona = {
                 idpersona: idpersona,
                 nombre: nombre,
                 apellido: apellido,
-                fnacimiento: moment(fnacimiento).format('YYYY-MM-DD')??fnacimiento._i,
+                fnacimiento: moment(fnacimiento).format('YYYY-MM-DD') ?? fnacimiento._i,
                 sexo: valueSexo,
                 documento: documento,
                 estado: 'AC',
@@ -173,43 +152,18 @@ function NuevoInstructor({ token }) {
                 idgrados_arma: idgrados_arma,
                 idciudad: idciudad
             };
-
-            saveinstructor = {
-                idpersona: idpersona,
-                observacion: observacion,
-                estado: 'AC'
-            };
-            let bandera1 = true;
-            let idinstructor = 0;
-            data.find((instructor) => {
-                if (instructor.idpersona === idpersona) {
-                    bandera1 = false;
-                    idinstructor = instructor.idinstructor;
-                    return true;
-                } else {
-                    return false;
-                }
+            /*Actualiza y crea persona*/
+            await updatePersona({ token: token, param: savePersona.idpersona, json: savePersona }).then((resultado) => {
+                console.log(resultado)
             });
-            if (bandera1) {
-                /*Actualiza y crea instructor*/
-                await updatePersona({ token: token, param: savePersona.idpersona, json: savePersona }).then((resultado) => {
-                    console.log(resultado)
-                });
-                await createInstructor({ token: token, json: saveinstructor });
-            } else {
-                await updatePersona({ token: token, param: savePersona.idpersona, json: savePersona }).then((resultado) => {
-                    console.log(resultado)
-                });
-                await updateInstructor({ token: token, param: idinstructor, json: saveinstructor });
-            }
 
         }
-        navigate('/instructor');
+        navigate('/persona');
     }
 
     const btnCancelar = (e) => {
         e.preventDefault();
-        navigate('/instructor');
+        navigate('/persona');
     }
 
     const changeDate = (fnac) => {
@@ -247,7 +201,6 @@ function NuevoInstructor({ token }) {
                 setIdgrados_armas(element.idgrados_arma);
                 setIdciudad(element.idciudad);
                 setFnacimiento(element.fnacimiento);
-                //setIdpersona(value);
                 setIdpersona(element.idpersona);
 
                 //changeDate(JSON.stringify(element.fnacimiento));
@@ -262,8 +215,8 @@ function NuevoInstructor({ token }) {
                 form.setFieldValue('telefono', element.telefono);
                 form.setFieldValue('idciudad', element.idciudad);
                 form.setFieldValue('idgrados_arma', element.idgrados_arma);
-                form.setFieldValue('fnacimiento', element.fnacimiento);
                 form.setFieldValue('idpersona', element.idpersona);
+                form.setFieldValue('fnacimiento', element.fnacimiento);
 
                 //console.log(new Date())
                 return true;
@@ -281,7 +234,7 @@ function NuevoInstructor({ token }) {
     return (
         <div >
             <div style={{ marginBottom: `20px` }}>
-                <h2>Cargar instructor</h2>
+                <h2>Formulario de persona</h2>
             </div>
             <Form
                 name="basic"
@@ -337,7 +290,7 @@ function NuevoInstructor({ token }) {
                         //value={fnacimiento}
                         format="YYYY-MM-DD"
                         onChange={date => changeDate(date)}
-                        style={{ width: '67%' }} placeholder={'Fecha de nacimiento'} />
+                        style={{ width: '67%' }} placeholder={'Fecha de fnacimiento'} />
                 </div>
                 <Divider orientation="left" type="horizontal" style={{ color: `#7CC1FE` }}>Sexo</Divider>
                 <div style={{ marginBottom: `20px`, display: `flex` }}>
@@ -411,21 +364,4 @@ function NuevoInstructor({ token }) {
     );
 }
 
-export default NuevoInstructor;
-
-
-/*
-const handleChangeSelect = (value) => {
-        console.log(`selected ${value}`);
-    };
-
-<div style={{ marginBottom: `20px`, display: `flex` }}>
-    <Select 
-        value={nacionalidad}
-        defaultValue="-- Nacionalidad --"
-        style={{width: 300}}
-        onChange={handleChangeSelect}
-        options={NACIONALIDAD}
-    />
-</div>
-*/
+export default NuevoPersona;

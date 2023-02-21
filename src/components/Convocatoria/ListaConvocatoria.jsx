@@ -1,83 +1,47 @@
-//import axios from 'axios'
-import {
-    useState,
-    //useEffect, 
-    useRef
+import { useState,useEffect, useRef
 } from 'react';
-//import { Logout } from '../Utils/Logout';
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-//import TableModel from '../TableModel/TableModel';
-import TableModelExpand from '../TableModel/TableModelExpand';
-//import { Tag } from 'antd';
+import TableModel from '../TableModel/TableModel';
+import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
+import { getConvocatoria,updateConvocatoria,anulaConvocatoria } from '../../services/Convocatoria';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
 
-const data = [
-    { idconvocatoria: 1, plan: 'Ing Informatica', turno: 'Tarde', detalle: [
-        { idconvocatoria:1,iddetalle: 1, materia: 'Matematica', carga_horaria: '100', finicio: '01-01-2023', ffin: `25-06-2023`, instructor: `Cap. Claudio Ibarra` },
-        { idconvocatoria:1,iddetalle: 2, materia: 'Ciencias', carga_horaria: '120', finicio: '26-06-2023', ffin: `10-10-2023`, instructor: `Cap. Alexis Aguirre` },
-    ] },
-    { idconvocatoria: 2, plan: 'Maestria en Comunicación', turno: 'Mañana', detalle: [
-        { idconvocatoria:2,iddetalle: 1, materia: 'Matematica', carga_horaria: '100', finicio: '01-01-2023', ffin: `25-06-2023`, instructor: `Cap. Claudio Ibarra` },
-        { idconvocatoria:2,iddetalle: 2, materia: 'Ciencias', carga_horaria: '120', finicio: '26-06-2023', ffin: `10-10-2023`, instructor: `Cap. Alexis Aguirre` },
-    ] },
-]
-
-
-//const URI = 'http://186.158.152.141:3002/automot/api/convocatoria/';
-//let fechaActual = new Date();
 const ListaConvocatoria = ({ token }) => {
-    console.log(data)
+    
     const [form] = Form.useForm();
-    //const [data, setData] = useState([]);
-
+    const [data, setData] = useState([]);
     const [editingKey, setEditingKey] = useState('');
-    //const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
-    //---------------------------------------------------
-    //Datos de buscador
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
     const navigate = useNavigate();
-    //---------------------------------------------------
-    /*
+    
     useEffect(() => {
-        getConvocatoria();
+        getLstConvocatoria();
         // eslint-disable-next-line
     }, []);
 
-    //CONFIGURACION DE TOKEN
-    const config = {
-        headers: {
-            "Authorization": `Bearer ${token}`,
-        }
-    };
-
-    const getConvocatoria = async () => {
-        const res = await axios.get(`${URI}/get`, config)
-        /*En caso de que de error en el server direcciona a login* /
-        if (res.data.error) {
-            Logout();
-        }
-        /*
-        const resDataId = [];
-
-        res.data.body.map((rs) => {
-            rs.key = rs.idconvocatoria;
-            resDataId.push(rs);
+    const getLstConvocatoria = async () => {
+        let array = [];
+        const res = await getConvocatoria({ token: token, param: 'get' });
+        //console.log(res.body)
+        res.body.map((conv) => {
+            conv.nombres=conv.planificacion.curso.descripcion;
+            conv.desc_turno=conv.turno.descripcion;
+            array.push(conv);
             return true;
         })
-        setData(resDataId);
-        * /
-        setData(res.data.body);
+        //console.log(array)
+        setData(array);
     }
-    */
+    
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -181,19 +145,16 @@ const ListaConvocatoria = ({ token }) => {
         XLSX.writeFile(wb, 'Convocatorias.xlsx')
     }
 
-    const deleteConvocatoria = async (id) => {
-        //await axios.delete(`${URI}/del/${id}`, config)
-        //getConvocatoria();
+    const delConvocatoria = async (id) => {
+        //await deleteConvocatoria({token:token,param:id})
+        await anulaConvocatoria({token:token,param:id,json:{estado:'AN'}})
+        message.success('Registro anulado');
+        getLstConvocatoria();
     }
-    // eslint-disable-next-line
-    const updateConvocatoria = async (newData) => {
-        //console.log('Entra en update');
-        //console.log(newData)
 
-        /*
-        await axios.put(URI + "put/" + newData.idconvocatoria, newData, config
-        );
-        getConvocatoria();*/
+    const updConvocatoria = async (newData) => {
+        await updateConvocatoria({token:token,param:newData.idconvocatoria,json:newData}) 
+        getLstConvocatoria();
     }
 
     const columns = [
@@ -206,19 +167,19 @@ const ListaConvocatoria = ({ token }) => {
         },
         {
             title: 'Plan',
-            dataIndex: 'plan',
+            dataIndex: 'nombres',
             width: '22%',
-            editable: true,
-            ...getColumnSearchProps('plan'),
+            editable: false,
+            ...getColumnSearchProps('nombres'),
         },
         {
             title: 'Turno',
-            dataIndex: 'turno',
+            dataIndex: 'desc_turno',
             width: '22%',
-            editable: true,
-            ...getColumnSearchProps('turno'),
+            editable: false,
+            ...getColumnSearchProps('desc_turno'),
         },
-        /* {
+        {
              title: 'Estado',
              dataIndex: 'estado',
              //width: '7%',
@@ -229,19 +190,19 @@ const ListaConvocatoria = ({ token }) => {
                  else { color = 'volcano'; }
                  return (
                      <Tag color={color} key={idconvocatoria} >
-                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
+                         {estado.toUpperCase() === 'AC' ? 'Activo' : (estado.toUpperCase()==="AN") ? 'Anulado' : "Inactivo"}
                      </Tag>
                  );
              },
-         },*/
+         },
         {
             title: 'Inscribir',
             dataIndex: 'inscriptcion',
             render: (_, record) => {
                 return (
                     <>
-                   <Button  onClick={() => navigate(`/crearinscripcion/${record.idconvocatoria}`)} >Inscribir</Button>
-                   <Button style={{ marginLeft:`10px` }}  onClick={() => navigate(`/inscripcion/${record.idconvocatoria}`)} >Lista</Button> 
+                   {record.estado==="AC"? <Button  onClick={() => navigate(`/crearinscripcion/${record.idconvocatoria}`)} >Inscribir</Button>: null}
+                   {record.estado==='AC'? <Button style={{ marginLeft:`10px` }}  onClick={() => navigate(`/inscripcion/${record.idconvocatoria}`)} >Lista</Button> :null}
                     </>
                 )
             },
@@ -275,13 +236,13 @@ const ListaConvocatoria = ({ token }) => {
                         </Typography.Link>
 
                         <Popconfirm
-                            title="Desea eliminar este registro?"
+                            title="Desea anular este registro?"
                             onConfirm={() => confirmDel(record.idconvocatoria)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
                             <Typography.Link >
-                                Borrar
+                                Anular
                             </Typography.Link>
                         </Popconfirm>
 
@@ -289,70 +250,6 @@ const ListaConvocatoria = ({ token }) => {
                 );
             },
         }
-    ];
-
-    //{iddetalle:11,materia:'Matematica',carga_horaria:'100',finicio:'01-01-2023',ffin:`25-06-2023`,instructor:`Cap. Claudio Ibarra`},
-
-    const columnDet = [
-        {
-            title: 'iddetalle',
-            dataIndex: 'iddetalle',
-            key: 'iddetalle',
-            width: '2%',
-        },
-        {
-            title: 'Materia',
-            dataIndex: 'materia',
-            width: '2%',
-        },
-        {
-            title: 'Carga horaria',
-            dataIndex: 'carga_horaria',
-            width: '2%',
-            /*
-            render: (det_modelo) => {
-                //console.log(det_modelo)
-                return det_modelo.costo
-            }
-            */
-        },
-        {
-            title: 'Fecha inicio',
-            dataIndex: 'finicio',
-            width: '2%',
-        },
-        {
-            title: 'Fecha fin',
-            dataIndex: 'ffin',
-            width: '2%',
-        },
-        {
-            title: 'Instructor',
-            dataIndex: 'instructor',
-            key: 'instructor',
-            width: '2%',
-            /*
-            render: (_, { estado, idinventario }) => {
-                let color = 'black';
-                if (estado.toUpperCase() === 'AC') { color = 'blue' }
-                else { color = 'volcano'; }
-                return (
-                    <Tag color={color} key={idinventario} >
-                        {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
-                    </Tag>
-                );
-            },
-            */
-        },
-        {
-            title: 'Action',
-            dataIndex: 'operation',
-            key: 'operation',
-            width: '5%',
-            render: () => (
-                null
-            ),
-        },
     ];
 
     const edit = (record) => {
@@ -370,13 +267,10 @@ const ListaConvocatoria = ({ token }) => {
     };
 
     const confirmDel = (idconvocatoria) => {
-        message.success('Procesando');
-        deleteConvocatoria(idconvocatoria);
+        delConvocatoria(idconvocatoria);
     };
 
     const save = async (idconvocatoria) => {
-        /*
-        
                 try {
                     const row = await form.validateFields();
                     const newData = [...data];
@@ -389,10 +283,8 @@ const ListaConvocatoria = ({ token }) => {
                             ...item,
                             ...row,
                         });
-        
-                        newData[index].fecha_upd = strFecha;
                         //console.log(newData);
-                        updateConvocatoria(newData[index]);
+                        updConvocatoria(newData[index]);
                         setData(newData);
                         setEditingKey('');
         
@@ -404,7 +296,7 @@ const ListaConvocatoria = ({ token }) => {
                     }
                 } catch (errInfo) {
                     console.log('Validate Failed:', errInfo);
-                }*/
+                }
     };
 
 
@@ -432,9 +324,9 @@ const ListaConvocatoria = ({ token }) => {
             <Button type='primary' style={{ backgroundColor: `#E94Informatica5`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
 
-                <Button type="primary" onClick={() => navigate('/crearconvocatoria')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate('/crearconvocatoria')} >{<PlusOutlined />} Convocatoria</Button>
             </div>
-            <TableModelExpand columnDet={columnDet} keyDet={'iddetalle'} token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idconvocatoria'} />
+            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idconvocatoria'} varx={850} />
         </>
     )
 }

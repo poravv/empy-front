@@ -11,7 +11,7 @@ import { Buffer } from 'buffer'
 const { Option } = Select;
 //const URI = 'http://186.158.152.141:3002/automot/api/proveedor/';
 
-function TableModelExpand({ token, form, data, mergedColumns, keyExtraido,columnDet,keyDet }) {
+function TableModelExpand({ token, form, data, mergedColumns, keyExtraido,columnDet,keyDet,varx }) {
 
   //Celdas editables
   const EditableCell = ({ editing, dataIndex, title, inputType, record, index, children, ...restProps }) => {
@@ -127,7 +127,8 @@ function TableModelExpand({ token, form, data, mergedColumns, keyExtraido,column
             )}
             rowClassName="editable-row"
             scroll={{
-              x: 'calc(800px + 100%)',
+              //x: 'calc(800px + 100%)',
+              x: (varx??500),
               y: 1500,
             }}
           //pagination={{onChange: setCantidadRow,pageSize: 50,}}

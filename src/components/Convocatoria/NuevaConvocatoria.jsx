@@ -1,170 +1,102 @@
 
 
-import {
-    //useEffect, 
-    useState
-} from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom";
 //import axios from "axios";
-import {Button, Form, Input,DatePicker } from 'antd';
+import { Button, Form, Input, DatePicker } from 'antd';
 import Buscador from '../Utils/Buscador/Buscador';
 import { Row, Col, message } from 'antd';
+import { getPlanificacion } from '../../services/Planificacion';
+import { createConvocatoria,getConvocatoria } from '../../services/Convocatoria';
+import { getTurno } from '../../services/Turno';
+import moment from 'moment';
+
 //import { IoTrashOutline } from 'react-icons/io5';
 //import Table from 'react-bootstrap/Table';
 
-/*
-const URI = 'http://186.158.152.141:3002/automot/api/convocatoria';
-const URIINVDET = 'http://186.158.152.141:3002/automot/api/detconvocatoria';
-const URIMODELO = 'http://186.158.152.141:3002/automot/api/detmodelo';
-const URICLI = 'http://186.158.152.141:3002/automot/api/cliente';
-*/
-
-const lstplan = [
-    { idplan: 1, descripcion: 'Ing Informatica', estado: 'AC' },
-    { idplan: 2, descripcion: 'Analisis de Sistemas', estado: 'AC' },
-    { idplan: 3, descripcion: 'Programacion avanzada', estado: 'AC' },
-]
-const lstturno = [
-    { idturno: 1, descripcion: 'Mañana', estado: 'AC' },
-    { idturno: 2, descripcion: 'Tarde', estado: 'AC' },
-    { idturno: 3, descripcion: 'Noche', estado: 'AC' },
-]
-
-
-let fechaActual = new Date();
-
-function NuevoConvocatoria({ token, idusuario, idsucursal }) {
-
-    console.log(idsucursal)
-
-    //Parte de nuevo registro por modal
-    const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
-    // eslint-disable-next-line
-    const [tblconvocatoriatmp, setTblConvocatoriaTmp] = useState([]);
-    // eslint-disable-next-line
-    // eslint-disable-next-line
-    const [total, setTotal] = useState(0);
-    // eslint-disable-next-line
-    const [totalIva, setTotalIva] = useState(0);
-    // eslint-disable-next-line
-    const [descuento, setDescuento] = useState(0);
-    // eslint-disable-next-line
-    const [detmodeloSelect, setDetmodeloSelect] = useState(0);
-    // eslint-disable-next-line
-    const [cliente, setCliente] = useState(0);
+function NuevoConvocatoria({ token}) {
     const navigate = useNavigate();
-    // eslint-disable-next-line
-    //const [lstdetmodelo, setLstdetmodelo] = useState([]);
-    // eslint-disable-next-line
-    const [lstClientes, setLstClientes] = useState([]);
-
-    /*
-        useEffect(() => {
-            getdetmodelos();
-            getClientes();
-            verificaproceso();
-            // eslint-disable-next-line
-        }, []);
-    
-        //CONFIGURACION DE TOKEN
-        const config = {
-            headers: {
-                "Authorization": `Bearer ${token}`,
-            }
-        };
-    
-        const getdetmodelos = async () => {
-            const res = await axios.get(`${URIMODELO}/getsucursal/${idsucursal}`, config);
-            
-            //console.log(res.data);
-            let detModel = [];
-    
-            res.data.body.map((dm) => {
-                dm.descmodelo = dm.modelo.descripcion;
-                detModel.push(dm)
-                return true;
-            })
-    
-            console.log(detModel);
-    
-            setLstdetmodelo(detModel);
-        }
-    
-        const getClientes = async () => {
-            const res = await axios.get(`${URICLI}/get`, config);
-            setLstClientes(res.data.body);
-        }
-        const verificaproceso = async () => {
-            return await axios.post(URI + `/verificaproceso/${idusuario}-inconvocatoriario`, {}, config);
-        }
-    */
+    const [cupo, setCupo] = useState();
+    const [cuotas, setCuotas] = useState();
+    const [monto_cuota, setMontoCuota] = useState();
+    const [mmora, setMmora] = useState();
+    const [idturno, setIdturno] = useState();
+    const [planSelect, setPlanSelect] = useState();
+    const [finicio, setFinicio] = useState();
+    const [ffin, setFfin] = useState();
+    const [lstPlan, setLstPlan] = useState([]);
+    const [lstTurno, setLstTurno] = useState([]);
+    const [lstConvocatoria, setLstConvocatoria] = useState([]);
 
 
+    useEffect(() => {
+        getLstTurno();
+        getLstPlan();
+        getLstConvocatoria();
+        // eslint-disable-next-line
+    }, []);
+
+    const getLstPlan = async () => {
+        let array=[];
+        const res = await getPlanificacion({ token: token, param: 'get' });
+        res.body.map((plan) => {
+            plan.nombres=plan.curso.descripcion;
+            array.push(plan)
+            return true;
+        })
+        setLstPlan(array);
+    }
+    const getLstTurno = async () => {
+        const res = await getTurno({ token: token, param: 'get' });
+        setLstTurno(res.body);
+    }
+
+    const getLstConvocatoria = async () => {
+        const res = await getConvocatoria({ token: token, param: 'get' });
+        setLstConvocatoria(res.body);
+    }
 
     const guardaCab = async (valores) => {
-        //return await axios.post(URI + "/post/", valores, config);
-    }
-
-    const guardaDetalle = async (valores) => {
-        //await axios.post(URIINVDET + "/post/", valores, config);
-    }
-
-    const actualizaDetmodelo = async (iddet_modelo) => {
-        //console.log('Entra en ups detmodelo: ',iddet_modelo)
-        //await axios.put(URIMODELO + `/put/${iddet_modelo}`, {estado:'VE'}, config);
+        console.log(valores)
+        return await createConvocatoria({ token: token, json: valores });
     }
 
 
     //procedimiento para actualizar
     const gestionGuardado = async () => {
         //e.preventDefault();
+        /*Agregar validacion de que ya no exista el plan con el mismo turno*/
+        let validExist = false;
+        /*Validacion de existencia de curso con anho lectivo*/
+        lstConvocatoria.map((conv)=> {
+            if(conv.idplanificacion===planSelect.idplanificacion&&conv.idturno===idturno){
+                
+                validExist=true;
+            }
+            return true;
+        });
+
+        if(validExist) {
+            message.error('Ya existe esta convocatoria');
+            return;
+        };
         try {
             guardaCab(
                 {
-                    idusuario: idusuario,
-                    idcliente: cliente.idcliente,
+                    cupo:cupo,
+                    cant_cuotas:cuotas,
+                    monto_cuota:monto_cuota,
+                    finicio:moment(finicio).format('YYYY-MM-DD'),
+                    ffin: moment(ffin).format('YYYY-MM-DD'),
+                    mmora:mmora,
                     estado: 'AC',
-                    fecha: strFecha,
-                    iva_total: totalIva,
-                    total: total,
-                    costo_envio: 0,
-                    nro_comprobante: 0
+                    idanho_lectivo:planSelect.idanho_lectivo,
+                    idturno:idturno,
+                    idplanificacion:planSelect.idplanificacion
                 }
-            ).then((cabecera) => {
-                try {
-                    //console.log('cab: ',cabecera.data.body);
-                    //console.log('Entra en guarda detalle')
-                    //Guardado del detalle
-                    tblconvocatoriatmp.map((convocatoria) => {
-                        console.log(convocatoria);
-                        console.log('iddet_modelo: ', convocatoria.detmodelo.iddet_modelo)
-                        console.log('descuento: ', convocatoria.descuento)
-                        console.log('subtotal: ', (convocatoria.detmodelo.costo))
-                        console.log('idconvocatoria: ', (cabecera.data.body.idconvocatoria))
-
-                        guardaDetalle({
-                            iddet_modelo: convocatoria.detmodelo.iddet_modelo,
-                            //estado: convocatoria.detmodelo.estado,
-                            estado: 'AC',
-                            descuento: convocatoria.descuento,
-                            idconvocatoria: cabecera.data.body.idconvocatoria,
-                            subtotal: convocatoria.detmodelo.costo,
-                        });
-                        actualizaDetmodelo(convocatoria.detmodelo.iddet_modelo);
-
-                        return true;
-
-                    });
-
-                    message.success('Registro almacenado');
-
-                } catch (error) {
-                    console.log(error);
-                    message.error('Error en la creacion');
-                    return null;
-                }
-                navigate('/convocatoria');
-            });
+            );
+            message.success('Registro almacenado');
+            navigate('/convocatoria');
 
         } catch (e) {
             console.log(e);
@@ -180,14 +112,11 @@ function NuevoConvocatoria({ token, idusuario, idsucursal }) {
         navigate('/convocatoria');
     }
 
-    const onChangedetmodelo = (value) => {
-        console.log(value);
-        //console.log(lstdetmodelo);
-        lstplan.find((element) => {
-
-            if (element.iddet_modelo === value) {
-                //console.log(element);
-                setDetmodeloSelect(element)
+    const onchangePlan = (value) => {
+        //console.log(value);
+        lstPlan.find((element) => {
+            if (element.idplanificacion === value) {
+                setPlanSelect(element);
                 return true;
             } else {
                 return false;
@@ -195,9 +124,20 @@ function NuevoConvocatoria({ token, idusuario, idsucursal }) {
         });
     };
 
+    const onchangeTurno = (value) => {
+        //console.log(value);
+        setIdturno(value);
+    };
+
     const onSearch = (value) => {
         console.log('search:', value);
     };
+
+    const onchangefecha = (value) => {
+        console.log(value)
+        setFinicio(value[0].$d);
+        setFfin(value[1].$d);
+    }
 
     return (
         <>
@@ -212,28 +152,44 @@ function NuevoConvocatoria({ token, idusuario, idsucursal }) {
                     autoComplete="off">
 
                     <Row style={{ justifyContent: `center`, margin: `10px` }}>
+
                         <Col >
-                            <Buscador label={'descripcion'} title={'-- Plan --'} value={'idplan'} data={lstplan} onChange={onChangedetmodelo} onSearch={onSearch} />
+                            <Buscador label={'nombres'} title={'Planificacion'} value={'idplanificacion'} data={lstPlan} onChange={onchangePlan} onSearch={onSearch} />
                         </Col>
                     </Row>
 
                     <Row style={{ justifyContent: `center`, margin: `5px` }}>
+                        <Col >
+                            <Buscador label={'descripcion'} title={'Turno'} value={'idturno'} data={lstTurno} onChange={onchangeTurno} onSearch={onSearch} />
+                        </Col>
                         <Col style={{ marginLeft: `15px` }}>
                             <Form.Item name="fecha" >
-                                <DatePicker.RangePicker />
+                                <DatePicker.RangePicker onChange={onchangefecha} />
                             </Form.Item>
                         </Col>
-                        <Col >
-                            <Buscador label={'descripcion'} title={'Turno'} value={'idturno'} data={lstturno} onChange={onChangedetmodelo} onSearch={onSearch} />
-                        </Col>
-                    </Row>
-                    <Row style={{ justifyContent: `center`, margin: `10px` }}>
-                        <Col >
-                            <Form.Item name="hora" >
-                                <Input type='number' placeholder='Cupo' value={descuento} onChange={(e) => setDescuento(e.target.value)} />
+                        <Col style={{ marginLeft: `15px` }}>
+                            <Form.Item name="cupo" >
+                                <Input type='number' placeholder='Cupo' value={cupo} onChange={(e) => setCupo(e.target.value)} />
                             </Form.Item>
                         </Col>
+                        <Col style={{ marginLeft: `15px` }}>
+                            <Form.Item name="cuotas" >
+                                <Input type='number' placeholder='Cant. de cuotas' value={cuotas} onChange={(e) => setCuotas(e.target.value)} />
+                            </Form.Item>
+                        </Col>
+                        <Col style={{ marginLeft: `15px` }}>
+                            <Form.Item name="montocuota" >
+                                <Input type='number' placeholder='Monto cuota' value={monto_cuota} onChange={(e) => setMontoCuota(e.target.value)} />
+                            </Form.Item>
+                        </Col>
+                        <Col style={{ marginLeft: `15px` }}>
+                            <Form.Item name="mmora" >
+                                <Input type='number' placeholder='Monto mora' value={mmora} onChange={(e) => setMmora(e.target.value)} />
+                            </Form.Item>
+                        </Col>
+
                     </Row>
+                    
 
                     <Row style={{ alignItems: `center`, justifyContent: `center` }}>
                         <Form.Item >

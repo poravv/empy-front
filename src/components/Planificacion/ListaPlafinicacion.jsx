@@ -157,7 +157,7 @@ const ListaPlan = ({ token }) => {
         {
             title: 'ID',
             dataIndex: 'idplanificacion',
-            //width: '6%',
+            width: '12%',
             editable: false,
             ...getColumnSearchProps('id'),
         },
@@ -260,6 +260,7 @@ const ListaPlan = ({ token }) => {
                 
             },
         },
+
         {
             title: 'Carga horaria',
             dataIndex: 'carga_horaria',
@@ -270,6 +271,22 @@ const ListaPlan = ({ token }) => {
                 return det_modelo.costo
             }
             */
+        },
+        {
+            title: 'Instructor',
+            dataIndex: 'idinstructor',
+            width: '2%',
+            render: (_, record) => {
+                //console.log(planificacion.curso);
+                if(record.instructor){
+                    return (
+                        record.instructor.persona.grados_arma.descripcion+' '+record.instructor.persona.nombre+' '+record.instructor.persona.apellido
+                    );
+                }else{
+                    return null;
+                }
+                
+            },
         },
         /*{
             title: 'Action',

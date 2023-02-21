@@ -11,16 +11,18 @@ import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { deleteInstructor, getInstructor, updateInstructor } from '../../../services/Instructor';
+import { /*deleteInscripcion,*/anulaInscripcion, getInscripcionConv, updateInscripcion } from '../../../services/Inscripcion';
+import { getUniqueConvocatoria } from '../../../services/Convocatoria';
 
 
 let fechaActual = new Date();
-const ListaInstructor = ({ token }) => {
-    
+const ListaInscripcion = ({ token }) => {
+    const { idconvocatoria } = useParams();
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
-
+    const [convocatoria, setConvocatoria] = useState();
     const [editingKey, setEditingKey] = useState('');
     const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
     //---------------------------------------------------
@@ -32,14 +34,36 @@ const ListaInstructor = ({ token }) => {
     //---------------------------------------------------
 
     useEffect(() => {
-        getLstInstructor();
+        getLstInscripcion(idconvocatoria);
+
+        getConvocatoria(idconvocatoria);
         // eslint-disable-next-line
     }, []);
 
-    const getLstInstructor = async () => {
-        const res = await getInstructor({token:token});
+    const getConvocatoria = async (idconvocatoria) => {
+        const res = await getUniqueConvocatoria({ token: token, param: idconvocatoria });
         //console.log(res.body)
-        setData(res.body);
+        setConvocatoria(res.body);
+    }
+
+    const getLstInscripcion = async (idconvocatoria) => {
+        let array = []
+        const res = await getInscripcionConv({ token: token, param: idconvocatoria });
+
+        res.body.map((inscripcion) => {
+            inscripcion.nombre = inscripcion.persona.nombre;
+            inscripcion.apellido = inscripcion.persona.apellido;
+            inscripcion.sexo = inscripcion.persona.sexo;
+            inscripcion.fnacimiento = inscripcion.persona.fnacimiento;
+            inscripcion.telefono = inscripcion.persona.telefono;
+            inscripcion.documento = inscripcion.persona.documento;
+            array.push(inscripcion);
+            return true;
+        })
+
+        setData(array);
+        //console.log(res.body)
+        //setData(res.body);
     }
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -140,21 +164,23 @@ const ListaInstructor = ({ token }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'Instructors');
-        XLSX.writeFile(wb, 'Instructors.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'Inscripcions');
+        XLSX.writeFile(wb, 'Inscripcions.xlsx')
     }
 
     const handleDelete = async (id) => {
-        await deleteInstructor({token:token,param:id})
-        getLstInstructor();
+        //await deleteInscripcion({ token: token, param: id })
+        await anulaInscripcion({ token: token, param: id,json:{estado:"AN"} })
+        message.success('Procesando');
+        getLstInscripcion();
     }
 
     const handleUpdate = async (newData) => {
         //console.log('Entra en update');
         //console.log(newData)
-        
-        await updateInstructor({token:token,param:newData.idinstructor,json:newData}) 
-        getLstInstructor();
+
+        await updateInscripcion({ token: token, param: newData.idinscripcion, json: newData })
+        getLstInscripcion();
     }
     const getEdad = (dateString) => {
         let hoy = new Date()
@@ -162,76 +188,55 @@ const ListaInstructor = ({ token }) => {
         let edad = hoy.getFullYear() - fechaNacimiento.getFullYear()
         let diferenciaMeses = hoy.getMonth() - fechaNacimiento.getMonth()
         if (
-          diferenciaMeses < 0 ||
-          (diferenciaMeses === 0 && hoy.getDate() < fechaNacimiento.getDate())
-        ) {
-          edad--
+            diferenciaMeses < 0 ||
+            (diferenciaMeses === 0 && hoy.getDate() < fechaNacimiento.getDate())
+        ){
+            edad--
         }
-        return edad
-      }
+            return edad
+    }
 
     const columns = [
         {
             title: 'id',
-            dataIndex: 'idinstructor',
-            width: '5%',
+            dataIndex: 'idinscripcion',
+            width: '8%',
             editable: false,
-            ...getColumnSearchProps('idinstructor'),
-        },
-        {
-            title: 'Grado',
-            dataIndex: 'grado',
-            //width: '22%',
-            editable: false,
-            render: (_, { persona }) => {
-                if(persona){
-                    if(persona.grados_arma){
-                        return persona.grados_arma.descripcion;
-                    }else{
-                        return null;
-                    }
-                }else{
-                    return null;
-                }
-            }
+            ...getColumnSearchProps('idinscripcion'),
         },
         {
             title: 'Nombre',
             dataIndex: 'nombre',
             //width: '22%',
             editable: false,
-            render: (_, { persona }) => {
-                if(persona){
-                    return persona.nombre;
-                }else{
-                    return null;
-                }
-            }
+            ...getColumnSearchProps('nombre'),
+            
         },
         {
             title: 'Apellido',
             dataIndex: 'apellido',
             //width: '22%',
             editable: false,
-            render: (_, { persona }) => {
-                if(persona){
-                    return persona.apellido;
-                }else{
-                    return null;
-                }
-            }
+            ...getColumnSearchProps('apellido'),
         },
-       {
+        {
+            title: 'Documento',
+            dataIndex: 'documento',
+            //width: '22%',
+            editable: false,
+            ...getColumnSearchProps('documento'),
+        },
+        {
             title: 'Estado',
             dataIndex: 'estado',
             //width: '7%',
             editable: true,
-            render: (_, { estado, idinstructor }) => {
+            render: (_, { estado, idinscripcion }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={idinstructor} >
+                    <Tag color={color} key={idinscripcion} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
@@ -243,31 +248,31 @@ const ListaInstructor = ({ token }) => {
             //width: '22%',
             editable: false,
             render: (_, { persona }) => {
-                if(persona){
+                if (persona) {
                     return getEdad(persona.fnacimiento)
-                    
-                }else{
+
+                } else {
                     return null;
                 }
             }
-            
+
         },
         {
             title: 'Sexo',
             dataIndex: 'sexo',
             //width: '22%',
             editable: false,
-            render: (_, { persona, idinstructor }) => {
-                if(persona){
+            render: (_, { persona, idinscripcion }) => {
+                if (persona) {
                     let color = 'black';
                     if (persona.sexo.toUpperCase() === 'MA') { color = 'blue' }
                     else { color = 'volcano'; }
                     return (
-                        <Tag color={color} key={idinstructor} >
+                        <Tag color={color} key={idinscripcion} >
                             {persona.sexo.toUpperCase() === 'MA' ? 'Masculino' : 'Femenino'}
                         </Tag>
                     );
-                }else{
+                } else {
                     return null;
                 }
             },
@@ -282,7 +287,7 @@ const ListaInstructor = ({ token }) => {
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idinstructor)}
+                            onClick={() => save(record.idinscripcion)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -295,22 +300,20 @@ const ListaInstructor = ({ token }) => {
                     </span>
                 ) : (
                     <>
-
                         <Typography.Link style={{ margin: `5px` }} disabled={editingKey !== ''} onClick={() => edit(record)}>
                             Editar
                         </Typography.Link>
 
                         <Popconfirm
-                            title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idinstructor)}
+                            title="Desea anular este registro?"
+                            onConfirm={() => confirmDel(record.idinscripcion)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
                             <Typography.Link >
-                                Borrar
+                                Anular
                             </Typography.Link>
                         </Popconfirm>
-
                     </>
                 );
             },
@@ -321,43 +324,37 @@ const ListaInstructor = ({ token }) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idinstructor);
+        setEditingKey(record.idinscripcion);
     };
 
 
-    const isEditing = (record) => record.idinstructor === editingKey;
+    const isEditing = (record) => record.idinscripcion === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idinstructor) => {
-        message.success('Procesando');
-        handleDelete(idinstructor);
+    const confirmDel = (idinscripcion) => {
+        
+        handleDelete(idinscripcion);
     };
 
-    const save = async (idinstructor) => {
-
-
+    const save = async (idinscripcion) => {
         try {
             const row = await form.validateFields();
             const newData = [...data];
-            const index = newData.findIndex((item) => idinstructor === item.idinstructor);
-
+            const index = newData.findIndex((item) => idinscripcion === item.idinscripcion);
             if (index > -1) {
-
                 const item = newData[index];
                 newData.splice(index, 1, {
                     ...item,
                     ...row,
                 });
-
                 newData[index].fecha_upd = strFecha;
                 //console.log(newData);
                 handleUpdate(newData[index]);
                 setData(newData);
                 setEditingKey('');
-
                 message.success('Registro actualizado');
             } else {
                 newData.push(row);
@@ -368,8 +365,6 @@ const ListaInstructor = ({ token }) => {
             console.log('Validate Failed:', errInfo);
         }
     };
-
-
 
     const mergedColumns = columns.map((col) => {
         if (!col.editable) {
@@ -387,17 +382,30 @@ const ListaInstructor = ({ token }) => {
         };
     });
 
+    const btnCancelar = (e) => {
+        e.preventDefault();
+        navigate('/convocatoria');
+    }
+
     return (
         <>
-            <h3>Instructores</h3>
+            <h1>Lista de inscripcion </h1>
+
+
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
+
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
-                <Button type="primary" onClick={() => navigate('/crearinstructor')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate(`/crearinscripcion/${idconvocatoria}`)} >{<PlusOutlined />}Nuevo</Button>
             </div>
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idinstructor'} varx={1000} />
+            <h4 style={{ color: `#4AA3F3` }}>{convocatoria ? convocatoria.planificacion.curso.descripcion + ' Turno ' + convocatoria.turno.descripcion : null}</h4>
+            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idinscripcion'} varx={1000} />
+
+            <Button type="primary" htmlType="submit" onClick={btnCancelar} style={{ margin: `20px` }} >
+                Atras
+            </Button>
         </>
     )
 }
 
-export default ListaInstructor;
+export default ListaInscripcion;

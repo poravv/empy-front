@@ -28,8 +28,8 @@ import ListaVenta from '../components/Venta/ListaVenta';
 import NuevaVenta from '../components/Venta/NuevaVenta';
 import AppBar from './AppBar';
 import TableFormat from '../components/TableModel/Table';
-import ListaInscripcion from '../components/Inscripcion/ListaInscripcion';
-import NuevoInscripcion from '../components/Inscripcion/NuevoInscripcion';
+import ListaInscripcion from '../components/Academico/Inscripcion/ListaInscripcion';
+import NuevoInscripcion from '../components/Academico/Inscripcion/NuevoInscripcion';
 import ReportePlaya from '../components/Reportes/ReportePlaya';
 import Informes from '../components/Reportes/Informes';
 import ListaPlan from '../components/Planificacion/ListaPlafinicacion';
@@ -40,6 +40,8 @@ import ListaCursosH from '../components/CursosH/ListaCursosH';
 import ListaAsistencia from '../components/Asistencia/ListaAsistencia';
 import ListaFalta from '../components/Faltas/ListaFaltas';
 import NuevoFalta from '../components/Faltas/NuevaFalta';
+import ListaPersona from '../components/Academico/Persona/ListaPersona';
+import NuevoPersona from '../components/Academico/Persona/NuevaPersona';
 
 function NavRoute({ usuario, sucursal }) {
   /*if(sucursal){
@@ -87,6 +89,9 @@ function NavRoute({ usuario, sucursal }) {
                   <Route path='/repomodelos' element={<ReportePlaya token={usuario.token} />} />
                   <Route path='/informes' element={<Informes token={usuario.token} />} />
                   <Route path='*' element={<Navigate replace to='/' />} />
+                  #Ciudad
+                  <Route path='/persona' element={<ListaPersona token={usuario.token} />} />
+                  <Route path='/crearpersona' element={<NuevoPersona token={usuario.token} />} />
                 </>
                 : null
             }
@@ -107,7 +112,6 @@ function NavRoute({ usuario, sucursal }) {
                   <Route path='/asistencia/:idconvocatoria' element={<ListaAsistencia token={usuario.token} />} />
                   <Route path='/faltas/:idinscripcion' element={<ListaFalta token={usuario.token} />} />
                   <Route path='/crearfalta' element={<NuevoFalta token={usuario.token} />} />
-
                   <Route path='*' element={<Navigate replace to='/' />} />
                   #Venta
                   <Route path='/venta' element={<ListaVenta token={usuario.token} idusuario={usuario.body.idusuario} />} />

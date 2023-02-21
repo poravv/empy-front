@@ -13,6 +13,7 @@ import { getCurso } from '../../services/Curso';
 import { createPlanificacion, getPlanificacion } from '../../services/Planificacion';
 import { createDetPlanificacion } from '../../services/DetPlanificacion';
 import { getUniqiueAnhoLectivo } from '../../services/AnhoLectivo';
+import { getInstructor } from '../../services/Instructor';
 
 
 let fechaActual = new Date();
@@ -28,7 +29,9 @@ function NuevoPlan({ token }) {
     const [materiaSelect, setMateriaSelect] = useState([]);
     const [descripcion, setDescripcion] = useState('');
     const [idcurso, setIdCurso] = useState();
+    const [instructorSelect, setInstructorSelect] = useState();
     const [idanho_lectivo, setIdAnhoLectivo] = useState();
+    const [instructores, setInstructores] = useState();
 
     const navigate = useNavigate();
 
@@ -36,6 +39,7 @@ function NuevoPlan({ token }) {
         getLstMateria();
         getLstCurso();
         getLstPlan();
+        getLstInstructor();
         getAnhoLectivo();
         // eslint-disable-next-line
     }, []);
@@ -43,6 +47,19 @@ function NuevoPlan({ token }) {
     const getLstMateria = async () => {
         const res = await getMateria({ token: token, param: 'get' });
         setLstMateria(res.body);
+    }
+
+    const getLstInstructor = async () => {
+        const res = await getInstructor({ token: token, param: 'get' });
+        let array = [];
+        res.body.map((inst) =>{
+            inst.nombres= inst.persona.nombre+' '+inst.persona.apellido;
+            //console.log(inst);
+            array.push(inst);
+            return true;
+        }
+        )
+        setInstructores(array);
     }
     const getLstPlan = async () => {
         const res = await getPlanificacion({ token: token, param: 'get' });
@@ -79,13 +96,15 @@ function NuevoPlan({ token }) {
         /*Validacion de existencia de curso con anho lectivo*/
         lstPlan.map((plan)=> {
             if(plan.idcurso===idcurso&&plan.idanho_lectivo===idanho_lectivo){
-                message.error('El curso ya existe para el año lectivo');
                 validExist=true;
             }
             return true;
         });
 
-        if(validExist) return;
+        if(validExist) {
+            message.error('El curso ya existe para el año lectivo');
+            return;
+        };
 
         try {
             guardaCab({
@@ -106,6 +125,7 @@ function NuevoPlan({ token }) {
                             estado: 'AC',
                             idmateria: detplan.materia.idmateria,
                             idplanificacion: cabecera.body.idplanificacion,
+                            idinstructor:detplan.instructor.idinstructor
                         });
                         return true;
                     });
@@ -139,7 +159,7 @@ function NuevoPlan({ token }) {
             );
         if (validExist===false){
             /*Tabla temporal*/
-            const updtblPlan = { idmateria:materiaSelect.idmateria, materia: materiaSelect, carga_horaria: carga_horaria, descripcion: descripcion, };
+            const updtblPlan = { idmateria:materiaSelect.idmateria, materia: materiaSelect,instructor: instructorSelect, carga_horaria: carga_horaria, descripcion: descripcion, };
             /*Se va sumando los valores que se van cargando*/
             setTblPlanTmp([...tblplantmp,updtblPlan])
             message.success('Agregado');
@@ -163,6 +183,17 @@ function NuevoPlan({ token }) {
         lstmateria.find((element) => {
             if (element.idmateria === value) {
                 setMateriaSelect(element)
+                return true;
+            } else {
+                return false;
+            }
+        });
+    };
+
+    const onChangeInstructor = (value) => {
+        instructores.find((element) => {
+            if (element.idinstructor === value) {
+                setInstructorSelect(element)
                 return true;
             } else {
                 return false;
@@ -204,6 +235,9 @@ function NuevoPlan({ token }) {
                             <Buscador label={'descripcion'} title={'Materia'} value={'idmateria'} data={lstmateria} onChange={onChangeMateria} onSearch={onSearch} />
                         </Col>
                         <Col style={{ marginLeft: `15px` }}>
+                            <Buscador label={'nombres'} title={'Instructor'} value={'idinstructor'} data={instructores} onChange={onChangeInstructor} onSearch={onSearch} />
+                        </Col>
+                        <Col style={{ marginLeft: `15px` }}>
                             <Form.Item name="hora" >
                                 <Input type='number' placeholder='Carga horaria' value={carga_horaria} onChange={(e) => setCargaHoraria(e.target.value)} />
                             </Form.Item>
@@ -225,6 +259,7 @@ function NuevoPlan({ token }) {
                                 <tr >
                                     <th>Materia</th>
                                     <th>Carga horaria</th>
+                                    <th>Instructor</th>
                                     <th>Accion</th>
                                 </tr>
                             </thead>
@@ -233,6 +268,7 @@ function NuevoPlan({ token }) {
                                     <tr key={inv.idmateria}>
                                         <td> {inv.materia.descripcion} </td>
                                         <td> {inv.carga_horaria} </td>
+                                        <td> {instructorSelect.nombres} </td>
                                         <td>
                                             <button onClick={(e) => extraerRegistro(e, inv.idmateria)} className='btn btn-danger'><IoTrashOutline /></button>
                                         </td>

@@ -8,16 +8,10 @@ import { Buffer } from 'buffer';
 import { getCiudad } from '../../services/Ciudad';
 
 const { Option } = Select;
-//const URIPROV = 'http://186.158.152.141:3002/automot/api/proveedor/';
-//const URIMARCA = 'http://186.158.152.141:3002/automot/api/marca/';
-//const URICIUDAD = 'http://186.158.152.141:3002/automot/api/ciudad/';
-
-function TableModel({ token, form, data, mergedColumns, keyExtraido }) {
-
+function TableModel({ token, form, data, mergedColumns, keyExtraido,varx }) {
   //Celdas editables
   const EditableCell = ({ editing, dataIndex, title, inputType, record, index, children, ...restProps }) => {
     //console.log('edit',record);
-
     // eslint-disable-next-line
     const [previewImage, setPreviewImage] = useState('');
     // eslint-disable-next-line
@@ -37,6 +31,7 @@ function TableModel({ token, form, data, mergedColumns, keyExtraido }) {
 
     const getLstCiudad = async () => {
       const res = await getCiudad({token:token,param:'get'});
+      //console.log(res)
       setCiudades(res.body);
     }
 
@@ -220,7 +215,8 @@ case 'img1':
   return (
     <>
       {
-        data ? <Form form={form} component={false}>
+        data ? <Form form={form} component={false}
+        >
           <Table
             rowKey={keyExtraido}
             components={{
@@ -233,7 +229,7 @@ case 'img1':
             columns={mergedColumns}
             rowClassName="editable-row"
             scroll={{
-              x: 'calc(600px + 80%)',
+              x: (varx??100),
               y: 300,
             }}
 

@@ -1,50 +1,26 @@
 //import axios from 'axios'
-import { useState, 
-    //useEffect, 
-    useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 //import { Logout } from '../Utils/Logout';
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModel from '../TableModel/TableModel';
-//import { Tag } from 'antd';
+import TableModel from '../../TableModel/TableModel';
+import { Tag } from 'antd';
 import { message } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
+import { deletePersona, getPersona, updatePersona } from '../../../services/Persona';
 
-const data = [
-{idinscripcion:1,grado:'Cap',nombre:'Andres',apellido: 'Vera',curso:'Informatica',turno:'Mañana'},
-{idinscripcion:2,grado:'Tte',nombre:'Alcides',apellido: 'Lopez',curso:'Matematica',turno:'Mañana'},
-{idinscripcion:3,grado:'Cap',nombre:'Raul',apellido: 'Ortega',curso:'Fisica',turno:'Mañana'},
-{idinscripcion:4,grado:'Tte',nombre:'Arturo',apellido: 'Viera',curso:'Informatica',turno:'Mañana'},
-{idinscripcion:5,grado:'Cap',nombre:'Enrique',apellido: 'Torres',curso:'Informatica',turno:'Mañana'},
-{idinscripcion:6,grado:'Tte',nombre:'Salomon',apellido: 'Fernandez',curso:'Fisica',turno:'Mañana'},
-{idinscripcion:7,grado:'Cap',nombre:'Hugo',apellido: 'Perez',curso:'Matematica',turno:'Mañana'},
-{idinscripcion:8,grado:'Tte',nombre:'Hector',apellido: 'Aguilar',curso:'Fisica',turno:'Mañana'},
-{idinscripcion:9,grado:'Cap',nombre:'Cesar',apellido: 'Gavilan',curso:'Fisica',turno:'Mañana'},
-{idinscripcion:10,grado:'Tte',nombre:'David',apellido: 'Vera',curso:'Matematica',turno:'Mañana'},
-{idinscripcion:11,grado:'Cap',nombre:'Francisco',apellido: 'Chavez',curso:'Informatica',turno:'Mañana'},
-{idinscripcion:12,grado:'Tte',nombre:'Alejandro',apellido: 'Villasboa',curso:'Informatica',turno:'Mañana'},
-{idinscripcion:13,grado:'Cap',nombre:'Isaias',apellido: 'Torres',curso:'Fisica',turno:'Mañana'},
-{idinscripcion:14,grado:'Tte',nombre:'Raquel',apellido: 'Lovera',curso:'Fisica',turno:'Tarde'},
-{idinscripcion:15,grado:'Cap',nombre:'Angelica',apellido: 'Franco',curso:'Negocios',turno:'Tarde'},
-{idinscripcion:16,grado:'Tte',nombre:'Luz',apellido: 'Almeida',curso:'Fisica',turno:'Tarde'},
-{idinscripcion:17,grado:'Cap',nombre:'Aleli',apellido: 'Vera',curso:'Informatica',turno:'Tarde'},
-{idinscripcion:18,grado:'Tte',nombre:'Claudia',apellido: 'Rotela',curso:'Negocios',turno:'Tarde'},
-]
-
-//const URI = 'http://186.158.152.141:3002/automot/api/inscripcion/';
-//let fechaActual = new Date();
-const ListaInscripcion = ({ token }) => {
-    console.log('entra en inscripcion')
+let fechaActual = new Date();
+const ListaPersona = ({ token }) => {
+    
     const [form] = Form.useForm();
-    //const [data, setData] = useState([]);
-
+    const [data, setData] = useState([]);
     const [editingKey, setEditingKey] = useState('');
-    //const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
+    const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
     //---------------------------------------------------
     //Datos de buscador
     const [searchText, setSearchText] = useState('');
@@ -52,38 +28,22 @@ const ListaInscripcion = ({ token }) => {
     const searchInput = useRef(null);
     const navigate = useNavigate();
     //---------------------------------------------------
-    /*
     useEffect(() => {
-        getInscripcion();
+        getLstPersona();
         // eslint-disable-next-line
     }, []);
 
-    //CONFIGURACION DE TOKEN
-    const config = {
-        headers: {
-            "Authorization": `Bearer ${token}`,
-        }
-    };
-
-    const getInscripcion = async () => {
-        const res = await axios.get(`${URI}/get`, config)
-        /*En caso de que de error en el server direcciona a login* /
-        if (res.data.error) {
-            Logout();
-        }
-        /*
-        const resDataId = [];
-
-        res.data.body.map((rs) => {
-            rs.key = rs.idinscripcion;
-            resDataId.push(rs);
+    const getLstPersona = async () => {
+        let array = [];
+        const res = await getPersona({token:token});
+        //console.log(res.body)
+        res.body.map((persona) => {
+            persona.ciudad=persona.Ciudad.descripcion;
+            array.push(persona);
             return true;
         })
-        setData(resDataId);
-        * /
-        setData(res.data.body);
+        setData(array);
     }
-    */
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -183,82 +143,153 @@ const ListaInscripcion = ({ token }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'Inscripcions');
-        XLSX.writeFile(wb, 'Inscripcions.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'Personas');
+        XLSX.writeFile(wb, 'Personas.xlsx')
     }
 
-    const deleteInscripcion = async (id) => {
-        //await axios.delete(`${URI}/del/${id}`, config)
-        //getInscripcion();
+    const handleDelete = async (id) => {
+        await deletePersona({token:token,param:id})
+        getLstPersona();
     }
-// eslint-disable-next-line
-    const updateInscripcion = async (newData) => {
+
+    const handleUpdate = async (newData) => {
         //console.log('Entra en update');
         //console.log(newData)
         
-        /*
-        await axios.put(URI + "put/" + newData.idinscripcion, newData, config
-        );
-        getInscripcion();*/
+        await updatePersona({token:token,param:newData.idpersona,json:newData}) 
+        getLstPersona();
     }
+    /*Comentado por fuera de uso*/
+    /*
+    const getEdad = (dateString) => {
+        let hoy = new Date()
+        let fechaNacimiento = new Date(dateString)
+        let edad = hoy.getFullYear() - fechaNacimiento.getFullYear()
+        let diferenciaMeses = hoy.getMonth() - fechaNacimiento.getMonth()
+        if (
+          diferenciaMeses < 0 ||
+          (diferenciaMeses === 0 && hoy.getDate() < fechaNacimiento.getDate())
+        ) {
+          edad--
+        }
+        return edad
+      }
+      */
 
     const columns = [
         {
             title: 'id',
-            dataIndex: 'idinscripcion',
-            width: '5%',
+            dataIndex: 'idpersona',
+            width: '4%',
             editable: false,
-            ...getColumnSearchProps('idinscripcion'),
-        },
-        {
-            title: 'Grado',
-            dataIndex: 'grado',
-            //width: '22%',
-            editable: true,
-            ...getColumnSearchProps('grado'),
+            ...getColumnSearchProps('idpersona'),
         },
         {
             title: 'Nombre',
             dataIndex: 'nombre',
-            //width: '22%',
+            //width: '10%',
             editable: true,
             ...getColumnSearchProps('nombre'),
         },
         {
             title: 'Apellido',
             dataIndex: 'apellido',
-            //width: '22%',
+            //width: '10%',
             editable: true,
             ...getColumnSearchProps('apellido'),
         },
-       /* {
+        {
+            title: 'Documento',
+            dataIndex: 'documento',
+            //width: '10%',
+            editable: true,
+            ...getColumnSearchProps('documento'),
+        },
+        {
+            title: 'Nacimiento',
+            dataIndex: 'fnacimiento',
+            //width: '10%',
+            editable: true,
+            ...getColumnSearchProps('fnacimiento'),
+        }, 
+        {
+            title: 'Sexo',
+            dataIndex: 'sexo',
+            //width: '8%',
+            editable: true,
+            render: (_, { sexo, idpersona }) => {
+                if(sexo){
+                    let color = 'black';
+                    if (sexo.toUpperCase() === 'MA') { color = 'blue' }
+                    else { color = 'volcano'; }
+                    return (
+                        <Tag color={color} key={idpersona} >
+                            {sexo.toUpperCase() === 'MA' ? 'Masculino' : 'Femenino'}
+                        </Tag>
+                    );
+                }else{
+                    return null;
+                }
+            },
+        },
+        {
+            title: 'Doreccion',
+            dataIndex: 'direccion',
+            //width: '15%',
+            editable: true,
+            ...getColumnSearchProps('direccion'),
+        }, 
+        {
+            title: 'Tipo documento',
+            dataIndex: 'tipo_doc',
+            //width: '22%',
+            editable: false,
+            ...getColumnSearchProps('tipo_doc'),
+        }, 
+        {
+            title: 'Nacionalidad',
+            dataIndex: 'nacionalidad',
+            //width: '22%',
+            editable: false,
+            ...getColumnSearchProps('nacionalidad'),
+        }, 
+        {
+            title: 'Correo',
+            dataIndex: 'correo',
+            //width: '22%',
+            editable: true,
+            ...getColumnSearchProps('correo'),
+        }, 
+        {
+            title: 'Telefono',
+            dataIndex: 'telefono',
+            //width: '22%',
+            editable: true,
+            ...getColumnSearchProps('telefono'),
+        },
+        {
+            title: 'Ciudad',
+            dataIndex: 'ciudad',
+            //width: '22%',
+            editable: true,
+            ...getColumnSearchProps('ciudad'),
+        },
+        {
             title: 'Estado',
             dataIndex: 'estado',
             //width: '7%',
             editable: true,
-            render: (_, { estado, idinscripcion }) => {
+            render: (_, { estado, idpersona }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={idinscripcion} >
+                    <Tag color={color} key={idpersona} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
             },
-        },*/
-        {
-            title: 'Gestion',
-            dataIndex: 'gestion',
-            render: (_, record) => {
-                return (
-                    <>
-                   <Button style={{ marginLeft:`10px` }}  onClick={() => navigate(`/faltas/${record.idconvocatoria}`)} >Faltas</Button> 
-                    </>
-                )
-            },
         },
-
         {
             title: 'Accion',
             dataIndex: 'operacion',
@@ -269,7 +300,7 @@ const ListaInscripcion = ({ token }) => {
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idinscripcion)}
+                            onClick={() => save(record.idpersona)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -289,7 +320,7 @@ const ListaInscripcion = ({ token }) => {
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idinscripcion)}
+                            onConfirm={() => confirmDel(record.idpersona)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -308,28 +339,28 @@ const ListaInscripcion = ({ token }) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idinscripcion);
+        setEditingKey(record.idpersona);
     };
 
 
-    const isEditing = (record) => record.idinscripcion === editingKey;
+    const isEditing = (record) => record.idpersona === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idinscripcion) => {
+    const confirmDel = (idpersona) => {
         message.success('Procesando');
-        deleteInscripcion(idinscripcion);
+        handleDelete(idpersona);
     };
 
-    const save = async (idinscripcion) => {
-/*
+    const save = async (idpersona) => {
+
 
         try {
             const row = await form.validateFields();
             const newData = [...data];
-            const index = newData.findIndex((item) => idinscripcion === item.idinscripcion);
+            const index = newData.findIndex((item) => idpersona === item.idpersona);
 
             if (index > -1) {
 
@@ -341,7 +372,7 @@ const ListaInscripcion = ({ token }) => {
 
                 newData[index].fecha_upd = strFecha;
                 //console.log(newData);
-                updateInscripcion(newData[index]);
+                handleUpdate(newData[index]);
                 setData(newData);
                 setEditingKey('');
 
@@ -353,7 +384,7 @@ const ListaInscripcion = ({ token }) => {
             }
         } catch (errInfo) {
             console.log('Validate Failed:', errInfo);
-        }*/
+        }
     };
 
 
@@ -376,19 +407,15 @@ const ListaInscripcion = ({ token }) => {
 
     return (
         <>
-            <h3>Lista estudiantes</h3>
+            <h3>Lista de Personas</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
-            <Button type='primary' style={{ backgroundColor: `#E94Informatica5`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
-            
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idinscripcion'} />
+            <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
+            <div style={{ marginBottom: `5px`, textAlign: `end` }}>
+                <Button type="primary" onClick={() => navigate('/crearpersona')} >{<PlusOutlined />} Nuevo</Button>
+            </div>
+            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idpersona'} varx={2500} />
         </>
     )
 }
-export default ListaInscripcion
 
-/*
-<div style={{ marginBottom: `5px`, textAlign: `end` }}>
-
-                <Button type="primary" onClick={() => navigate('/crearinscripcion')} >{<PlusOutlined />} Nuevo</Button>
-            </div>
-*/
+export default ListaPersona;

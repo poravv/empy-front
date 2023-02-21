@@ -70,23 +70,24 @@ const AppBar = ({ usuario, sucursal }) => {
             getItem(() => navegacion('/documentos'), 'Documentos', '7'),
             getItem(() => navegacion('/sucursal'), 'Escuela', '8'),
             getItem(() => navegacion('/gradosArma'), 'Rangos', '9'),
+            getItem(() => navegacion('/persona'), 'Personas', '10'),
         ]),
         getItem(null, 'Academico', 'sub2', <FolderOpenOutlined />, [
-            getItem(() => navegacion('/plan'), 'Planificacion', '10'),
-            getItem(() => navegacion('/convocatoria'), 'Convocatoria', '11'),//Agregar aqui la asistencia, faltas y evaluaciones
+            getItem(() => navegacion('/plan'), 'Planificacion', '11'),
+            getItem(() => navegacion('/convocatoria'), 'Convocatoria', '12'),//Agregar aqui la asistencia, faltas y evaluaciones
             //getItem(() => navegacion('/inscripcion'), 'Inscripcion', '8'),
         ]),
         getItem(null, 'Administrativo', 'sub3', <TeamOutlined />, [
-            getItem(() => navegacion('/instructor'), 'Instructores', '12'),
+            getItem(() => navegacion('/instructor'), 'Instructores', '13'),
         ]),
         getItem(null, 'Gestion', 'sub4', <CheckSquareOutlined />, [
-            getItem(() => navegacion('/cursosH'), 'Curso/Materia', '13'),
+            getItem(() => navegacion('/cursosH'), 'Curso/Materia', '14'),
         ]),
         getItem(null, 'Reportes', 'sub5', <PieChartOutlined />, [
-            getItem(() => navegacion('/'), 'Estadisticas', '14'),
-            getItem(() => navegacion('/'), 'Informes', '15'),
+            getItem(() => navegacion('/'), 'Estadisticas', '15'),
+            getItem(() => navegacion('/'), 'Informes', '16'),
         ]),
-        getItem(() => Logout(), 'Close session', '16', <LogoutOutlined />)
+        getItem(() => Logout(), 'Close session', '17', <LogoutOutlined />)
     ];
     return (
         <Layout hasSider

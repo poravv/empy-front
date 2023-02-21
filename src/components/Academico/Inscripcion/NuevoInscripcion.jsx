@@ -4,17 +4,21 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
 import React from 'react';
 import UploadFile from '../../Utils/Upload';
-import { Button, Form, Input, DatePicker, Radio, Row, Divider } from 'antd';
+import { Button, Form, Input, DatePicker, Radio, Row, Divider, message } from 'antd';
 import Buscador from '../../Utils/Buscador/Buscador';
 import { getPersona, createPersona, updatePersona } from '../../../services/Persona';
-import { createInstructor, getInstructor, updateInstructor } from '../../../services/Instructor';
+import { createInscripcion, getInscripcion } from '../../../services/Inscripcion';
 import { getCiudad } from '../../../services/Ciudad';
 import { getGradosArma } from '../../../services/GradosArma';
 import moment from 'moment';
-import { NACIONALIDAD } from '../../Utils/Nacionalidades'
+import { NACIONALIDAD } from '../../Utils/Nacionalidades';
+import { useParams } from "react-router-dom";
 
-
-function NuevoInstructor({ token }) {
+let fechaActual = new Date();
+function NuevoInscripcion({ token }) {
+    /*Agregar parametro para inscripcion*/
+    const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
+    const { idconvocatoria } = useParams();
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
     const [nombre, setNombre] = useState('');
@@ -35,19 +39,18 @@ function NuevoInstructor({ token }) {
     const [idgrados_arma, setIdgrados_armas] = useState('');
     const [idciudad, setIdciudad] = useState(0);
     const [idpersona, setIdpersona] = useState(0);
-    const [observacion, setObservacion] = useState(0);
 
 
     useEffect(() => {
         getLstCiudad();
         getLstGradosArmas();
         getLstPersonas();
-        getLstInstructor();
+        getLstInscripcion();
         // eslint-disable-next-line
     }, []);
 
-    const getLstInstructor = async () => {
-        const res = await getInstructor({ token: token });
+    const getLstInscripcion = async () => {
+        const res = await getInscripcion({ token: token });
         //console.log(res.body)
         setData(res.body);
     }
@@ -105,24 +108,24 @@ function NuevoInstructor({ token }) {
     const create = async (e) => {
         //console.log(idpersona)
         //console.log(fnacimiento._i);
-        //console.log(moment(fnacimiento).format('YYYY-MM-DD'));
+        console.log(moment(fnacimiento).format('YYYY-MM-DD'));
 
         //e.preventDefault();
         let bandera = true;
         /*Verificar si existe para actualizar o crear posteriormente */
         let savePersona;
-        let saveinstructor;
+        let saveinscripcion;
         /*Para validad undefine*/
         //if(!idpersona||idpersona===0){console.log('Idpersona es null');return false}
 
         personas.find((persona) => {
             if (persona.idpersona === idpersona) {
                 bandera = false;
-            } 
+            }
             if (persona.documento === documento) {
                 setIdpersona(persona.idpersona)
                 bandera = false;
-            } 
+            }
             return true;
         });
 
@@ -146,13 +149,17 @@ function NuevoInstructor({ token }) {
             };
             console.log('Entra en create persona')
             const resultado = await createPersona({ token: token, json: savePersona });
-            //console.log('Rs: ',resultado)
-            saveinstructor = {
+            console.log('Rs: ', resultado)
+            saveinscripcion = {
                 idpersona: resultado.body.idpersona,
-                observacion: observacion,
+                fecha: strFecha,
+                idconvocatoria: idconvocatoria,
                 estado: 'AC'
             }
-            await createInstructor({ token: token, json: saveinstructor });
+            await createInscripcion({ token: token, json: saveinscripcion });
+            /*Agregar disminucion de cuota*/
+            navigate(`/inscripcion/${idconvocatoria}`);
+            message.success('Registro almacenado');
         } else {
             //console.log('Entra en actualizar')
             /*Update*/
@@ -160,7 +167,7 @@ function NuevoInstructor({ token }) {
                 idpersona: idpersona,
                 nombre: nombre,
                 apellido: apellido,
-                fnacimiento: moment(fnacimiento).format('YYYY-MM-DD')??fnacimiento._i,
+                fnacimiento: moment(fnacimiento).format('YYYY-MM-DD') ?? fnacimiento._i,
                 sexo: valueSexo,
                 documento: documento,
                 estado: 'AC',
@@ -174,42 +181,49 @@ function NuevoInstructor({ token }) {
                 idciudad: idciudad
             };
 
-            saveinstructor = {
+            saveinscripcion = {
                 idpersona: idpersona,
-                observacion: observacion,
+                idconvocatoria: idconvocatoria,
+                fecha: strFecha,
                 estado: 'AC'
             };
+
             let bandera1 = true;
-            let idinstructor = 0;
-            data.find((instructor) => {
-                if (instructor.idpersona === idpersona) {
+
+            data.find((inscripcion) => {
+                // eslint-disable-next-line
+                if (inscripcion.idpersona == idpersona && inscripcion.idconvocatoria == idconvocatoria) {
+                    console.log(idpersona)
+                    console.log(idconvocatoria)
                     bandera1 = false;
-                    idinstructor = instructor.idinstructor;
-                    return true;
-                } else {
-                    return false;
                 }
+                return true;
             });
+
             if (bandera1) {
-                /*Actualiza y crea instructor*/
+                /*Actualiza y crea inscripcion*/
                 await updatePersona({ token: token, param: savePersona.idpersona, json: savePersona }).then((resultado) => {
-                    console.log(resultado)
+                    
+                    console.log(resultado);
+
                 });
-                await createInstructor({ token: token, json: saveinstructor });
+                await createInscripcion({ token: token, json: saveinscripcion });
+
+                /*Agregar disminucion de cuota*/
+
+                message.success('Registro almacenado');
+                navigate(`/inscripcion/${idconvocatoria}`);
             } else {
-                await updatePersona({ token: token, param: savePersona.idpersona, json: savePersona }).then((resultado) => {
-                    console.log(resultado)
-                });
-                await updateInstructor({ token: token, param: idinstructor, json: saveinstructor });
+                message.error('Ya esta registrada a esta convocatoria');
             }
 
         }
-        navigate('/instructor');
+
     }
 
     const btnCancelar = (e) => {
         e.preventDefault();
-        navigate('/instructor');
+        navigate(`/inscripcion/${idconvocatoria}`);
     }
 
     const changeDate = (fnac) => {
@@ -246,9 +260,9 @@ function NuevoInstructor({ token }) {
                 setTelefono(element.telefono);
                 setIdgrados_armas(element.idgrados_arma);
                 setIdciudad(element.idciudad);
-                setFnacimiento(element.fnacimiento);
-                //setIdpersona(value);
                 setIdpersona(element.idpersona);
+                //setIdpersona(value);
+                setFnacimiento(element.fnacimiento);
 
                 //changeDate(JSON.stringify(element.fnacimiento));
 
@@ -262,8 +276,9 @@ function NuevoInstructor({ token }) {
                 form.setFieldValue('telefono', element.telefono);
                 form.setFieldValue('idciudad', element.idciudad);
                 form.setFieldValue('idgrados_arma', element.idgrados_arma);
-                form.setFieldValue('fnacimiento', element.fnacimiento);
                 form.setFieldValue('idpersona', element.idpersona);
+                form.setFieldValue('fnacimiento', element.fnacimiento);
+
 
                 //console.log(new Date())
                 return true;
@@ -281,7 +296,7 @@ function NuevoInstructor({ token }) {
     return (
         <div >
             <div style={{ marginBottom: `20px` }}>
-                <h2>Cargar instructor</h2>
+                <h2>Formulario de inscripcion</h2>
             </div>
             <Form
                 name="basic"
@@ -392,10 +407,6 @@ function NuevoInstructor({ token }) {
                         <UploadFile previewImage={photo} setPreviewImage={setPhoto} />
                     </Form.Item>
                 </Row>
-                <Divider orientation="left" type="horizontal" style={{ color: `#7CC1FE` }}>Observación</Divider>
-                <Form.Item id='observacion' name="observacion" >
-                    <Input placeholder='Observacion' value={observacion} onChange={(e) => setObservacion(e.target.value)} />
-                </Form.Item>
 
                 <Form.Item
                     style={{ margin: `20px` }}>
@@ -411,7 +422,7 @@ function NuevoInstructor({ token }) {
     );
 }
 
-export default NuevoInstructor;
+export default NuevoInscripcion;
 
 
 /*
