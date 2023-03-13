@@ -1,8 +1,10 @@
-import { useState,useEffect, useRef } from 'react'
+//import axios from 'axios'
+import { useState, useEffect, useRef } from 'react'
+//import { Logout } from '../Utils/Logout';
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModelExpand from '../TableModel/TableModelExpand';
+import TableModel from '../../TableModel/TableModel';
 import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
@@ -10,31 +12,41 @@ import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { getPlanificacion } from '../../services/Planificacion';
+import { deleteUsuario, getUsuario, updateUsuario } from '../../../services/Usuario';
 
 let fechaActual = new Date();
-const ListaPlan = ({ token }) => {
+const ListaUsuario = ({ token }) => {
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
     const [editingKey, setEditingKey] = useState('');
     const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
+    //---------------------------------------------------
+    //Datos de buscador
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
     const navigate = useNavigate();
     //---------------------------------------------------
-    
     useEffect(() => {
-        getPlan();
+        getLstUsuario();
         // eslint-disable-next-line
     }, []);
 
-    const getPlan = async () => {        
-        const res = await getPlanificacion({token:token,param:'get'});
-        console.log(res.body);
-        setData(res.body);
+    const getLstUsuario = async () => {
+        let array = [];
+        const res = await getUsuario({ token: token });
+        //console.log(res.body)
+        res.body.map((usuario) => {
+            usuario.nombre = usuario.persona.nombre;
+            usuario.apellido = usuario.persona.apellido;
+            usuario.documento = usuario.persona.documento;
+            usuario.correo = usuario.persona.correo;
+            usuario.telefono = usuario.persona.telefono;
+            array.push(usuario);
+            return true;
+        });
+        setData(array);
     }
-    
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -134,62 +146,123 @@ const ListaPlan = ({ token }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'Plans');
-        XLSX.writeFile(wb, 'Plans.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'Usuarios');
+        XLSX.writeFile(wb, 'Usuarios.xlsx')
     }
 
-    const deletePlan = async (id) => {
-        //await axios.delete(`${URI}/del/${id}`, config)
-        //getPlan();
+    const handleDelete = async (id) => {
+        await deleteUsuario({ token: token, param: id })
+        getLstUsuario();
     }
-    // eslint-disable-next-line
-    const updatePlan = async (newData) => {
+
+    const handleUpdate = async (newData) => {
         //console.log('Entra en update');
         //console.log(newData)
 
-        /*
-        await axios.put(URI + "put/" + newData.idplanificacion, newData, config
-        );
-        getPlan();*/
+        await updateUsuario({ token: token, param: newData.idusuario, json: newData })
+        getLstUsuario();
     }
+    /*Comentado por fuera de uso*/
+    /*
+    const getEdad = (dateString) => {
+        let hoy = new Date()
+        let fechaNacimiento = new Date(dateString)
+        let edad = hoy.getFullYear() - fechaNacimiento.getFullYear()
+        let diferenciaMeses = hoy.getMonth() - fechaNacimiento.getMonth()
+        if (
+          diferenciaMeses < 0 ||
+          (diferenciaMeses === 0 && hoy.getDate() < fechaNacimiento.getDate())
+        ) {
+          edad--
+        }
+        return edad
+      }
+      */
 
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'idplanificacion',
-            width: '12%',
+            title: 'id',
+            dataIndex: 'idusuario',
+            width: '4%',
             editable: false,
-            ...getColumnSearchProps('id'),
+            ...getColumnSearchProps('idusuario'),
         },
         {
-            title: 'Curso',
-            dataIndex: 'curso',
-            //width: '22%',
+            title: 'Usuario',
+            dataIndex: 'usuario',
+            //width: '10%',
             editable: false,
-            //...getColumnSearchProps('curso'),
-            render: (_, planificacion) => {
-                //console.log(planificacion.curso);
-                return (
-                    planificacion.curso.descripcion
-                );
+            ...getColumnSearchProps('usuario'),
+        },
+        {
+            title: 'Nivel',
+            dataIndex: 'nivel',
+            //width: '10%',
+            editable: false,
+            ...getColumnSearchProps('nivel'),
+            render: (_, { nivel }) => {
+
+                switch (nivel) {
+                    case 0: return 'Root';
+                    case 1: return 'Admin'
+                    case 2: return 'Profesor'
+                    case 3: return 'Estudiante'
+                    default: return 'No definido'
+                }
+
             },
         },
         {
-             title: 'Estado',
-             dataIndex: 'estado',
-             //width: '7%',
-             editable: true,
-             render: (_, { estado, idplanificacion }) => {
-                 let color = 'black';
-                 if (estado.toUpperCase() === 'AC') { color = 'green' }
-                 else { color = 'volcano'; }
-                 return (
-                     <Tag color={color} key={idplanificacion} >
-                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
-                     </Tag>
-                 );
-             },
-         },
+            title: 'Nombre',
+            dataIndex: 'nombre',
+            //width: '10%',
+            editable: false,
+            ...getColumnSearchProps('nombre'),
+        },
+        {
+            title: 'Apellido',
+            dataIndex: 'apellido',
+            //width: '10%',
+            editable: false,
+            ...getColumnSearchProps('apellido'),
+        },
+        {
+            title: 'Documento',
+            dataIndex: 'documento',
+            //width: '10%',
+            editable: false,
+            ...getColumnSearchProps('documento'),
+        },
+        {
+            title: 'Correo',
+            dataIndex: 'correo',
+            //width: '22%',
+            editable: false,
+            ...getColumnSearchProps('correo'),
+        },
+        {
+            title: 'Telefono',
+            dataIndex: 'telefono',
+            //width: '22%',
+            editable: false,
+            ...getColumnSearchProps('telefono'),
+        },
+        {
+            title: 'Estado',
+            dataIndex: 'estado',
+            //width: '7%',
+            editable: false,
+            render: (_, { estado, idusuario }) => {
+                let color = 'black';
+                if (estado.toUpperCase() === 'AC') { color = 'green' }
+                else { color = 'volcano'; }
+                return (
+                    <Tag color={color} key={idusuario} >
+                        {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
+                    </Tag>
+                );
+            },
+        },
         {
             title: 'Accion',
             dataIndex: 'operacion',
@@ -198,7 +271,7 @@ const ListaPlan = ({ token }) => {
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idplanificacion)}
+                            onClick={() => save(record.idusuario)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -218,7 +291,7 @@ const ListaPlan = ({ token }) => {
 
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idplanificacion)}
+                            onConfirm={() => confirmDel(record.idusuario)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
@@ -231,122 +304,57 @@ const ListaPlan = ({ token }) => {
                 );
             },
         }
-    ];
-
-    //{iddetalle:11,materia:'Matematica',carga_horaria:'100',finicio:'01-01-2023',ffin:`25-06-2023`,instructor:`Cap. Claudio Ibarra`},
-
-    const columnDet = [
-        /*
-        {
-            title: 'ID',
-            dataIndex: 'iddet_planificacion',
-            key: 'iddet_planificacion',
-            width: '2%',
-        },
-        */
-        {
-            title: 'Materia',
-            dataIndex: 'materia',
-            width: '2%',
-            render: (_, record) => {
-                //console.log(planificacion.curso);
-                if(record.materium){
-                    return (
-                        record.materium.descripcion??""
-                    );
-                }else{
-                    return null;
-                }
-                
-            },
-        },
-
-        {
-            title: 'Carga horaria',
-            dataIndex: 'carga_horaria',
-            width: '2%',
-            /*
-            render: (det_modelo) => {
-                //console.log(det_modelo)
-                return det_modelo.costo
-            }
-            */
-        },
-        {
-            title: 'Instructor',
-            dataIndex: 'idinstructor',
-            width: '2%',
-            render: (_, record) => {
-                //console.log(planificacion.curso);
-                if(record.instructor){
-                    return (
-                        record.instructor.persona.grados_arma.grado+' '+record.instructor.persona.nombre+' '+record.instructor.persona.apellido
-                    );
-                }else{
-                    return null;
-                }
-                
-            },
-        },
-        /*{
-            title: 'Action',
-            dataIndex: 'operation',
-            key: 'operation',
-            width: '5%',
-            render: () => (
-                null
-            ),
-        },*/
-    ];
+    ]
 
     const edit = (record) => {
         form.setFieldsValue({
             ...record,
         });
-        setEditingKey(record.idplanificacion);
+        setEditingKey(record.idusuario);
     };
 
 
-    const isEditing = (record) => record.idplanificacion === editingKey;
+    const isEditing = (record) => record.idusuario === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idplanificacion) => {
+    const confirmDel = (idusuario) => {
         message.success('Procesando');
-        deletePlan(idplanificacion);
+        handleDelete(idusuario);
     };
 
-    const save = async (idplanificacion) => {
-         try {
-                    const row = await form.validateFields();
-                    const newData = [...data];
-                    const index = newData.findIndex((item) => idplanificacion === item.idplanificacion);
-        
-                    if (index > -1) {
-        
-                        const item = newData[index];
-                        newData.splice(index, 1, {
-                            ...item,
-                            ...row,
-                        });
-        
-                        newData[index].fecha_upd = strFecha;
-                        //console.log(newData);
-                        updatePlan(newData[index]);
-                        setData(newData);
-                        setEditingKey('');
-        
-                        message.success('Registro actualizado');
-                    } else {
-                        newData.push(row);
-                        setData(newData);
-                        setEditingKey('');
-                    }
-                } catch (errInfo) {
-                    console.log('Validate Failed:', errInfo);
-                }
+    const save = async (idusuario) => {
+
+        try {
+            const row = await form.validateFields();
+            const newData = [...data];
+            const index = newData.findIndex((item) => idusuario === item.idusuario);
+
+            if (index > -1) {
+
+                const item = newData[index];
+                newData.splice(index, 1, {
+                    ...item,
+                    ...row,
+                });
+
+                newData[index].fecha_upd = strFecha;
+                //console.log(newData[index]);
+                handleUpdate(newData[index]);
+                setData(newData);
+                setEditingKey('');
+
+                message.success('Registro actualizado');
+            } else {
+                newData.push(row);
+                setData(newData);
+                setEditingKey('');
+            }
+        } catch (errInfo) {
+            console.log('Validate Failed:', errInfo);
+        }
     };
 
 
@@ -369,17 +377,15 @@ const ListaPlan = ({ token }) => {
 
     return (
         <>
-            <h3>Planificacion</h3>
+            <h3>Lista de Usuarios</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
-            <Button type='primary' style={{ backgroundColor: `#E94Informatica5`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
+            <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
-
-                <Button type="primary" onClick={() => navigate('/crearplan')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate('/crearusuario')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModelExpand columnDet={columnDet} keyDet={'iddet_planificacion'} token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idplanificacion'} />
+            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idusuario'} varx={1500} />
         </>
     )
 }
-export default ListaPlan;
 
-//<TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idplanificacion'} />
+export default ListaUsuario;

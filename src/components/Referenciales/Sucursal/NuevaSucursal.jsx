@@ -1,26 +1,29 @@
 
 
-import { useEffect, useState } from 'react'
+import { 
+    //useEffect, 
+    useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import React from 'react';
 import { Button, Form, Input, message, Row } from 'antd';
-import Buscador from '../../Utils/Buscador/Buscador';
+//import Buscador from '../../Utils/Buscador/Buscador';
 import UploadFile from '../../Utils/Upload';
-import { getCiudad } from '../../../services/Ciudad';
+//import { getCiudad } from '../../../services/Ciudad';
 import { createSucursal } from '../../../services/Sucursal';
-const { TextArea } = Input;
+//const { TextArea } = Input;
 
 function NuevoSucursal({ token }) {
 
     const [sucursal, setSucursal] = useState('');
-    const [ruc, setRuc] = useState('');
-    const [direccion, setDireccion] = useState('');
-    const [idciudad, setIdciudad] = useState(0);
+    //const [ruc, setRuc] = useState('');
+    //const [direccion, setDireccion] = useState('');
+    //const [idciudad, setIdciudad] = useState(0);
     const navigate = useNavigate();
-    const [ciudades, setCiudades] = useState([]);
+    //const [ciudades, setCiudades] = useState([]);
     //Para imagen
     const [previewImage1, setPreviewImage1] = useState('');
 
+    /*
     useEffect(() => {
         getLstCiudad();
         // eslint-disable-next-line
@@ -31,17 +34,20 @@ function NuevoSucursal({ token }) {
         setCiudades(res.body);
     }
 
+    */
     //procedimiento para actualizar
     const create = async (e) => {
-
         try {
             await createSucursal({ token: token, json: {
-                idciudad: idciudad,
+                //idciudad: idciudad,
+                idciudad:1,
                 estado: "AC",
                 img: previewImage1,
                 sucursal: sucursal,
-                ruc:ruc,
-                direccion:direccion
+                //ruc:ruc,
+                ruc:'nn',
+                //direccion:direccion
+                direccion:'nn'
             } });
             navigate('/sucursal');
             message.success('Registro almacenado');
@@ -55,6 +61,7 @@ function NuevoSucursal({ token }) {
         navigate('/sucursal');
     }
 
+    /*
     const onChange = (value) => {
         setIdciudad(value)
         console.log(`selected ${value}`);
@@ -62,7 +69,7 @@ function NuevoSucursal({ token }) {
 
     const onSearch = (value) => {
         console.log('search:', value);
-    };
+    };*/
 
     return (
         <div >
@@ -78,21 +85,11 @@ function NuevoSucursal({ token }) {
                 onFinish={create}
                 //onFinishFailed={create}
                 autoComplete="off" >
-                <div style={{ marginBottom: `20px` }}>
-                    <Buscador title={'Ciudad'} label={'descripcion'} value={'idciudad'} data={ciudades} onChange={onChange} onSearch={onSearch} />
-                </div>
+                
 
                 <Form.Item name="sucursal" rules={[{ required: true, message: 'Cargue sucursal', },]}>
                     <Input placeholder='Escuela' value={sucursal} onChange={(e) => setSucursal(e.target.value)} />
-                </Form.Item>
-
-                <Form.Item name="ruc" rules={[{ required: true, message: 'Cargue ruc', },]}>
-                    <Input placeholder='Ruc' value={ruc} onChange={(e) => setRuc(e.target.value)} />
-                </Form.Item>
-
-                <Form.Item name="direccion" rules={[{ required: true, message: 'Cargue direccion', },]}>
-                    <TextArea placeholder='Direccion' value={direccion} onChange={(e) => setDireccion(e.target.value)} />
-                </Form.Item>
+                </Form.Item>                
 
                 <Row style={{ alignItems: `center` }}>
                     <Form.Item name="imagen" style={{ margin: `10px` }}  >
@@ -117,7 +114,13 @@ function NuevoSucursal({ token }) {
 export default NuevoSucursal;
 
 /*
-
-                
-
+<div style={{ marginBottom: `20px` }}>
+<Buscador title={'Ciudad'} label={'descripcion'} value={'idciudad'} data={ciudades} onChange={onChange} onSearch={onSearch} />
+</div>
+<Form.Item name="ruc" rules={[{ required: true, message: 'Cargue ruc', },]}>
+<Input placeholder='Ruc' value={ruc} onChange={(e) => setRuc(e.target.value)} />
+</Form.Item>
+<Form.Item name="direccion" rules={[{ required: true, message: 'Cargue direccion', },]}>
+<TextArea placeholder='Direccion' value={direccion} onChange={(e) => setDireccion(e.target.value)} />
+</Form.Item>
 */

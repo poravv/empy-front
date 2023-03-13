@@ -137,8 +137,6 @@ const ListaSucursal = ({ token,idsucursal }) => {
             ),
     });
 
-
-
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
         XLSX.utils.book_append_sheet(wb, ws, 'Vehiculos');
@@ -172,6 +170,7 @@ const ListaSucursal = ({ token,idsucursal }) => {
             //width: '12%',
             editable: true,
         },
+        /*
         {
             title: 'Ciudad',
             dataIndex: 'idciudad',
@@ -191,6 +190,8 @@ const ListaSucursal = ({ token,idsucursal }) => {
             },
             //...getColumnSearchProps('proveedor'),
         },
+        */
+        /*
         {
             title: 'Ruc',
             dataIndex: 'ruc',
@@ -198,6 +199,7 @@ const ListaSucursal = ({ token,idsucursal }) => {
             editable: true,
             ...getColumnSearchProps('ruc'),
         },
+        */
         {
             title: 'Imagen',
             dataIndex: 'img',
@@ -226,7 +228,6 @@ const ListaSucursal = ({ token,idsucursal }) => {
                 }
             },
         },
-        
         {
             title: 'Estado',
             dataIndex: 'estado',
@@ -326,7 +327,7 @@ const ListaSucursal = ({ token,idsucursal }) => {
 
                 newData[index].fecha_upd = strFecha;
 
-                //console.log(newData);
+                console.log(newData);
 
                 handleUpdate(newData[index]);
                 setData(newData);

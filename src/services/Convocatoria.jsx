@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://186.158.152.141:3002/empy/api/convocatoria';
+const baseURL = 'http://186.158.152.141:4000/empy/api/convocatoria';
 
 export const getConvocatoria = async ({token,param}) => {
     //CONFIGURACION DE TOKEN

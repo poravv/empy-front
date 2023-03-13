@@ -30,9 +30,9 @@ const data = [
 ]
 
 
-//const URI = 'http://186.158.152.141:3002/automot/api/cursosH/';
+//const URI = 'http://186.158.152.141:4000/automot/api/cursosH/';
 //let fechaActual = new Date();
-const ListaCursosH = ({ token }) => {
+const ListaGestionViejo = ({ token }) => {
     console.log(data)
     const [form] = Form.useForm();
     //const [data, setData] = useState([]);
@@ -427,7 +427,7 @@ const ListaCursosH = ({ token }) => {
 
     return (
         <>
-            <h3>Cursos / Materias</h3>
+            <h3>Gestion cursos</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94Informatica5`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
 
@@ -435,6 +435,6 @@ const ListaCursosH = ({ token }) => {
         </>
     )
 }
-export default ListaCursosH;
+export default ListaGestionViejo;
 
 //<TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idconvocatoria'} />

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://186.158.152.141:3002/empy/api/inscripcion';
+const baseURL = 'http://186.158.152.141:4000/empy/api/inscripcion';
 
 export const getInscripcion = async ({token,param}) => {
     //CONFIGURACION DE TOKEN

@@ -3,8 +3,8 @@ import ReporteLine from "./TemplateReporteLine";
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-const URIMODELO = 'http://186.158.152.141:3002/automot/api/detmodelo';
-const URIVENTA = 'http://186.158.152.141:3002/automot/api/venta';
+const URIMODELO = 'http://186.158.152.141:4000/automot/api/detmodelo';
+const URIVENTA = 'http://186.158.152.141:4000/automot/api/venta';
 
 const ReportePlaya = ({ token }) => {
 

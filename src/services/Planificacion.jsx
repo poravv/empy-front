@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://186.158.152.141:3002/empy/api/planificacion';
+const baseURL = 'http://186.158.152.141:4000/empy/api/planificacion';
 
 export const getPlanificacion = async ({token,param}) => {
     //CONFIGURACION DE TOKEN
@@ -11,6 +11,18 @@ export const getPlanificacion = async ({token,param}) => {
     };
     //const { data } = await axios.get(baseURL, credentials);
     const { data } = await axios.get(`${baseURL}/get`, config)
+    return data;
+};
+
+export const getPlanInstructor = async ({token,param}) => {
+    //CONFIGURACION DE TOKEN
+    const config = {
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
+    };
+    //const { data } = await axios.get(baseURL, credentials);
+    const { data } = await axios.get(`${baseURL}/getplaninst/${param}`, config)
     return data;
 };
 

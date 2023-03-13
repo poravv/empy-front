@@ -9,10 +9,10 @@ import { Row, Col, message } from 'antd';
 import { IoTrashOutline } from 'react-icons/io5';
 import Table from 'react-bootstrap/Table';
 
-const URI = 'http://186.158.152.141:3002/automot/api/venta';
-const URIINVDET = 'http://186.158.152.141:3002/automot/api/detventa';
-const URIMODELO = 'http://186.158.152.141:3002/automot/api/detmodelo';
-const URICLI = 'http://186.158.152.141:3002/automot/api/cliente';
+const URI = 'http://186.158.152.141:4000/automot/api/venta';
+const URIINVDET = 'http://186.158.152.141:4000/automot/api/detventa';
+const URIMODELO = 'http://186.158.152.141:4000/automot/api/detmodelo';
+const URICLI = 'http://186.158.152.141:4000/automot/api/cliente';
 
 
 let fechaActual = new Date();

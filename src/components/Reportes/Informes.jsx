@@ -5,7 +5,7 @@ import React from 'react';
 import { Button } from 'antd';
 import * as XLSX from 'xlsx/xlsx.mjs';
 
-const URI = 'http://186.158.152.141:3002/automot/api/detmodelo';
+const URI = 'http://186.158.152.141:4000/automot/api/detmodelo';
 
 function Informes({token}) {
     const [detmodelo, setDetModelo] = useState([])

@@ -10,9 +10,11 @@ import { getPersona, createPersona, updatePersona } from '../../../services/Pers
 import { createInscripcion, getInscripcion } from '../../../services/Inscripcion';
 import { getCiudad } from '../../../services/Ciudad';
 import { getGradosArma } from '../../../services/GradosArma';
+import { getConvocatoria } from '../../../services/Convocatoria';
 import moment from 'moment';
 import { NACIONALIDAD } from '../../Utils/Nacionalidades';
 import { useParams } from "react-router-dom";
+
 
 let fechaActual = new Date();
 function NuevoInscripcion({ token }) {
@@ -39,6 +41,7 @@ function NuevoInscripcion({ token }) {
     const [idgrados_arma, setIdgrados_armas] = useState('');
     const [idciudad, setIdciudad] = useState(0);
     const [idpersona, setIdpersona] = useState(0);
+    const [convocatorias, setConvocatorias] = useState([]);
 
 
     useEffect(() => {
@@ -46,8 +49,14 @@ function NuevoInscripcion({ token }) {
         getLstGradosArmas();
         getLstPersonas();
         getLstInscripcion();
+        getLstConvocatoria();
         // eslint-disable-next-line
     }, []);
+
+    const getLstConvocatoria = async () => {
+        const res = await getConvocatoria({ token: token, param: 'get' });
+        setConvocatorias(res.body);
+    }
 
     const getLstInscripcion = async () => {
         const res = await getInscripcion({ token: token });
@@ -106,35 +115,50 @@ function NuevoInscripcion({ token }) {
 
     //procedimiento para crear registro
     const create = async (e) => {
-        //console.log(idpersona)
-        //console.log(fnacimiento._i);
-        console.log(moment(fnacimiento).format('YYYY-MM-DD'));
-
+        //console.log(moment(fnacimiento).format('YYYY-MM-DD'));
         //e.preventDefault();
         let bandera = true;
+        let validCupo = true;
         /*Verificar si existe para actualizar o crear posteriormente */
         let savePersona;
         let saveinscripcion;
-        /*Para validad undefine*/
-        //if(!idpersona||idpersona===0){console.log('Idpersona es null');return false}
-
+        /*Para validar*/
+        //console.log(personas);
         personas.find((persona) => {
+            console.log(persona)
             if (persona.idpersona === idpersona) {
                 bandera = false;
+                return true;
             }
             if (persona.documento === documento) {
-                setIdpersona(persona.idpersona)
                 bandera = false;
+                setIdpersona(persona.idpersona);
+                return true;
+            } 
+            return false;
+        });
+        
+        convocatorias.map((conv) => {
+            if (conv.cupo < 1) {
+                validCupo = false;
+                return true;
             }
             return true;
         });
+
+        if (validCupo === false) {
+            message.error('No existe cupo');
+            return;
+        };
+
 
         if (bandera) {
             /*Create*/
             savePersona = {
                 nombre: nombre,
                 apellido: apellido,
-                fnacimiento: moment(fnacimiento).format('YYYY-MM-DD'),//fnacimiento._i??
+                //fnacimiento: moment(fnacimiento).format('YYYY-MM-DD'),//fnacimiento._i??
+                fnacimiento: fnacimiento,
                 sexo: valueSexo,
                 documento: documento,
                 estado: 'AC',
@@ -147,9 +171,15 @@ function NuevoInscripcion({ token }) {
                 idgrados_arma: idgrados_arma,
                 idciudad: idciudad,
             };
-            console.log('Entra en create persona')
+            //console.log('Entra en create persona')
             const resultado = await createPersona({ token: token, json: savePersona });
-            console.log('Rs: ', resultado)
+            //console.log('Rs: ', resultado)
+
+            if (resultado.error === 'error catch') {
+                message.error('Error de registro de persona');
+                return;
+            }
+
             saveinscripcion = {
                 idpersona: resultado.body.idpersona,
                 fecha: strFecha,
@@ -167,7 +197,7 @@ function NuevoInscripcion({ token }) {
                 idpersona: idpersona,
                 nombre: nombre,
                 apellido: apellido,
-                fnacimiento: moment(fnacimiento).format('YYYY-MM-DD') ?? fnacimiento._i,
+                fnacimiento: fnacimiento,
                 sexo: valueSexo,
                 documento: documento,
                 estado: 'AC',
@@ -193,19 +223,17 @@ function NuevoInscripcion({ token }) {
             data.find((inscripcion) => {
                 // eslint-disable-next-line
                 if (inscripcion.idpersona == idpersona && inscripcion.idconvocatoria == idconvocatoria) {
-                    console.log(idpersona)
-                    console.log(idconvocatoria)
+                    //console.log(idpersona)
+                    //console.log(idconvocatoria)
                     bandera1 = false;
                 }
-                return true;
+                return false;
             });
 
             if (bandera1) {
                 /*Actualiza y crea inscripcion*/
                 await updatePersona({ token: token, param: savePersona.idpersona, json: savePersona }).then((resultado) => {
-                    
                     console.log(resultado);
-
                 });
                 await createInscripcion({ token: token, json: saveinscripcion });
 
@@ -235,9 +263,11 @@ function NuevoInscripcion({ token }) {
         //console.log(JSON.stringify(fnac).substring(1,11));
         //setFnacimiento(fnac);
         if (typeof fnac == 'object') {
-            setFnacimiento(fnac);
+            setFnacimiento(moment(fnac.$d).format('YYYY-MM-DD'));
+            form.setFieldValue('fnacimiento', moment(fnac.$d).format('YYYY-MM-DD'));
         } else {
-            setFnacimiento(moment(fnac));
+            setFnacimiento(moment(fnac).format('YYYY-MM-DD'));
+            form.setFieldValue('fnacimiento', moment(fnac).format('YYYY-MM-DD'));
         }
     }
 
@@ -263,9 +293,7 @@ function NuevoInscripcion({ token }) {
                 setIdpersona(element.idpersona);
                 //setIdpersona(value);
                 setFnacimiento(element.fnacimiento);
-
                 //changeDate(JSON.stringify(element.fnacimiento));
-
                 form.setFieldValue('nombre', element.nombre);
                 form.setFieldValue('apellido', element.apellido);
                 form.setFieldValue('documento', element.documento);
@@ -278,8 +306,6 @@ function NuevoInscripcion({ token }) {
                 form.setFieldValue('idgrados_arma', element.idgrados_arma);
                 form.setFieldValue('idpersona', element.idpersona);
                 form.setFieldValue('fnacimiento', element.fnacimiento);
-
-
                 //console.log(new Date())
                 return true;
             } else {
@@ -291,8 +317,7 @@ function NuevoInscripcion({ token }) {
     const onSearch = (value) => {
         console.log('search:', value);
     };
-
-
+    
     return (
         <div >
             <div style={{ marginBottom: `20px` }}>
@@ -343,8 +368,8 @@ function NuevoInscripcion({ token }) {
                 </Form.Item>
                 {fnacimiento ? <Form.Item id='fnacimiento' name="fnacimiento" >
                     <Input disabled value={fnacimiento} />
-                </Form.Item> 
-                : null}
+                </Form.Item>
+                    : null}
                 <div style={{ marginBottom: `20px`, display: `flex` }}>
                     <DatePicker
                         //id='fnacimiento' name='fnacimiento'
@@ -399,7 +424,7 @@ function NuevoInscripcion({ token }) {
                             <Input disabled value={idgrados_arma} />
                         </Form.Item>
                         : null}
-                    <Buscador title={'Rango'} label={'descripcion'} value={'idgrados_arma'} data={gradosArmas} onChange={onChangeIdGradosArmas} onSearch={onSearch} />
+                    <Buscador title={'Rango'} label={'grado'} value={'idgrados_arma'} data={gradosArmas} onChange={onChangeIdGradosArmas} onSearch={onSearch} />
                 </div>
                 <Divider orientation="left" type="horizontal" style={{ color: `#7CC1FE` }}>Perfil</Divider>
                 <Row style={{ alignItems: `center` }}>
@@ -424,19 +449,3 @@ function NuevoInscripcion({ token }) {
 
 export default NuevoInscripcion;
 
-
-/*
-const handleChangeSelect = (value) => {
-        console.log(`selected ${value}`);
-    };
-
-<div style={{ marginBottom: `20px`, display: `flex` }}>
-    <Select 
-        value={nacionalidad}
-        defaultValue="-- Nacionalidad --"
-        style={{width: 300}}
-        onChange={handleChangeSelect}
-        options={NACIONALIDAD}
-    />
-</div>
-*/

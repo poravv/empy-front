@@ -16,7 +16,6 @@ import ListaAnhoLectivo from '../components/Referenciales/AnhoLectivo/ListaAnhoL
 import NuevoAnhoLectivo from '../components/Referenciales/AnhoLectivo/NuevoAnhoLectivo';
 import NuevaSucursal from '../components/Referenciales/Sucursal/NuevaSucursal';
 import ListaSucursal from '../components/Referenciales/Sucursal/ListaSucursal';
-import ListaTarjeta from '../components/Referenciales/Sucursal/ListaTarjeta';
 
 
 import ListaInstructores from '../components/Administrativo/Instructores/ListaInstructores';
@@ -36,17 +35,19 @@ import ListaPlan from '../components/Planificacion/ListaPlafinicacion';
 import NuevoPlan from '../components/Planificacion/NuevaPlanificacion';
 import ListaConvocatoria from '../components/Convocatoria/ListaConvocatoria';
 import NuevoConvocatoria from '../components/Convocatoria/NuevaConvocatoria';
-import ListaCursosH from '../components/CursosH/ListaCursosH';
-import ListaAsistencia from '../components/Asistencia/ListaAsistencia';
+import ListaGestion from '../components/Gestion/ListaGestion';
+import ListaAsistencia from '../components/Gestion/Asistencia/ListaAsistencia';
 import ListaFalta from '../components/Faltas/ListaFaltas';
 import NuevoFalta from '../components/Faltas/NuevaFalta';
 import ListaPersona from '../components/Academico/Persona/ListaPersona';
 import NuevoPersona from '../components/Academico/Persona/NuevaPersona';
+import ListaUsuario from '../components/Gestion/Usuario/ListaUsuario';
+import NuevoUsuario from '../components/Gestion/Usuario/NuevoUsuario';
+import ListaProceso from '../components/Gestion/Procesos/ListaProceso';
+import NuevaAsistencia from '../components/Gestion/Asistencia/NuevaAsistencia';
+import AsistenciaDetalle from '../components/Gestion/Asistencia/AsistenciaDetalle';
 
 function NavRoute({ usuario, sucursal }) {
-  /*if(sucursal){
-    console.log(sucursal.body);
-  }*/
   return (
     <>
       <BrowserRouter>
@@ -74,7 +75,6 @@ function NavRoute({ usuario, sucursal }) {
                   <Route path='/creardocumentos' element={<NuevoDocumentos token={usuario.token} />} />
                   #Sucursal
                   <Route path='/sucursal' element={<ListaSucursal idsucursal={usuario.body.idsucursal} token={usuario.token} />} />
-                  <Route path='/tarjeta' element={<ListaTarjeta idsucursal={usuario.body.idsucursal} token={usuario.token} />} />
                   <Route path='/crearsucursal' element={<NuevaSucursal idsucursal={usuario.body.idsucursal} idusuario={usuario.body.idusuario} token={usuario.token} />} />
                   #GradosArma
                   <Route path='/gradosArma' element={<ListaGradosArma token={usuario.token} />} />
@@ -89,9 +89,12 @@ function NavRoute({ usuario, sucursal }) {
                   <Route path='/repomodelos' element={<ReportePlaya token={usuario.token} />} />
                   <Route path='/informes' element={<Informes token={usuario.token} />} />
                   <Route path='*' element={<Navigate replace to='/' />} />
-                  #Ciudad
+                  #Persona
                   <Route path='/persona' element={<ListaPersona token={usuario.token} />} />
                   <Route path='/crearpersona' element={<NuevoPersona token={usuario.token} />} />
+                  #Usuario
+                  <Route path='/usuario' element={<ListaUsuario token={usuario.token} />} />
+                  <Route path='/crearusuario' element={<NuevoUsuario token={usuario.token} />} />
                 </>
                 : null
             }
@@ -108,8 +111,12 @@ function NavRoute({ usuario, sucursal }) {
                   <Route path='/convocatoria' element={<ListaConvocatoria token={usuario.token} />} />
                   <Route path='/crearconvocatoria' element={<NuevoConvocatoria token={usuario.token} />} />
                   #CursosH
-                  <Route path='/cursosH' element={<ListaCursosH token={usuario.token} />} />
-                  <Route path='/asistencia/:idconvocatoria' element={<ListaAsistencia token={usuario.token} />} />
+                  <Route path='/gestion' element={<ListaGestion token={usuario.token} usuario={usuario.body} />} />
+                  <Route path='/proceso/:idconvocatoria/:idmateria' element={<ListaProceso token={usuario.token} usuario={usuario.body} />} />
+                  <Route path='/asistencia/:iddet_planificacion' element={<ListaAsistencia token={usuario.token} />} />
+                  <Route path='/crearasistencia/:iddet_planificacion' element={<NuevaAsistencia token={usuario.token} />} />
+                  <Route path='/asistenciadetalle/:idasistencia' element={<AsistenciaDetalle token={usuario.token} />} />
+
                   <Route path='/faltas/:idinscripcion' element={<ListaFalta token={usuario.token} />} />
                   <Route path='/crearfalta' element={<NuevoFalta token={usuario.token} />} />
                   <Route path='*' element={<Navigate replace to='/' />} />

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://186.158.152.141:3002/empy/api/sucursal';
+const baseURL = 'http://186.158.152.141:4000/empy/api/sucursal';
 
 export const getSucursal = async ({token,param}) => {
     //CONFIGURACION DE TOKEN

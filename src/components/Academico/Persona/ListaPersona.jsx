@@ -269,10 +269,17 @@ const ListaPersona = ({ token }) => {
         },
         {
             title: 'Ciudad',
-            dataIndex: 'ciudad',
+            dataIndex: 'idciudad',
             //width: '22%',
             editable: true,
             ...getColumnSearchProps('ciudad'),
+            render: (_, {ciudad }) => {
+                if(ciudad){
+                    return (ciudad);
+                }else {
+                    return null;
+                }
+            },
         },
         {
             title: 'Estado',
@@ -356,7 +363,6 @@ const ListaPersona = ({ token }) => {
 
     const save = async (idpersona) => {
 
-
         try {
             const row = await form.validateFields();
             const newData = [...data];
@@ -371,7 +377,7 @@ const ListaPersona = ({ token }) => {
                 });
 
                 newData[index].fecha_upd = strFecha;
-                //console.log(newData);
+                console.log(newData[index]);
                 handleUpdate(newData[index]);
                 setData(newData);
                 setEditingKey('');

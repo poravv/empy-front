@@ -1,42 +1,39 @@
-//import axios from 'axios'
 import { useState, useEffect, useRef } from 'react'
 import * as XLSX from 'xlsx/xlsx.mjs';
-import { Popconfirm, Typography } from 'antd';
+//import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModel from '../../TableModel/TableModel';
+import TableModel from '../TableModel/TableModel';
 import { Tag } from 'antd';
-import { message } from 'antd';
-import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { getGradosArma,deleteGradosArma, updateGradosArma } from '../../../services/GradosArma';
+import { getPlanInstructor } from '../../services/Planificacion';
 
 
-const ListaGradosArma = ({ token }) => {
+const ListaGestion = ({ token, usuario }) => {
+
+    //console.log(usuario.idpersona)
+
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
-    let fechaActual = new Date();
-    const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
-    const [editingKey, setEditingKey] = useState('');
-    //Datos de buscador
+
+
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
     const navigate = useNavigate();
-    
-    
+    //---------------------------------------------------
+
     useEffect(() => {
-        getLstGradosArma();
+        getPlan();
         // eslint-disable-next-line
     }, []);
 
-    
-    const getLstGradosArma = async () => {
-        const res = await getGradosArma({token:token,param:'get'});
-        //console.log(res.body)
-        /*En caso de que de error en el server direcciona a login*/
+    const getPlan = async () => {
+        const res = await getPlanInstructor({ token: token, param: usuario.idpersona });
+        console.log(res.body);
         setData(res.body);
     }
 
@@ -129,161 +126,75 @@ const ListaGradosArma = ({ token }) => {
                     autoEscape
                     textToHighlight={text ? text.toString() : ''}
                 />
-            ) : (text),
+            ) : (
+                text
+            ),
     });
+
+
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'GradosArmaes');
-        XLSX.writeFile(wb, 'GradosArmaes.xlsx')
-    }
-
-    const handleDelete = async (id) => {
-        await deleteGradosArma({token:token,param:id})
-        getLstGradosArma();
-    }
-// eslint-disable-next-line
-    const handleUpdate = async (newData) => {
-        //console.log(newData)
-        await updateGradosArma({token:token,param:newData.idgrados_arma,json:newData}) 
-        getLstGradosArma();
+        XLSX.utils.book_append_sheet(wb, ws, 'Plans');
+        XLSX.writeFile(wb, 'Plans.xlsx')
     }
 
     const columns = [
         {
-            title: 'id',
-            dataIndex: 'idgrados_arma',
-            width: '5%',
+            title: 'ID',
+            dataIndex: 'iddet_planificacion',
+            width: '12%',
             editable: false,
-            ...getColumnSearchProps('idgrados_arma'),
+            ...getColumnSearchProps('id'),
         },
         {
-            title: 'Grado',
-            dataIndex: 'grado',
+            title: 'Materia',
+            dataIndex: 'materia',
             //width: '22%',
-            editable: true,
-            ...getColumnSearchProps('grado'),
+            editable: false,
         },
         {
-            title: 'Armas',
-            dataIndex: 'armas',
+            title: 'Curso',
+            dataIndex: 'curso',
             //width: '22%',
-            editable: true,
-            ...getColumnSearchProps('armas'),
+            editable: false,
+        },
+        {
+            title: 'Turno',
+            dataIndex: 'turno',
+            //width: '22%',
+            editable: false,
         },
         {
             title: 'Estado',
             dataIndex: 'estado',
             //width: '7%',
             editable: true,
-            render: (_, { estado, idgrados_arma }) => {
+            render: (_, { estado, idplanificacion }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
                 else { color = 'volcano'; }
                 return (
-                    <Tag color={color} key={idgrados_arma} >
+                    <Tag color={color} key={idplanificacion} >
                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
                     </Tag>
                 );
             },
         },
         {
-            title: 'Accion',
-            dataIndex: 'operacion',
+            title: 'Gestion',
+            dataIndex: 'gestion',
+            width: '20%',
             render: (_, record) => {
-
-                const editable = isEditing(record);
-
-                return editable ? (
-                    <span>
-                        <Typography.Link
-                            onClick={() => save(record.idgrados_arma)}
-                            style={{
-                                marginRight: 8,
-                            }} >
-                            Guardar
-                        </Typography.Link>
-                        <br />
-                        <Popconfirm title="Desea cancelar?" onConfirm={cancel}>
-                            <a href='/'>Cancel</a>
-                        </Popconfirm>
-                    </span>
-                ) : (
+                return (
                     <>
-
-                        <Typography.Link style={{ margin: `5px` }} disabled={editingKey !== ''} onClick={() => edit(record)}>
-                            Editar
-                        </Typography.Link>
-
-                        <Popconfirm
-                            title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idgrados_arma)}
-                            onCancel={cancel}
-                            okText="Yes"
-                            cancelText="No" >
-                            <Typography.Link >
-                                Borrar
-                            </Typography.Link>
-                        </Popconfirm>
-
+                        <Button onClick={() => navigate(`/asistencia/${record.iddet_planificacion}`)} >Asistencia</Button>
+                        <Button style={{ marginLeft: `10px` }} onClick={() => navigate(`/proceso/${record.idconvocatoria}/${record.idmateria}`)} >Proceso</Button>
                     </>
-                );
+                )
             },
-        }
-    ]
-
-    const edit = (record) => {
-        form.setFieldsValue({
-            ...record,
-        });
-        setEditingKey(record.idgrados_arma);
-    };
-
-
-    const isEditing = (record) => record.idgrados_arma === editingKey;
-
-    const cancel = () => {
-        setEditingKey('');
-    };
-
-    const confirmDel = (idgrados_arma) => {
-        message.success('Procesando');
-        handleDelete(idgrados_arma);
-    };
-
-    const save = async (idgrados_arma) => {
-
-        try {
-            const row = await form.validateFields();
-            const newData = [...data];
-            const index = newData.findIndex((item) => idgrados_arma === item.idgrados_arma);
-
-            if (index > -1) {
-
-                const item = newData[index];
-                newData.splice(index, 1, {
-                    ...item,
-                    ...row,
-                });
-
-                newData[index].fecha_upd = strFecha;
-                //console.log(newData);
-                handleUpdate(newData[index]);
-                setData(newData);
-                setEditingKey('');
-
-                message.success('Registro actualizado');
-            } else {
-                newData.push(row);
-                setData(newData);
-                setEditingKey('');
-            }
-        } catch (errInfo) {
-            console.log('Validate Failed:', errInfo);
-        }
-    };
-
-
+        },
+    ];
 
     const mergedColumns = columns.map((col) => {
         if (!col.editable) {
@@ -296,22 +207,21 @@ const ListaGradosArma = ({ token }) => {
                 inputType: col.dataIndex === 'age' ? 'number' : 'text',
                 dataIndex: col.dataIndex,
                 title: col.title,
-                editing: isEditing(record),
             }),
         };
     });
 
     return (
         <>
-            <h3>Rangos</h3>
+            <h3>Gestion de cursos</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
-            <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
+            <Button type='primary' style={{ backgroundColor: `#E94Informatica5`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
 
-                <Button type="primary" onClick={() => navigate('/creargradosArma')} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idgrados_arma'} />
+            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'iddet_planificacion'} />
         </>
     )
 }
-export default ListaGradosArma
+export default ListaGestion;
+/*<Button type="primary" onClick={() => navigate('/crearplan')} >{<PlusOutlined />} Nuevo</Button>*/

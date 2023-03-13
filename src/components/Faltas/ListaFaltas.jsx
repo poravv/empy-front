@@ -19,7 +19,7 @@ const data = [
     {idfalta:1,descripcion:'Ausencia injustificada',estado:'AC'},
 ]
 
-//const URI = 'http://186.158.152.141:3002/automot/api/falta/';
+//const URI = 'http://186.158.152.141:4000/automot/api/falta/';
 //let fechaActual = new Date();
 const ListaFalta = ({ token }) => {
     console.log('entra en falta')

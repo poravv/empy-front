@@ -186,7 +186,7 @@ const ListaInstructor = ({ token }) => {
             render: (_, { persona }) => {
                 if(persona){
                     if(persona.grados_arma){
-                        return persona.grados_arma.descripcion;
+                        return persona.grados_arma.grado;
                     }else{
                         return null;
                     }

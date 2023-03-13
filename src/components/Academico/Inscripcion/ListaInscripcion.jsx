@@ -170,7 +170,7 @@ const ListaInscripcion = ({ token }) => {
 
     const handleDelete = async (id) => {
         //await deleteInscripcion({ token: token, param: id })
-        await anulaInscripcion({ token: token, param: id,json:{estado:"AN"} })
+        await anulaInscripcion({ token: token, param: id, json: { estado: "AN" } })
         message.success('Procesando');
         getLstInscripcion();
     }
@@ -190,10 +190,10 @@ const ListaInscripcion = ({ token }) => {
         if (
             diferenciaMeses < 0 ||
             (diferenciaMeses === 0 && hoy.getDate() < fechaNacimiento.getDate())
-        ){
+        ) {
             edad--
         }
-            return edad
+        return edad
     }
 
     const columns = [
@@ -210,7 +210,7 @@ const ListaInscripcion = ({ token }) => {
             //width: '22%',
             editable: false,
             ...getColumnSearchProps('nombre'),
-            
+
         },
         {
             title: 'Apellido',
@@ -335,7 +335,7 @@ const ListaInscripcion = ({ token }) => {
     };
 
     const confirmDel = (idinscripcion) => {
-        
+
         handleDelete(idinscripcion);
     };
 
@@ -389,7 +389,7 @@ const ListaInscripcion = ({ token }) => {
 
     return (
         <>
-            <h1>Lista de inscripcion </h1>
+            <h1>Lista de inscripción</h1>
 
 
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
@@ -398,7 +398,23 @@ const ListaInscripcion = ({ token }) => {
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
                 <Button type="primary" onClick={() => navigate(`/crearinscripcion/${idconvocatoria}`)} >{<PlusOutlined />}Nuevo</Button>
             </div>
-            <h4 style={{ color: `#4AA3F3` }}>{convocatoria ? convocatoria.planificacion.curso.descripcion + ' Turno ' + convocatoria.turno.descripcion : null}</h4>
+            <div style={{
+                display: `flex`,
+                width: `100%`,
+                height: `40px`,
+                alignItems: `center`,
+                justifyContent: `center`,
+                //backgroundColor:`red`,
+                marginBottom: `5px`,
+                border: `10px`,
+                backgroundColor: `#CBD5DE`,
+                borderRadius: `5px`,
+                textAlign: `center`
+            }}>
+                {convocatoria ? convocatoria.planificacion.curso.descripcion + ' Turno ' + convocatoria.turno.descripcion : null}
+            </div>
+
+
             <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idinscripcion'} varx={1000} />
 
             <Button type="primary" htmlType="submit" onClick={btnCancelar} style={{ margin: `20px` }} >

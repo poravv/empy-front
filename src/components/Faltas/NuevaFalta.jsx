@@ -7,7 +7,7 @@ import React from 'react';
 import { Button, Form, Input } from 'antd';
 
 
-//const URI = 'http://186.158.152.141:3002/automot/api/falta/';
+//const URI = 'http://186.158.152.141:4000/automot/api/falta/';
 function NuevoFalta({ token }) {
 
     //Parte de nuevo registro por modal

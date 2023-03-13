@@ -1,5 +1,5 @@
 //import axios from 'axios'
-import { useState,useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Form, Input, InputNumber, Table, Select } from 'antd';
 import { Spin } from 'antd';
 import Buscador from '../Utils/Buscador/Buscador';
@@ -8,11 +8,19 @@ import { Buffer } from 'buffer';
 import { getCiudad } from '../../services/Ciudad';
 
 const { Option } = Select;
-function TableModel({ token, form, data, mergedColumns, keyExtraido,varx }) {
+function TableModel({ token, form, data, mergedColumns, keyExtraido, varx }) {
   //Celdas editables
   const EditableCell = ({ editing, dataIndex, title, inputType, record, index, children, ...restProps }) => {
-    //console.log('edit',record);
-    // eslint-disable-next-line
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const start = () => {
+      setLoading(true);
+      // ajax request after empty completing
+      setTimeout(() => {
+        setSelectedRowKeys([]);
+        setLoading(false);
+      }, 1000);
+    };
     const [previewImage, setPreviewImage] = useState('');
     // eslint-disable-next-line
     const [proveedores, setProveedores] = useState([]);
@@ -20,43 +28,57 @@ function TableModel({ token, form, data, mergedColumns, keyExtraido,varx }) {
     const [marca, setMarca] = useState([]);
     // eslint-disable-next-line
     const [ciudades, setCiudades] = useState([]);
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: onSelectChange,
+    };
+
+    const onSelectChange = (newSelectedRowKeys) => {
+      console.log('selectedRowKeys changed: ', newSelectedRowKeys);
+      setSelectedRowKeys(newSelectedRowKeys);
+    };
+
+    const hasSelected = selectedRowKeys.length > 0;
 
 
     useEffect(() => {
       //getProveedor();
-      
+
       //getMarca();
       // eslint-disable-next-line
     }, []);
 
+
+
     const getLstCiudad = async () => {
-      const res = await getCiudad({token:token,param:'get'});
+      const res = await getCiudad({ token: token, param: 'get' });
       //console.log(res)
       setCiudades(res.body);
     }
 
-/*
-    //CONFIGURACION DE TOKEN
-    const config = {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      }
-    };
-
-    const getProveedor = async () => {
-      const res = await axios.get(`${URIPROV}/get`, config);
-      setProveedores(res.data.body);
-    }
-
-    const getMarca = async () => {
-      const res = await axios.get(`${URIMARCA}/get`, config);
-      setMarca(res.data.body);
-    }
-
+    /*
+        //CONFIGURACION DE TOKEN
+        const config = {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          }
+        };
     
-*/
+        const getProveedor = async () => {
+          const res = await axios.get(`${URIPROV}/get`, config);
+          setProveedores(res.data.body);
+        }
+    
+        const getMarca = async () => {
+          const res = await axios.get(`${URIMARCA}/get`, config);
+          setMarca(res.data.body);
+        }
+    
+        
+    */
 
     const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
+
     switch (dataIndex) {
       case 'estado':
         return (
@@ -81,16 +103,16 @@ function TableModel({ token, form, data, mergedColumns, keyExtraido,varx }) {
             }
           </td>);
       case 'sexo':
-            return (
-              <td {...restProps}>
-                {
-                  editing ? (
-                    <Form.Item name={dataIndex} style={{ margin: 0, }} rules={[{ required: true, message: `Por favor complete ${title}!`, },]} >
-                      <Select allowClear > <Option value="MA">Masculino</Option> <Option value="FE">Femenino</Option> </Select>
-                    </Form.Item>
-                  ) : (children)
-                }
-              </td>);
+        return (
+          <td {...restProps}>
+            {
+              editing ? (
+                <Form.Item name={dataIndex} style={{ margin: 0, }} rules={[{ required: true, message: `Por favor complete ${title}!`, },]} >
+                  <Select allowClear > <Option value="MA">Masculino</Option> <Option value="FE">Femenino</Option> </Select>
+                </Form.Item>
+              ) : (children)
+            }
+          </td>);
       //break;
       //Proveedor
       case 'idproveedor':
@@ -108,7 +130,7 @@ function TableModel({ token, form, data, mergedColumns, keyExtraido,varx }) {
           <td {...restProps}>
             {
               editing ?
-                <Buscador  label={'descripcion'} value={'idmarca'} data={marca} dataIndex={dataIndex} title={title} />
+                <Buscador label={'descripcion'} value={'idmarca'} data={marca} dataIndex={dataIndex} title={title} />
                 : (children)
             }
           </td>);
@@ -148,54 +170,55 @@ function TableModel({ token, form, data, mergedColumns, keyExtraido,varx }) {
                         record.img ?
                           record.img = Buffer.from(record.img).toString('ascii') :
                           null}
+
                   </UploadFile>
                 </Form.Item>
                 : (children)
             }
           </td>);
 
-case 'img1':
-  return (
-    <td {...restProps}>
-      {
-        //
-        editing ?
-          <Form.Item name={dataIndex} style={{ margin: 0, }}  >
-            <UploadFile previewImage={previewImage} setPreviewImage={setPreviewImage} >
+      case 'img1':
+        return (
+          <td {...restProps}>
+            {
+              //
+              editing ?
+                <Form.Item name={dataIndex} style={{ margin: 0, }}  >
+                  <UploadFile previewImage={previewImage} setPreviewImage={setPreviewImage} >
 
-              { //Aqui la logica de si actualiza o no las imagenes del formulario
-                (previewImage !== '' && previewImage != null) ?
-                  record.img1 = previewImage :
-                  record.img1 ?
-                    record.img1 = Buffer.from(record.img1).toString('ascii') :
-                    null}
+                    { //Aqui la logica de si actualiza o no las imagenes del formulario
+                      (previewImage !== '' && previewImage != null) ?
+                        record.img1 = previewImage :
+                        record.img1 ?
+                          record.img1 = Buffer.from(record.img1).toString('ascii') :
+                          null}
 
-            </UploadFile>
-          </Form.Item>
-          : (children)
-      }
-    </td>);
-    case 'img2':
-      return (
-        <td {...restProps}>
-          {
-            //
-            editing ?
-              <Form.Item name={dataIndex} style={{ margin: 0, }}  >
-                <UploadFile previewImage={previewImage} setPreviewImage={setPreviewImage} >
+                  </UploadFile>
+                </Form.Item>
+                : (children)
+            }
+          </td>);
+      case 'img2':
+        return (
+          <td {...restProps}>
+            {
+              //
+              editing ?
+                <Form.Item name={dataIndex} style={{ margin: 0, }}  >
+                  <UploadFile previewImage={previewImage} setPreviewImage={setPreviewImage} >
 
-                  { //Aqui la logica de si actualiza o no las imagenes del formulario
-                    (previewImage !== '' && previewImage != null) ?
-                      record.img2 = previewImage :
-                      record.img2 ?
-                        record.img2 = Buffer.from(record.img2).toString('ascii') :
-                        null}
+                    { //Aqui la logica de si actualiza o no las imagenes del formulario
+                      (previewImage !== '' && previewImage != null) ?
+                        record.img2 = previewImage :
+                        record.img2 ?
+                          record.img2 = Buffer.from(record.img2).toString('ascii') :
+                          null}
 
-                </UploadFile>
-              </Form.Item>
-              : (children)
-          }
-        </td>);
+                  </UploadFile>
+                </Form.Item>
+                : (children)
+            }
+          </td>);
       //break;
       default:
         return (
@@ -217,6 +240,7 @@ case 'img1':
         data ? <Form form={form} component={false}
         >
           <Table
+            rowSelection={rowSelection}
             rowKey={keyExtraido}
             components={{
               body: {
@@ -228,11 +252,10 @@ case 'img1':
             columns={mergedColumns}
             rowClassName="editable-row"
             scroll={{
-              x: (varx??100),
+              x: (varx ?? 100),
               y: 300,
             }}
-
-          //pagination={{onChange: setCantidadRow,pageSize: 50,}}
+            
           />
         </Form> :
           <section style={{ textAlign: `center`, margin: `10px` }}>

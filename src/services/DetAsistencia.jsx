@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const baseURL = 'http://186.158.152.141:4000/empy/api/ciudad';
+const baseURL = 'http://186.158.152.141:4000/empy/api/det_asistencia';
 
-export const getCiudad = async ({token,param}) => {
+export const getDetAsistencia = async ({token,param}) => {
     //CONFIGURACION DE TOKEN
     const config = {
         headers: {
@@ -14,8 +14,20 @@ export const getCiudad = async ({token,param}) => {
     return data;
 };
 
+export const getDetalleId = async ({token,param}) => {
+    //CONFIGURACION DE TOKEN
+    const config = {
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
+    };
+    //const { data } = await axios.get(baseURL, credentials);
+    const { data } = await axios.get(`${baseURL}/getdetalle/${param}`, config)
+    return data;
+};
 
-export const deleteCiudad  = async ({token,param}) => {
+
+export const deleteDetAsistencia  = async ({token,param}) => {
     //CONFIGURACION DE TOKEN
     const config = {
         headers: {
@@ -26,7 +38,7 @@ export const deleteCiudad  = async ({token,param}) => {
     return data;
 };
 
-export const updateCiudad  = async ({token,param,json}) => {
+export const updateDetAsistencia  = async ({token,param,json}) => {
     const config = {
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -36,7 +48,7 @@ export const updateCiudad  = async ({token,param,json}) => {
     return data;
 };
 
-export const createCiudad  = async ({token,json}) => {
+export const createDetAsistencia  = async ({token,json}) => {
     //console.log(json)
     const config = {
         headers: {

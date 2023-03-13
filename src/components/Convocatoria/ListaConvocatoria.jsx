@@ -180,6 +180,12 @@ const ListaConvocatoria = ({ token }) => {
             ...getColumnSearchProps('desc_turno'),
         },
         {
+            title: 'cupo',
+            dataIndex: 'cupo',
+            editable: false,
+            ...getColumnSearchProps('cupo'),
+        },
+        {
              title: 'Estado',
              dataIndex: 'estado',
              //width: '7%',
@@ -196,7 +202,7 @@ const ListaConvocatoria = ({ token }) => {
              },
          },
         {
-            title: 'Inscribir',
+            title: 'Inscripcion',
             dataIndex: 'inscriptcion',
             render: (_, record) => {
                 return (
@@ -211,9 +217,7 @@ const ListaConvocatoria = ({ token }) => {
             title: 'Accion',
             dataIndex: 'operacion',
             render: (_, record) => {
-
                 const editable = isEditing(record);
-
                 return editable ? (
                     <span>
                         <Typography.Link

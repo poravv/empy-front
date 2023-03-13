@@ -52,8 +52,8 @@ function NuevoPlan({ token }) {
     const getLstInstructor = async () => {
         const res = await getInstructor({ token: token, param: 'get' });
         let array = [];
-        res.body.map((inst) =>{
-            inst.nombres= inst.persona.nombre+' '+inst.persona.apellido;
+        res.body.map((inst) => {
+            inst.nombres = inst.persona.nombre + ' ' + inst.persona.apellido;
             //console.log(inst);
             array.push(inst);
             return true;
@@ -67,7 +67,7 @@ function NuevoPlan({ token }) {
     }
 
     const getAnhoLectivo = async () => {
-        const res = await getUniqiueAnhoLectivo({ token: token});
+        const res = await getUniqiueAnhoLectivo({ token: token });
         //console.log(res.body[0].idanho_lectivo)
         setIdAnhoLectivo(res.body[0].idanho_lectivo);
     }
@@ -79,7 +79,7 @@ function NuevoPlan({ token }) {
 
 
     const guardaCab = async (valores) => {
-        console.log(valores)
+        //console.log(valores)
         return await createPlanificacion({ token: token, json: valores });
         //navigate('/plan');
     }
@@ -94,25 +94,26 @@ function NuevoPlan({ token }) {
         let validExist = false;
 
         /*Validacion de existencia de curso con anho lectivo*/
-        lstPlan.map((plan)=> {
-            if(plan.idcurso===idcurso&&plan.idanho_lectivo===idanho_lectivo){
-                validExist=true;
+        lstPlan.map((plan) => {
+            if (plan.idcurso === idcurso && plan.idanho_lectivo === idanho_lectivo) {
+                validExist = true;
             }
             return true;
         });
+        //Validacioes
+        if (validExist) { message.error('El curso ya existe para el año lectivo'); return; };
+        if (!idanho_lectivo) { message.error('No existe año lectivo'); return; }
+        if (!idcurso) { message.error('Seleccione curso'); return; }
+        if (tblplantmp.length <= 0) { message.error('Cargue detalles'); return; }
 
-        if(validExist) {
-            message.error('El curso ya existe para el año lectivo');
-            return;
-        };
 
         try {
             guardaCab({
                 fecha: strFecha,
                 estado: 'AC',
-                idanho_lectivo:idanho_lectivo,
-                idcurso:idcurso,
-                }
+                idanho_lectivo: idanho_lectivo,
+                idcurso: idcurso,
+            }
             ).then((cabecera) => {
                 try {
                     //Guardado del detalle
@@ -120,12 +121,12 @@ function NuevoPlan({ token }) {
                         console.log(detplan);
                         //console.log('iddet_modelo: ', plan.detmodelo.iddet_modelo)
                         guardaDetalle({
-                            carga_horaria:carga_horaria,
-                            descripcion:descripcion,
+                            carga_horaria: carga_horaria,
+                            descripcion: descripcion,
                             estado: 'AC',
                             idmateria: detplan.materia.idmateria,
                             idplanificacion: cabecera.body.idplanificacion,
-                            idinstructor:detplan.instructor.idinstructor
+                            idinstructor: detplan.instructor.idinstructor
                         });
                         return true;
                     });
@@ -146,29 +147,30 @@ function NuevoPlan({ token }) {
 
     const agregarLista = async (e) => {
         e.preventDefault();
-        //console.log(materiaSelect);
-        let validExist=false;
+        //Validaciones
+        if (!instructorSelect) { message.error('Seleccione instructor'); return; }
+        if (!carga_horaria) { message.error('Complete carga horaria'); return; }
 
-         tblplantmp.filter((inv) => {
-            if(inv.idmateria === materiaSelect.idmateria){
-                validExist=true;
-                return true
+        let validExist = false;
+        tblplantmp.filter((inv) => {
+            if (inv.idmateria === materiaSelect.idmateria) {
+                validExist = true;
+                return true;
             }
             return true;
         }
-            );
-        if (validExist===false){
+        );
+        if (validExist === false) {
             /*Tabla temporal*/
-            const updtblPlan = { idmateria:materiaSelect.idmateria, materia: materiaSelect,instructor: instructorSelect, carga_horaria: carga_horaria, descripcion: descripcion, };
+            const updtblPlan = { idmateria: materiaSelect.idmateria, materia: materiaSelect, instructor: instructorSelect, carga_horaria: carga_horaria, descripcion: descripcion, };
             /*Se va sumando los valores que se van cargando*/
-            setTblPlanTmp([...tblplantmp,updtblPlan])
+            setTblPlanTmp([...tblplantmp, updtblPlan])
             message.success('Agregado');
         } else {
             message.warning('Materia ya existe');
         }
-        validExist=false;
+        validExist = false;
     }
-
 
     const btnCancelar = (e) => {
         e.preventDefault();
@@ -178,7 +180,7 @@ function NuevoPlan({ token }) {
     const onChangeCurso = (value) => {
         setIdCurso(value)
     };
-    
+
     const onChangeMateria = (value) => {
         lstmateria.find((element) => {
             if (element.idmateria === value) {
@@ -276,7 +278,7 @@ function NuevoPlan({ token }) {
                                 )) : null
                                 }
                             </tbody>
- 
+
                         </Table>
                     </div>
 

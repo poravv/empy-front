@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://186.158.152.141:3002/empy/api/grados_arma';
+const baseURL = 'http://186.158.152.141:4000/empy/api/grados_arma';
 
 export const getGradosArma = async ({token,param}) => {
     //CONFIGURACION DE TOKEN

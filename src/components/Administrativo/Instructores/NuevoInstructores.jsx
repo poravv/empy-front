@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
 import React from 'react';
 import UploadFile from '../../Utils/Upload';
-import { Button, Form, Input, DatePicker, Radio, Row, Divider } from 'antd';
+import { Button, Form, Input, DatePicker, Radio, Row, Divider, message } from 'antd';
 import Buscador from '../../Utils/Buscador/Buscador';
 import { getPersona, createPersona, updatePersona } from '../../../services/Persona';
 import { createInstructor, getInstructor, updateInstructor } from '../../../services/Instructor';
@@ -99,10 +99,10 @@ function NuevoInstructor({ token }) {
 
     const navigate = useNavigate();
 
-
-
     //procedimiento para crear registro
     const create = async (e) => {
+
+        //
         //console.log(idpersona)
         //console.log(fnacimiento._i);
         //console.log(moment(fnacimiento).format('YYYY-MM-DD'));
@@ -118,12 +118,14 @@ function NuevoInstructor({ token }) {
         personas.find((persona) => {
             if (persona.idpersona === idpersona) {
                 bandera = false;
-            } 
+                return true;
+            }
             if (persona.documento === documento) {
-                setIdpersona(persona.idpersona)
                 bandera = false;
-            } 
-            return true;
+                setIdpersona(persona.idpersona);
+                return true;
+            }
+            return false;
         });
 
         if (bandera) {
@@ -131,7 +133,8 @@ function NuevoInstructor({ token }) {
             savePersona = {
                 nombre: nombre,
                 apellido: apellido,
-                fnacimiento: moment(fnacimiento).format('YYYY-MM-DD'),//fnacimiento._i??
+                //fnacimiento: moment(fnacimiento).format('YYYY-MM-DD'),//fnacimiento._i??
+                fnacimiento: fnacimiento,
                 sexo: valueSexo,
                 documento: documento,
                 estado: 'AC',
@@ -144,9 +147,13 @@ function NuevoInstructor({ token }) {
                 idgrados_arma: idgrados_arma,
                 idciudad: idciudad,
             };
-            console.log('Entra en create persona')
+            console.log(savePersona)
             const resultado = await createPersona({ token: token, json: savePersona });
             //console.log('Rs: ',resultado)
+            if (resultado.error === 'error catch') {
+                message.error('Error de registro de persona');
+                return;
+            }
             saveinstructor = {
                 idpersona: resultado.body.idpersona,
                 observacion: observacion,
@@ -160,7 +167,7 @@ function NuevoInstructor({ token }) {
                 idpersona: idpersona,
                 nombre: nombre,
                 apellido: apellido,
-                fnacimiento: moment(fnacimiento).format('YYYY-MM-DD')??fnacimiento._i,
+                fnacimiento: fnacimiento,
                 sexo: valueSexo,
                 documento: documento,
                 estado: 'AC',
@@ -173,6 +180,7 @@ function NuevoInstructor({ token }) {
                 idgrados_arma: idgrados_arma,
                 idciudad: idciudad
             };
+            console.log(savePersona)
 
             saveinstructor = {
                 idpersona: idpersona,
@@ -190,6 +198,7 @@ function NuevoInstructor({ token }) {
                     return false;
                 }
             });
+
             if (bandera1) {
                 /*Actualiza y crea instructor*/
                 await updatePersona({ token: token, param: savePersona.idpersona, json: savePersona }).then((resultado) => {
@@ -213,17 +222,15 @@ function NuevoInstructor({ token }) {
     }
 
     const changeDate = (fnac) => {
-        //console.log('Fecha:', typeof fnac);
-        //console.log(moment(fnac).format('DD.MM.YYYY'))
-        //console.log(moment(fnac))
-        //console.log(fnac)
-        //console.log(new Date().toJSON())
-        //console.log(JSON.stringify(fnac).substring(1,11));
-        //setFnacimiento(fnac);
+        //console.log('Fecha:  ', fnac);
         if (typeof fnac == 'object') {
-            setFnacimiento(fnac);
+            //setFnacimiento(fnac);
+            setFnacimiento(moment(fnac.$d).format('YYYY-MM-DD'));
+            form.setFieldValue('fnacimiento', moment(fnac.$d).format('YYYY-MM-DD'));
+
         } else {
-            setFnacimiento(moment(fnac));
+            setFnacimiento(moment(fnac).format('YYYY-MM-DD'));
+            form.setFieldValue('fnacimiento', moment(fnac).format('YYYY-MM-DD'));
         }
     }
 
@@ -328,8 +335,8 @@ function NuevoInstructor({ token }) {
                 </Form.Item>
                 {fnacimiento ? <Form.Item id='fnacimiento' name="fnacimiento" >
                     <Input disabled value={fnacimiento} />
-                </Form.Item> 
-                : null}
+                </Form.Item>
+                    : null}
                 <div style={{ marginBottom: `20px`, display: `flex` }}>
                     <DatePicker
                         //id='fnacimiento' name='fnacimiento'
@@ -384,7 +391,7 @@ function NuevoInstructor({ token }) {
                             <Input disabled value={idgrados_arma} />
                         </Form.Item>
                         : null}
-                    <Buscador title={'Rango'} label={'descripcion'} value={'idgrados_arma'} data={gradosArmas} onChange={onChangeIdGradosArmas} onSearch={onSearch} />
+                    <Buscador title={'Rango'} label={'grado'} value={'idgrados_arma'} data={gradosArmas} onChange={onChangeIdGradosArmas} onSearch={onSearch} />
                 </div>
                 <Divider orientation="left" type="horizontal" style={{ color: `#7CC1FE` }}>Perfil</Divider>
                 <Row style={{ alignItems: `center` }}>

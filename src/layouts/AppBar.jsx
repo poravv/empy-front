@@ -71,31 +71,32 @@ const AppBar = ({ usuario, sucursal }) => {
             getItem(() => navegacion('/sucursal'), 'Escuela', '8'),
             getItem(() => navegacion('/gradosArma'), 'Rangos', '9'),
             getItem(() => navegacion('/persona'), 'Personas', '10'),
-        ]),
-        getItem(null, 'Academico', 'sub2', <FolderOpenOutlined />, [
-            getItem(() => navegacion('/plan'), 'Planificacion', '11'),
-            getItem(() => navegacion('/convocatoria'), 'Convocatoria', '12'),//Agregar aqui la asistencia, faltas y evaluaciones
-            //getItem(() => navegacion('/inscripcion'), 'Inscripcion', '8'),
+            getItem(() => navegacion('/usuario'), 'Usuarios', '11'),
         ]),
         getItem(null, 'Administrativo', 'sub3', <TeamOutlined />, [
-            getItem(() => navegacion('/instructor'), 'Instructores', '13'),
+            getItem(() => navegacion('/instructor'), 'Instructores', '12'),
         ]),
+        getItem(null, 'Academico', 'sub2', <FolderOpenOutlined />, [
+            getItem(() => navegacion('/plan'), 'Planificacion', '13'),
+            getItem(() => navegacion('/convocatoria'), 'Convocatoria', '14'),
+        ]),
+        
         getItem(null, 'Gestion', 'sub4', <CheckSquareOutlined />, [
-            getItem(() => navegacion('/cursosH'), 'Curso/Materia', '14'),
+            getItem(() => navegacion('/gestion'), 'Gestion Cursos', '15'),
         ]),
+        
         getItem(null, 'Reportes', 'sub5', <PieChartOutlined />, [
-            getItem(() => navegacion('/'), 'Estadisticas', '15'),
-            getItem(() => navegacion('/'), 'Informes', '16'),
+            getItem(() => navegacion('/'), 'Estadisticas', '16'),
+            getItem(() => navegacion('/'), 'Informes', '17'),
         ]),
-        getItem(() => Logout(), 'Close session', '17', <LogoutOutlined />)
+        getItem(() => Logout(), 'Close session', '18', <LogoutOutlined />)
     ];
     return (
         <Layout hasSider
             style={{
                 minHeight: '100vh',
             }}
-            theme="dark"
-        >
+            theme="dark" >
             <Sider
                 collapsible
                 collapsed={collapsed}

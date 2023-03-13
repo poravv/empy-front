@@ -1,40 +1,48 @@
-import { useState,useEffect, useRef } from 'react'
+//import axios from 'axios'
+import { useState, useEffect, useRef } from 'react'
 import * as XLSX from 'xlsx/xlsx.mjs';
 import { Popconfirm, Typography } from 'antd';
 import { Form } from 'antd';
-import TableModelExpand from '../TableModel/TableModelExpand';
+import TableModel from '../../TableModel/TableModel';
 import { Tag } from 'antd';
 import { message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line, RiFilePdfFill } from "react-icons/ri";
-import { getPlanificacion } from '../../services/Planificacion';
+import { getAsistenciaId,deleteAsistencia, updateAsistencia } from '../../../services/Asistencia';
 
-let fechaActual = new Date();
-const ListaPlan = ({ token }) => {
+const ListaAsistencia = ({ token }) => {
+    const { iddet_planificacion } = useParams();
+    //console.log(iddet_planificacion)
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
-    const [editingKey, setEditingKey] = useState('');
+    let fechaActual = new Date();
     const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
+    const [editingKey, setEditingKey] = useState('');
+    //Datos de buscador
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
     const navigate = useNavigate();
-    //---------------------------------------------------
     
     useEffect(() => {
-        getPlan();
+        getLstAsistencia();
         // eslint-disable-next-line
     }, []);
-
-    const getPlan = async () => {        
-        const res = await getPlanificacion({token:token,param:'get'});
-        console.log(res.body);
-        setData(res.body);
-    }
     
+    const getLstAsistencia = async () => {
+        try{
+            const res = await getAsistenciaId({token:token,param:iddet_planificacion});
+            setData(res.body);
+        }catch(e){
+            console.log(e);
+        }
+        //console.log(res.body)
+        /*En caso de que de error en el server direcciona a login*/
+    }
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -134,62 +142,52 @@ const ListaPlan = ({ token }) => {
 
     const handleExport = () => {
         var wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, 'Plans');
-        XLSX.writeFile(wb, 'Plans.xlsx')
+        XLSX.utils.book_append_sheet(wb, ws, 'Asistencias');
+        XLSX.writeFile(wb, 'Asistencias.xlsx')
     }
 
-    const deletePlan = async (id) => {
-        //await axios.delete(`${URI}/del/${id}`, config)
-        //getPlan();
+    const handleDelete = async (id) => {
+        await deleteAsistencia({token:token,param:id})
+        getLstAsistencia();
     }
-    // eslint-disable-next-line
-    const updatePlan = async (newData) => {
-        //console.log('Entra en update');
+// eslint-disable-next-line
+    const handleUpdate = async (newData) => {
         //console.log(newData)
-
-        /*
-        await axios.put(URI + "put/" + newData.idplanificacion, newData, config
-        );
-        getPlan();*/
+        await updateAsistencia({token:token,param:newData.idasistencia,json:newData}) 
+        getLstAsistencia();
     }
 
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'idplanificacion',
+            title: 'id',
+            dataIndex: 'idasistencia',
             width: '12%',
             editable: false,
-            ...getColumnSearchProps('id'),
+            //...getColumnSearchProps('idasistencia'),
         },
         {
-            title: 'Curso',
-            dataIndex: 'curso',
+            title: 'Fecha',
+            dataIndex: 'fecha',
             //width: '22%',
-            editable: false,
-            //...getColumnSearchProps('curso'),
-            render: (_, planificacion) => {
-                //console.log(planificacion.curso);
+            editable: true,
+            ...getColumnSearchProps('fecha'),
+        },
+        {
+            title: 'Estado',
+            dataIndex: 'estado',
+            //width: '7%',
+            editable: true,
+            render: (_, { estado, idasistencia }) => {
+                let color = 'black';
+                if (estado.toUpperCase() === 'AC') { color = 'green' }
+                else { color = 'volcano'; }
                 return (
-                    planificacion.curso.descripcion
+                    <Tag color={color} key={idasistencia} >
+                        {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
+                    </Tag>
                 );
             },
         },
-        {
-             title: 'Estado',
-             dataIndex: 'estado',
-             //width: '7%',
-             editable: true,
-             render: (_, { estado, idplanificacion }) => {
-                 let color = 'black';
-                 if (estado.toUpperCase() === 'AC') { color = 'green' }
-                 else { color = 'volcano'; }
-                 return (
-                     <Tag color={color} key={idplanificacion} >
-                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
-                     </Tag>
-                 );
-             },
-         },
         {
             title: 'Accion',
             dataIndex: 'operacion',
@@ -198,7 +196,7 @@ const ListaPlan = ({ token }) => {
                 return editable ? (
                     <span>
                         <Typography.Link
-                            onClick={() => save(record.idplanificacion)}
+                            onClick={() => save(record.idasistencia)}
                             style={{
                                 marginRight: 8,
                             }} >
@@ -211,145 +209,59 @@ const ListaPlan = ({ token }) => {
                     </span>
                 ) : (
                     <>
-
-                        <Typography.Link style={{ margin: `5px` }} disabled={editingKey !== ''} onClick={() => edit(record)}>
-                            Editar
-                        </Typography.Link>
-
                         <Popconfirm
                             title="Desea eliminar este registro?"
-                            onConfirm={() => confirmDel(record.idplanificacion)}
+                            onConfirm={() => confirmDel(record.idasistencia)}
                             onCancel={cancel}
                             okText="Yes"
                             cancelText="No" >
-                            <Typography.Link >
-                                Borrar
-                            </Typography.Link>
+                        <Button style={{ marginLeft:`5px` }}>Borrar</Button>
                         </Popconfirm>
-
+                        <Button style={{ marginLeft:`5px` }} onClick={() => navigate(`/asistenciadetalle/${record.idasistencia}`)} >Detalle</Button>
                     </>
                 );
             },
         }
-    ];
+    ]
 
-    //{iddetalle:11,materia:'Matematica',carga_horaria:'100',finicio:'01-01-2023',ffin:`25-06-2023`,instructor:`Cap. Claudio Ibarra`},
-
-    const columnDet = [
-        /*
-        {
-            title: 'ID',
-            dataIndex: 'iddet_planificacion',
-            key: 'iddet_planificacion',
-            width: '2%',
-        },
-        */
-        {
-            title: 'Materia',
-            dataIndex: 'materia',
-            width: '2%',
-            render: (_, record) => {
-                //console.log(planificacion.curso);
-                if(record.materium){
-                    return (
-                        record.materium.descripcion??""
-                    );
-                }else{
-                    return null;
-                }
-                
-            },
-        },
-
-        {
-            title: 'Carga horaria',
-            dataIndex: 'carga_horaria',
-            width: '2%',
-            /*
-            render: (det_modelo) => {
-                //console.log(det_modelo)
-                return det_modelo.costo
-            }
-            */
-        },
-        {
-            title: 'Instructor',
-            dataIndex: 'idinstructor',
-            width: '2%',
-            render: (_, record) => {
-                //console.log(planificacion.curso);
-                if(record.instructor){
-                    return (
-                        record.instructor.persona.grados_arma.grado+' '+record.instructor.persona.nombre+' '+record.instructor.persona.apellido
-                    );
-                }else{
-                    return null;
-                }
-                
-            },
-        },
-        /*{
-            title: 'Action',
-            dataIndex: 'operation',
-            key: 'operation',
-            width: '5%',
-            render: () => (
-                null
-            ),
-        },*/
-    ];
-
-    const edit = (record) => {
-        form.setFieldsValue({
-            ...record,
-        });
-        setEditingKey(record.idplanificacion);
-    };
-
-
-    const isEditing = (record) => record.idplanificacion === editingKey;
+    const isEditing = (record) => record.idasistencia === editingKey;
 
     const cancel = () => {
         setEditingKey('');
     };
 
-    const confirmDel = (idplanificacion) => {
+    const confirmDel = (idasistencia) => {
         message.success('Procesando');
-        deletePlan(idplanificacion);
+        handleDelete(idasistencia);
     };
 
-    const save = async (idplanificacion) => {
-         try {
-                    const row = await form.validateFields();
-                    const newData = [...data];
-                    const index = newData.findIndex((item) => idplanificacion === item.idplanificacion);
-        
-                    if (index > -1) {
-        
-                        const item = newData[index];
-                        newData.splice(index, 1, {
-                            ...item,
-                            ...row,
-                        });
-        
-                        newData[index].fecha_upd = strFecha;
-                        //console.log(newData);
-                        updatePlan(newData[index]);
-                        setData(newData);
-                        setEditingKey('');
-        
-                        message.success('Registro actualizado');
-                    } else {
-                        newData.push(row);
-                        setData(newData);
-                        setEditingKey('');
-                    }
-                } catch (errInfo) {
-                    console.log('Validate Failed:', errInfo);
-                }
+    const save = async (idasistencia) => {
+
+        try {
+            const row = await form.validateFields();
+            const newData = [...data];
+            const index = newData.findIndex((item) => idasistencia === item.idasistencia);
+            if (index > -1) {
+                const item = newData[index];
+                newData.splice(index, 1, {
+                    ...item,
+                    ...row,
+                });
+                newData[index].fecha_upd = strFecha;
+                //console.log(newData);
+                handleUpdate(newData[index]);
+                setData(newData);
+                setEditingKey('');
+                message.success('Registro actualizado');
+            } else {
+                newData.push(row);
+                setData(newData);
+                setEditingKey('');
+            }
+        } catch (errInfo) {
+            console.log('Validate Failed:', errInfo);
+        }
     };
-
-
 
     const mergedColumns = columns.map((col) => {
         if (!col.editable) {
@@ -367,19 +279,24 @@ const ListaPlan = ({ token }) => {
         };
     });
 
+    const btnCancelar = (e) => {
+        e.preventDefault();
+        navigate('/gestion');
+    }
+
     return (
         <>
-            <h3>Planificacion</h3>
+            <h3>Asistencias</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
-            <Button type='primary' style={{ backgroundColor: `#E94Informatica5`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
+            <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
-
-                <Button type="primary" onClick={() => navigate('/crearplan')} >{<PlusOutlined />} Nuevo</Button>
+                <Button type="primary" onClick={() => navigate(`/crearasistencia/${iddet_planificacion}`)} >{<PlusOutlined />} Nuevo</Button>
             </div>
-            <TableModelExpand columnDet={columnDet} keyDet={'iddet_planificacion'} token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idplanificacion'} />
+            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idasistencia'} />
+            <Button type="primary" htmlType="submit" onClick={btnCancelar} style={{ margin: `20px` }} >
+                Atras
+            </Button>
         </>
     )
 }
-export default ListaPlan;
-
-//<TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idplanificacion'} />
+export default ListaAsistencia

@@ -33,7 +33,6 @@ function NuevoPersona({ token }) {
     const [idgrados_arma, setIdgrados_armas] = useState('');
     const [idciudad, setIdciudad] = useState(0);
     const [idpersona, setIdpersona] = useState(0);
-    const [observacion, setObservacion] = useState(0);
 
     useEffect(() => {
         getLstCiudad();
@@ -107,12 +106,14 @@ function NuevoPersona({ token }) {
         personas.find((persona) => {
             if (persona.idpersona === idpersona) {
                 bandera = false;
+                return true;
             }
             if (persona.documento === documento) {
                 bandera = false;
                 setIdpersona(persona.idpersona)
+                return true;
             } 
-            return true;
+            return false;
         });
 
         if (bandera) {
@@ -337,7 +338,7 @@ function NuevoPersona({ token }) {
                             <Input disabled value={idgrados_arma} />
                         </Form.Item>
                         : null}
-                    <Buscador title={'Rango'} label={'descripcion'} value={'idgrados_arma'} data={gradosArmas} onChange={onChangeIdGradosArmas} onSearch={onSearch} />
+                    <Buscador title={'Rango'} label={'grado'} value={'idgrados_arma'} data={gradosArmas} onChange={onChangeIdGradosArmas} onSearch={onSearch} />
                 </div>
                 <Divider orientation="left" type="horizontal" style={{ color: `#7CC1FE` }}>Perfil</Divider>
                 <Row style={{ alignItems: `center` }}>
@@ -346,9 +347,6 @@ function NuevoPersona({ token }) {
                     </Form.Item>
                 </Row>
                 <Divider orientation="left" type="horizontal" style={{ color: `#7CC1FE` }}>Observación</Divider>
-                <Form.Item id='observacion' name="observacion" >
-                    <Input placeholder='Observacion' value={observacion} onChange={(e) => setObservacion(e.target.value)} />
-                </Form.Item>
 
                 <Form.Item
                     style={{ margin: `20px` }}>

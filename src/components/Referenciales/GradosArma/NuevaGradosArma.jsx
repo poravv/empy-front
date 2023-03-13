@@ -9,13 +9,13 @@ import { createGradosArma } from '../../../services/GradosArma';
 function NuevoGradosArma({ token }) {
 
     //Parte de nuevo registro por modal
-    const [descripcion, setDescripcion] = useState('');
-    const [observacion, setObservacion] = useState('');
+    const [grado, setGrado] = useState('');
+    const [armas, setArmas] = useState('');
     const navigate = useNavigate();
     //procedimiento para actualizar
     const create = async (e) => {
         //e.preventDefault();
-        await createGradosArma({ token: token, json: { descripcion: descripcion,observacion:observacion, estado: "AC" } });
+        await createGradosArma({ token: token, json: { grado: grado,armas:armas, estado: "AC" } });
         navigate('/gradosArma');
     }
 
@@ -39,11 +39,11 @@ function NuevoGradosArma({ token }) {
                 onFinishFailed={create}
                 autoComplete="off" >
 
-                <Form.Item name="descripcion" rules={[{ required: true, message: 'Cargue gradosArma', },]}>
-                    <Input placeholder='Descripcion' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+                <Form.Item name="grado" rules={[{ required: true, message: 'Cargue gradosArma', },]}>
+                    <Input placeholder='Grado' value={grado} onChange={(e) => setGrado(e.target.value)} />
                 </Form.Item>
                 <Form.Item name="obaservacion" rules={[{ required: false},]}>
-                    <Input placeholder='Observacion' value={observacion} onChange={(e) => setObservacion(e.target.value)} />
+                    <Input placeholder='Armas' value={armas} onChange={(e) => setArmas(e.target.value)} />
                 </Form.Item>
                 <Form.Item
                     style={{ margin: `20px` }}>

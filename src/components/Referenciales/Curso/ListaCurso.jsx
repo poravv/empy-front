@@ -296,7 +296,7 @@ const ListaCurso = ({ token }) => {
 
     return (
         <>
-            <h3>Cursos</h3>
+            <h3>Cursos Especiales</h3>
             <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={handleExport} size={20} /></Button>
             <Button type='primary' style={{ backgroundColor: `#E94325`, margin: `2px` }}  ><RiFilePdfFill size={20} /></Button>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>

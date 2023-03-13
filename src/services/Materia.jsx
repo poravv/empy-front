@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://186.158.152.141:3002/empy/api/materia';
+const baseURL = 'http://186.158.152.141:4000/empy/api/materia';
 
 export const getMateria = async ({token,param}) => {
     //CONFIGURACION DE TOKEN
@@ -13,6 +13,21 @@ export const getMateria = async ({token,param}) => {
     const { data } = await axios.get(`${baseURL}/get`, config)
     return data;
 };
+
+
+export const getUniqueMateria = async ({token,param}) => {
+    //CONFIGURACION DE TOKEN
+    const config = {
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
+    };
+    //const { data } = await axios.get(baseURL, credentials);
+    const { data } = await axios.get(`${baseURL}/get/${param}`, config)
+    //console.log(data)
+    return data;
+};
+
 
 
 export const deleteMateria  = async ({token,param}) => {

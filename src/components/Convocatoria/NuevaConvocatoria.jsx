@@ -70,7 +70,6 @@ function NuevoConvocatoria({ token}) {
         /*Validacion de existencia de curso con anho lectivo*/
         lstConvocatoria.map((conv)=> {
             if(conv.idplanificacion===planSelect.idplanificacion&&conv.idturno===idturno){
-                
                 validExist=true;
             }
             return true;
